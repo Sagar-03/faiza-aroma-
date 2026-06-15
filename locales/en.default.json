@@ -57,6 +57,14 @@
     "no_results_html": "No results found for {{ terms }}",
     "results_for_html": "{{ count }} results found for {{ terms }}"
   },
+  "products": {
+    "product": {
+      "add_to_cart": "Add to cart",
+      "sold_out": "Sold out",
+      "choose_options": "Choose options",
+      "rating": "Rating"
+    }
+  },
   "sections": {
     "faiza_hero": {
       "scroll": "Scroll",

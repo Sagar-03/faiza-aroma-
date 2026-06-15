@@ -541,7 +541,13 @@
 
 /* ─── Info ─── */
 .faiza-col__info {
-  padding: 0.875rem 0.875rem 1rem;
+  padding: 14px 16px 8px;
+  flex: 1;
+}
+
+/* ─── ATC wrap (footer) ─── */
+.faiza-col__atc-wrap {
+  padding: 12px 16px 16px;
 }
 
 /* ─── Meta ─── */
@@ -669,33 +675,33 @@
 }
 
 /* ─── ATC button ─── */
-.faiza-col__atc-wrap { width: 100%; }
 .faiza-col__atc-form { width: 100%; }
 
 .faiza-col__atc-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 8px;
   width: 100%;
-  height: 2.875rem;
-  background: linear-gradient(135deg, #c9a96e 0%, #a8872e 100%);
+  background: linear-gradient(135deg, #c9a84c 0%, #a8872e 100%);
   border: none;
+  border-radius: 6px;
+  padding: 13px 16px;
   color: #ffffff;
   font-family: var(--font-body-family, sans-serif);
-  font-size: 0.625rem;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: opacity 0.22s ease, transform 0.15s ease;
+  transition: opacity 0.2s ease, transform 0.15s ease;
 }
 
 .faiza-col__atc-btn:hover:not(:disabled) {
-  opacity: 0.88;
+  opacity: 0.92;
   transform: translateY(-1px);
 }
 
@@ -703,14 +709,12 @@
   transform: translateY(0);
 }
 
-.faiza-col__atc-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.faiza-col__atc-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
 .faiza-col__atc-btn--ph {
-  background: linear-gradient(135deg, rgba(201, 169, 110, 0.32) 0%, rgba(168, 135, 46, 0.32) 100%);
+  background: linear-gradient(135deg, rgba(201, 168, 76, 0.32) 0%, rgba(168, 135, 46, 0.32) 100%);
   color: rgba(26, 22, 20, 0.4);
   cursor: default;
-  font-size: 0.625rem;
-  letter-spacing: 0.14em;
 }
 
 .faiza-col__atc-label,
@@ -744,7 +748,7 @@
 .faiza-col__atc-btn[data-loading] .faiza-col__atc-loading { display: flex; }
 
 .faiza-col__atc-btn[data-success] {
-  background: #2e7d32;
+  background: #2d7a2d;
   color: #ffffff;
   opacity: 1;
   transform: none;
