@@ -1,0 +1,633 @@
+<div
+  class="faiza-faq full-width"
+  style="--sec-pad: {{ section.settings.section_spacing }}px;"
+>
+  <div class="faiza-faq__inner">
+
+    {%- if section.settings.eyebrow != blank or section.settings.heading != blank -%}
+      <header class="faiza-faq__header">
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="faiza-faq__eyebrow">
+            <span class="faiza-faq__rule" aria-hidden="true"></span>
+            {{- section.settings.eyebrow | escape -}}
+            <span class="faiza-faq__rule" aria-hidden="true"></span>
+          </p>
+        {%- endif -%}
+        {%- if section.settings.heading != blank -%}
+          <h2 class="faiza-faq__heading">{{ section.settings.heading | escape }}</h2>
+        {%- endif -%}
+        {%- if section.settings.subheading != blank -%}
+          <p class="faiza-faq__sub">{{ section.settings.subheading | escape }}</p>
+        {%- endif -%}
+      </header>
+    {%- endif -%}
+
+    <div class="faiza-faq__grid">
+      <div class="faiza-faq__list" id="faiza-faq-list-{{ section.id }}">
+        {%- for block in section.blocks -%}
+          <div
+            class="faiza-faq__item"
+            {{ block.shopify_attributes }}
+          >
+            <button
+              class="faiza-faq__question"
+              id="faiza-faq-q-{{ section.id }}-{{ forloop.index }}"
+              aria-expanded="false"
+              aria-controls="faiza-faq-a-{{ section.id }}-{{ forloop.index }}"
+              type="button"
+            >
+              <span class="faiza-faq__question-text">{{ block.settings.question | escape }}</span>
+              <span class="faiza-faq__icon" aria-hidden="true">
+                <svg class="faiza-faq__icon-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M10 4v12M4 10h12"/>
+                </svg>
+                <svg class="faiza-faq__icon-minus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M4 10h12"/>
+                </svg>
+              </span>
+            </button>
+
+            <div
+              class="faiza-faq__answer-wrap"
+              id="faiza-faq-a-{{ section.id }}-{{ forloop.index }}"
+              role="region"
+              aria-labelledby="faiza-faq-q-{{ section.id }}-{{ forloop.index }}"
+              hidden
+            >
+              <div class="faiza-faq__answer">
+                {%- if block.settings.answer != blank -%}
+                  {{ block.settings.answer }}
+                {%- endif -%}
+              </div>
+            </div>
+          </div>
+        {%- else -%}
+          {%- assign placeholder_questions = 'What makes Faiza Aroma fragrances unique?|How long do the fragrances last?|Do you offer international shipping?|What is your returns policy?|Are your fragrances suitable for sensitive skin?' | split: '|' -%}
+          {%- assign placeholder_answers = 'Each Faiza Aroma fragrance is handcrafted using the finest ingredients sourced from around the world. Our master perfumers blend ancient techniques with modern artistry to create scents that are truly one of a kind.|Our Eau de Parfum concentration ensures a long-lasting scent experience of 8–12 hours on skin, with the fragrance evolving beautifully through top, heart, and base notes throughout the day.|Yes, we ship worldwide. Standard international delivery takes 5–10 business days. Express options are also available at checkout. All orders are carefully packaged to ensure they arrive in perfect condition.|We accept returns of unused, sealed products within 30 days of delivery. If you received a damaged or incorrect item, please contact our customer care team and we will resolve it promptly.|Our fragrances are formulated with skin safety in mind. However, we recommend performing a patch test before use, especially if you have known fragrance sensitivities or allergies.' | split: '|' -%}
+          {%- for q in placeholder_questions -%}
+            <div class="faiza-faq__item">
+              <button
+                class="faiza-faq__question"
+                id="faiza-faq-q-ph-{{ section.id }}-{{ forloop.index }}"
+                aria-expanded="false"
+                aria-controls="faiza-faq-a-ph-{{ section.id }}-{{ forloop.index }}"
+                type="button"
+              >
+                <span class="faiza-faq__question-text">{{ q }}</span>
+                <span class="faiza-faq__icon" aria-hidden="true">
+                  <svg class="faiza-faq__icon-plus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M10 4v12M4 10h12"/>
+                  </svg>
+                  <svg class="faiza-faq__icon-minus" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4 10h12"/>
+                  </svg>
+                </span>
+              </button>
+              <div
+                class="faiza-faq__answer-wrap"
+                id="faiza-faq-a-ph-{{ section.id }}-{{ forloop.index }}"
+                role="region"
+                aria-labelledby="faiza-faq-q-ph-{{ section.id }}-{{ forloop.index }}"
+                hidden
+              >
+                <div class="faiza-faq__answer">
+                  <p>{{ placeholder_answers[forloop.index0] }}</p>
+                </div>
+              </div>
+            </div>
+          {%- endfor -%}
+        {%- endfor -%}
+      </div>
+
+      {%- if section.settings.show_contact -%}
+        <aside class="faiza-faq__contact">
+          <div class="faiza-faq__contact-card">
+            <div class="faiza-faq__contact-icon" aria-hidden="true">
+              <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M16 2C8.268 2 2 8.268 2 16s6.268 14 14 14 14-6.268 14-14S23.732 2 16 2z"/>
+                <path d="M16 10v8M16 22v1"/>
+              </svg>
+            </div>
+            {%- if section.settings.contact_heading != blank -%}
+              <h3 class="faiza-faq__contact-heading">{{ section.settings.contact_heading | escape }}</h3>
+            {%- endif -%}
+            {%- if section.settings.contact_text != blank -%}
+              <p class="faiza-faq__contact-text">{{ section.settings.contact_text | escape }}</p>
+            {%- endif -%}
+            {%- if section.settings.contact_cta_text != blank -%}
+              <a
+                href="{{ section.settings.contact_cta_url | default: '/pages/contact' }}"
+                class="faiza-faq__contact-btn"
+              >
+                {{ section.settings.contact_cta_text | escape }}
+              </a>
+            {%- endif -%}
+          </div>
+        </aside>
+      {%- endif -%}
+    </div>
+
+  </div>
+</div>
+
+{% stylesheet %}
+  /* ─── Section ─── */
+  .faiza-faq {
+    padding: var(--sec-pad, 96px) 0;
+    background-color: #ffffff;
+  }
+
+  .faiza-faq__inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  /* ─── Header ─── */
+  .faiza-faq__header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+  }
+
+  .faiza-faq__eyebrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.875rem;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.6875rem;
+    font-weight: 400;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: #c9a96e;
+    margin: 0 0 1.25rem;
+  }
+
+  .faiza-faq__rule {
+    display: block;
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 1px;
+    background-color: #c9a96e;
+  }
+
+  .faiza-faq__heading {
+    font-family: var(--font-heading-family, serif);
+    font-size: clamp(1.875rem, 3.5vw, 3rem);
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    color: #1a1614;
+    margin: 0 0 0.875rem;
+  }
+
+  .faiza-faq__sub {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: clamp(0.875rem, 1.2vw, 0.9375rem);
+    font-weight: 300;
+    line-height: 1.75;
+    color: rgba(26, 22, 20, 0.55);
+    margin: 0;
+    max-width: 50ch;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ─── Grid ─── */
+  .faiza-faq__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    max-width: 840px;
+    margin: 0 auto;
+  }
+
+  /* ─── List ─── */
+  .faiza-faq__list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ─── Item ─── */
+  .faiza-faq__item {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .faiza-faq__item:first-child {
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  /* ─── Question button ─── */
+  .faiza-faq__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    width: 100%;
+    padding: 1.5rem 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .faiza-faq__question:hover .faiza-faq__question-text {
+    color: #c9a96e;
+  }
+
+  .faiza-faq__question-text {
+    font-family: var(--font-heading-family, serif);
+    font-size: clamp(0.9375rem, 1.4vw, 1.0625rem);
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    color: #1a1614;
+    line-height: 1.45;
+    transition: color 0.25s ease;
+  }
+
+  /* ─── Icon ─── */
+  .faiza-faq__icon {
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 1px solid rgba(201, 169, 110, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #c9a96e;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+    position: relative;
+  }
+
+  .faiza-faq__question:hover .faiza-faq__icon {
+    border-color: #c9a96e;
+    background-color: rgba(201, 169, 110, 0.06);
+  }
+
+  .faiza-faq__question[aria-expanded='true'] .faiza-faq__icon {
+    background-color: rgba(201, 169, 110, 0.1);
+    border-color: #c9a96e;
+  }
+
+  .faiza-faq__icon-plus,
+  .faiza-faq__icon-minus {
+    width: 0.875rem;
+    height: 0.875rem;
+    position: absolute;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+
+  .faiza-faq__icon-plus { opacity: 1; transform: rotate(0deg); }
+  .faiza-faq__icon-minus { opacity: 0; transform: rotate(-90deg); }
+
+  .faiza-faq__question[aria-expanded='true'] .faiza-faq__icon-plus {
+    opacity: 0;
+    transform: rotate(90deg);
+  }
+
+  .faiza-faq__question[aria-expanded='true'] .faiza-faq__icon-minus {
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+
+  /* ─── Answer ─── */
+  .faiza-faq__answer-wrap {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .faiza-faq__answer-wrap:not([hidden]) {
+    max-height: var(--answer-height, 600px);
+  }
+
+  .faiza-faq__answer-wrap[hidden] {
+    display: block !important;
+    visibility: hidden;
+    max-height: 0;
+  }
+
+  .faiza-faq__answer {
+    padding: 0 0 1.75rem;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: clamp(0.875rem, 1.2vw, 0.9375rem);
+    font-weight: 300;
+    line-height: 1.8;
+    letter-spacing: 0.02em;
+    color: rgba(26, 22, 20, 0.65);
+  }
+
+  .faiza-faq__answer p { margin: 0 0 0.875rem; }
+  .faiza-faq__answer p:last-child { margin-bottom: 0; }
+
+  .faiza-faq__answer a {
+    color: #c9a96e;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* ─── Contact aside ─── */
+  .faiza-faq__contact-card {
+    padding: 2.5rem;
+    background-color: #faf8f5;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    text-align: center;
+    position: relative;
+  }
+
+  .faiza-faq__contact-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1.5px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(201, 169, 110, 0.7) 50%,
+      transparent
+    );
+  }
+
+  .faiza-faq__contact-icon {
+    width: 3rem;
+    height: 3rem;
+    margin: 0 auto 1.25rem;
+    color: rgba(201, 169, 110, 0.55);
+  }
+
+  .faiza-faq__contact-icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .faiza-faq__contact-heading {
+    font-family: var(--font-heading-family, serif);
+    font-size: 1.25rem;
+    font-weight: 300;
+    color: #1a1614;
+    margin: 0 0 0.75rem;
+  }
+
+  .faiza-faq__contact-text {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.875rem;
+    font-weight: 300;
+    line-height: 1.7;
+    color: rgba(26, 22, 20, 0.58);
+    margin: 0 0 1.75rem;
+  }
+
+  .faiza-faq__contact-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 3rem;
+    padding: 0 2rem;
+    background-color: transparent;
+    border: 1px solid rgba(201, 169, 110, 0.4);
+    color: #c9a96e;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+  }
+
+  .faiza-faq__contact-btn:hover {
+    background-color: #c9a96e;
+    border-color: #c9a96e;
+    color: #ffffff;
+  }
+
+  /* ─── Tablet ─── */
+  @media screen and (min-width: 750px) {
+    .faiza-faq__inner { padding: 0 2.5rem; }
+
+    .faiza-faq__grid--with-contact {
+      max-width: 1100px;
+      grid-template-columns: 1fr 300px;
+      align-items: start;
+    }
+  }
+
+  /* ─── Desktop ─── */
+  @media screen and (min-width: 990px) {
+    .faiza-faq__inner { padding: 0 3rem; }
+  }
+
+  @media screen and (min-width: 1440px) {
+    .faiza-faq__inner { padding: 0 4.5rem; }
+  }
+
+  /* ─── Reduced motion ─── */
+  @media (prefers-reduced-motion: reduce) {
+    .faiza-faq__answer-wrap {
+      transition: none;
+    }
+    .faiza-faq__icon-plus,
+    .faiza-faq__icon-minus,
+    .faiza-faq__question-text,
+    .faiza-faq__icon {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    var lists = document.querySelectorAll('.faiza-faq__list');
+    lists.forEach(function (list) {
+      var items = list.querySelectorAll('.faiza-faq__item');
+      items.forEach(function (item) {
+        var btn = item.querySelector('.faiza-faq__question');
+        var panel = item.querySelector('.faiza-faq__answer-wrap');
+        if (!btn || !panel) return;
+
+        btn.addEventListener('click', function () {
+          var expanded = btn.getAttribute('aria-expanded') === 'true';
+
+          if (!expanded) {
+            /* Close all siblings */
+            items.forEach(function (sibling) {
+              var sBtn = sibling.querySelector('.faiza-faq__question');
+              var sPanel = sibling.querySelector('.faiza-faq__answer-wrap');
+              if (sBtn && sPanel && sBtn !== btn) {
+                sBtn.setAttribute('aria-expanded', 'false');
+                sPanel.style.maxHeight = '0';
+                sPanel.style.visibility = 'hidden';
+                setTimeout(function () {
+                  if (sBtn.getAttribute('aria-expanded') === 'false') {
+                    sPanel.setAttribute('hidden', '');
+                    sPanel.style.visibility = '';
+                  }
+                }, 420);
+              }
+            });
+
+            /* Open this */
+            panel.removeAttribute('hidden');
+            panel.style.visibility = 'visible';
+            var h = panel.querySelector('.faiza-faq__answer');
+            var fullH = h ? h.scrollHeight + 56 : 600;
+            panel.style.maxHeight = '0';
+            requestAnimationFrame(function () {
+              panel.style.maxHeight = fullH + 'px';
+            });
+            btn.setAttribute('aria-expanded', 'true');
+          } else {
+            /* Close this */
+            panel.style.maxHeight = '0';
+            btn.setAttribute('aria-expanded', 'false');
+            setTimeout(function () {
+              if (btn.getAttribute('aria-expanded') === 'false') {
+                panel.setAttribute('hidden', '');
+              }
+            }, 420);
+          }
+        });
+      });
+    });
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Faiza FAQ",
+  "tag": "section",
+  "class": "faiza-faq-section",
+  "settings": [
+    {
+      "type": "range",
+      "id": "section_spacing",
+      "label": "Section spacing",
+      "min": 40,
+      "max": 160,
+      "step": 8,
+      "unit": "px",
+      "default": 96
+    },
+    {
+      "type": "header",
+      "content": "Header"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow text",
+      "default": "Have Questions?"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section heading",
+      "default": "Frequently Asked Questions"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "header",
+      "content": "Contact card"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_contact",
+      "label": "Show contact card",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "contact_heading",
+      "label": "Contact card heading",
+      "default": "Still have questions?"
+    },
+    {
+      "type": "textarea",
+      "id": "contact_text",
+      "label": "Contact card text",
+      "default": "Our team is here to help. Reach out and we'll get back to you within 24 hours."
+    },
+    {
+      "type": "text",
+      "id": "contact_cta_text",
+      "label": "Contact button label",
+      "default": "Contact Us"
+    },
+    {
+      "type": "url",
+      "id": "contact_cta_url",
+      "label": "Contact button link"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "faq_item",
+      "name": "FAQ item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "What makes your fragrances special?"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer",
+          "default": "<p>Our fragrances are crafted using the finest natural ingredients sourced from around the world, combined with the expertise of master perfumers to create truly unique and long-lasting scents.</p>"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Faiza FAQ",
+      "blocks": [
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "What makes Faiza Aroma fragrances unique?",
+            "answer": "<p>Each Faiza Aroma fragrance is handcrafted using the finest ingredients sourced from around the world. Our master perfumers blend ancient techniques with modern artistry to create scents that are truly one of a kind.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "How long do the fragrances last?",
+            "answer": "<p>Our Eau de Parfum concentration ensures a long-lasting scent experience of 8–12 hours on skin, with the fragrance evolving beautifully through top, heart, and base notes throughout the day.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "Do you offer international shipping?",
+            "answer": "<p>Yes, we ship worldwide. Standard international delivery takes 5–10 business days. Express options are also available at checkout. All orders are carefully packaged to ensure they arrive in perfect condition.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "What is your returns policy?",
+            "answer": "<p>We accept returns of unused, sealed products within 30 days of delivery. If you received a damaged or incorrect item, please contact our customer care team and we will resolve it promptly.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "Are your fragrances suitable for sensitive skin?",
+            "answer": "<p>Our fragrances are formulated with skin safety in mind. However, we recommend performing a patch test before use, especially if you have known fragrance sensitivities or allergies.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

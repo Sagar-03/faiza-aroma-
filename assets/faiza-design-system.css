@@ -1,0 +1,798 @@
+/* =============================================================
+   FAIZA AROMA — GLOBAL DESIGN SYSTEM  (Light Theme)
+   Token-first CSS for premium fragrance brand
+   ============================================================= */
+
+
+/* ─────────────────────────────────────────────────────────────
+   1. TOKENS
+───────────────────────────────────────────────────────────── */
+
+:root {
+
+  /* ── Color — Backgrounds (LIGHT) ───────────────────────── */
+  --faiza-bg-base:    #ffffff;    /* page background */
+  --faiza-bg-alt:     #faf8f5;    /* alternate warm section */
+  --faiza-bg-card:    #ffffff;    /* card, panel */
+  --faiza-bg-deep:    #f5f3ef;    /* inset areas */
+  --faiza-bg-surface: #f0ece6;    /* elevated surface */
+
+  /* ── Color — Gold Scale ─────────────────────────────────── */
+  --faiza-gold:         #c9a96e;
+  --faiza-gold-light:   #f0d090;
+  --faiza-gold-mid:     #d4b87a;
+  --faiza-gold-dark:    #8a6a2a;
+  --faiza-gold-darker:  #6b4f20;
+  --faiza-gold-darkest: #5c3d10;
+
+  /* ── Color — Gold Alpha ─────────────────────────────────── */
+  --faiza-gold-04:  rgba(201, 169, 110, 0.04);
+  --faiza-gold-06:  rgba(201, 169, 110, 0.06);
+  --faiza-gold-10:  rgba(201, 169, 110, 0.10);
+  --faiza-gold-14:  rgba(201, 169, 110, 0.14);
+  --faiza-gold-20:  rgba(201, 169, 110, 0.20);
+  --faiza-gold-30:  rgba(201, 169, 110, 0.30);
+  --faiza-gold-40:  rgba(201, 169, 110, 0.40);
+  --faiza-gold-50:  rgba(201, 169, 110, 0.50);
+  --faiza-gold-60:  rgba(201, 169, 110, 0.60);
+  --faiza-gold-70:  rgba(201, 169, 110, 0.70);
+
+  /* ── Color — Gold Gradients ─────────────────────────────── */
+  --faiza-grad-gold-h: linear-gradient(
+    90deg,
+    transparent,
+    var(--faiza-gold-60) 25%,
+    var(--faiza-gold-light) 50%,
+    var(--faiza-gold-60) 75%,
+    transparent
+  );
+  --faiza-grad-gold-d: linear-gradient(
+    135deg,
+    var(--faiza-gold-darkest),
+    var(--faiza-gold) 30%,
+    var(--faiza-gold-light) 50%,
+    var(--faiza-gold) 70%,
+    var(--faiza-gold-darkest)
+  );
+
+  /* ── Color — Text (DARK for light bg) ──────────────────── */
+  --faiza-white:    #ffffff;
+  --faiza-cream:    #1a1614;    /* headings */
+  --faiza-text-1:   #1a1614;    /* primary body */
+  --faiza-text-2:   rgba(26, 22, 20, 0.78);
+  --faiza-text-3:   rgba(26, 22, 20, 0.58);
+  --faiza-text-4:   rgba(26, 22, 20, 0.40);
+  --faiza-text-5:   rgba(26, 22, 20, 0.24);
+
+  /* ── Color — Borders (dark on light) ───────────────────── */
+  --faiza-border-faint:  1px  solid rgba(0, 0, 0, 0.05);
+  --faiza-border-subtle: 1px  solid rgba(0, 0, 0, 0.08);
+  --faiza-border-soft:   1px  solid rgba(0, 0, 0, 0.12);
+  --faiza-border-mid:    1px  solid rgba(0, 0, 0, 0.20);
+  --faiza-border-strong: 1.5px solid rgba(0, 0, 0, 0.35);
+  --faiza-border-solid:  1.5px solid var(--faiza-gold);
+
+  /* ── Typography — Families ──────────────────────────────── */
+  --faiza-font-display: var(--font-heading-family, 'Georgia', serif);
+  --faiza-font-body:    var(--font-body-family, 'Inter', system-ui, sans-serif);
+
+  /* ── Typography — Size Scale ────────────────────────────── */
+  --faiza-size-xs:   0.5625rem;
+  --faiza-size-sm:   0.6875rem;
+  --faiza-size-base: 0.75rem;
+  --faiza-size-md:   0.875rem;
+  --faiza-size-lg:   1rem;
+  --faiza-size-xl:   1.125rem;
+  --faiza-size-2xl:  clamp(1.125rem, 1.8vw, 1.3125rem);
+  --faiza-size-h3:   clamp(1.5rem, 2.5vw, 2rem);
+  --faiza-size-h2:   clamp(1.875rem, 3.5vw, 3rem);
+  --faiza-size-h1:   clamp(2.25rem, 5.5vw, 5.5rem);
+
+  /* ── Typography — Tracking ──────────────────────────────── */
+  --faiza-tracking-tight:   -0.02em;
+  --faiza-tracking-snug:    -0.01em;
+  --faiza-tracking-normal:   0.02em;
+  --faiza-tracking-wide:     0.08em;
+  --faiza-tracking-wider:    0.14em;
+  --faiza-tracking-eyebrow:  0.32em;
+  --faiza-tracking-btn:      0.18em;
+
+  /* ── Typography — Leading ───────────────────────────────── */
+  --faiza-leading-tight:  1.08;
+  --faiza-leading-snug:   1.35;
+  --faiza-leading-normal: 1.7;
+  --faiza-leading-loose:  1.85;
+
+  /* ── Spacing Scale (4px base) ───────────────────────────── */
+  --faiza-sp-1:    0.25rem;
+  --faiza-sp-2:    0.5rem;
+  --faiza-sp-3:    0.75rem;
+  --faiza-sp-4:    1rem;
+  --faiza-sp-5:    1.25rem;
+  --faiza-sp-6:    1.5rem;
+  --faiza-sp-7:    1.75rem;
+  --faiza-sp-8:    2rem;
+  --faiza-sp-9:    2.25rem;
+  --faiza-sp-10:   2.5rem;
+  --faiza-sp-11:   2.75rem;
+  --faiza-sp-12:   3rem;
+  --faiza-sp-14:   3.5rem;
+  --faiza-sp-16:   4rem;
+  --faiza-sp-20:   5rem;
+  --faiza-sp-24:   6rem;
+  --faiza-section: 96px;
+
+  /* ── Container ──────────────────────────────────────────── */
+  --faiza-container-max: 1440px;
+  --faiza-pad:           2rem;
+
+  /* ── Buttons ─────────────────────────────────────────────── */
+  --faiza-btn-h:      3.125rem;
+  --faiza-btn-h-sm:   2.75rem;
+  --faiza-btn-px:     2.25rem;
+  --faiza-btn-px-sm:  1.75rem;
+
+  /* ── Transitions & Easing ───────────────────────────────── */
+  --faiza-ease:         cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --faiza-ease-out:     cubic-bezier(0.22, 1, 0.36, 1);
+  --faiza-ease-in-out:  cubic-bezier(0.455, 0.03, 0.515, 0.955);
+
+  --faiza-dur-fast:   0.22s;
+  --faiza-dur-base:   0.30s;
+  --faiza-dur-mid:    0.38s;
+  --faiza-dur-slow:   0.55s;
+
+  --faiza-tx-color:      color       var(--faiza-dur-base) var(--faiza-ease);
+  --faiza-tx-opacity:    opacity     var(--faiza-dur-base) var(--faiza-ease);
+  --faiza-tx-transform:  transform   var(--faiza-dur-slow) var(--faiza-ease);
+  --faiza-tx-filter:     filter      var(--faiza-dur-base) var(--faiza-ease);
+  --faiza-tx-bg:         background-color var(--faiza-dur-base) var(--faiza-ease);
+  --faiza-tx-border:     border-color var(--faiza-dur-base) var(--faiza-ease);
+
+  /* ── Z-index Ladder ──────────────────────────────────────── */
+  --faiza-z-bg:      0;
+  --faiza-z-base:    1;
+  --faiza-z-above:   2;
+  --faiza-z-content: 3;
+  --faiza-z-overlay: 10;
+  --faiza-z-sticky:  50;
+  --faiza-z-header:  100;
+  --faiza-z-modal:   200;
+}
+
+/* ── Container padding responsive ───────────────────────── */
+@media screen and (min-width: 750px) {
+  :root { --faiza-pad: 2.5rem; }
+}
+@media screen and (min-width: 990px) {
+  :root { --faiza-pad: 3rem; }
+}
+@media screen and (min-width: 1440px) {
+  :root { --faiza-pad: 4.5rem; }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   2. GLOBAL BASE
+───────────────────────────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--faiza-bg-base);
+  color: var(--faiza-text-1);
+  font-family: var(--faiza-font-body);
+  font-size: var(--faiza-size-lg);
+  line-height: var(--faiza-leading-normal);
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img, video, svg {
+  display: block;
+  max-width: 100%;
+}
+
+a { color: inherit; }
+
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+/* ── Selection ───────────────────────────────────────────── */
+::selection {
+  background-color: rgba(201, 169, 110, 0.20);
+  color: #1a1614;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #f5f5f5;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #d0c0a8;
+  border-radius: 3px;
+}
+
+/* ── Focus ring ──────────────────────────────────────────── */
+:focus-visible {
+  outline: 1.5px solid var(--faiza-gold);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   3. LAYOUT UTILITIES
+───────────────────────────────────────────────────────────── */
+
+.faiza-container {
+  max-width: var(--faiza-container-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--faiza-pad);
+  padding-right: var(--faiza-pad);
+}
+
+.faiza-section {
+  padding-top: var(--faiza-section);
+  padding-bottom: var(--faiza-section);
+}
+
+.faiza-bg-base    { background-color: var(--faiza-bg-base);    }
+.faiza-bg-alt     { background-color: var(--faiza-bg-alt);     }
+.faiza-bg-card    { background-color: var(--faiza-bg-card);    }
+.faiza-bg-surface { background-color: var(--faiza-bg-surface); }
+
+
+/* ─────────────────────────────────────────────────────────────
+   4. SECTION HEADER
+───────────────────────────────────────────────────────────── */
+
+.faiza-section-hd {
+  margin-bottom: var(--faiza-sp-14);
+}
+
+.faiza-section-hd--center { text-align: center; }
+.faiza-section-hd--left   { text-align: left; }
+
+.faiza-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--faiza-sp-3);
+  font-family: var(--faiza-font-body);
+  font-size: var(--faiza-size-sm);
+  font-weight: 400;
+  letter-spacing: var(--faiza-tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--faiza-gold);
+  margin: 0 0 var(--faiza-sp-5);
+}
+
+.faiza-section-hd--center .faiza-eyebrow {
+  display: flex;
+  justify-content: center;
+}
+
+.faiza-eyebrow-rule {
+  display: block;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 1px;
+  background-color: var(--faiza-gold);
+}
+
+.faiza-section-title {
+  font-family: var(--faiza-font-display);
+  font-size: var(--faiza-size-h2);
+  font-weight: 300;
+  line-height: var(--faiza-leading-tight);
+  letter-spacing: var(--faiza-tracking-tight);
+  color: var(--faiza-cream);
+  margin: 0 0 var(--faiza-sp-3);
+  text-rendering: optimizeLegibility;
+}
+
+.faiza-section-sub {
+  font-family: var(--faiza-font-body);
+  font-size: var(--faiza-size-md);
+  font-weight: 300;
+  line-height: var(--faiza-leading-normal);
+  letter-spacing: var(--faiza-tracking-normal);
+  color: var(--faiza-text-3);
+  margin: 0;
+  max-width: 52ch;
+}
+
+.faiza-section-hd--center .faiza-section-sub {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   5. BUTTONS
+───────────────────────────────────────────────────────────── */
+
+.faiza-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--faiza-btn-h);
+  padding: 0 var(--faiza-btn-px);
+  font-family: var(--faiza-font-body);
+  font-size: var(--faiza-size-base);
+  font-weight: 500;
+  letter-spacing: var(--faiza-tracking-btn);
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition:
+    var(--faiza-tx-color),
+    var(--faiza-tx-border);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.faiza-btn > .faiza-btn__label {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.faiza-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform var(--faiza-dur-mid) var(--faiza-ease);
+  z-index: 0;
+}
+
+.faiza-btn:hover::before,
+.faiza-btn:focus-visible::before {
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+
+.faiza-btn:disabled,
+.faiza-btn[aria-disabled='true'] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── Variant: Gold filled ─────────────────────────────────── */
+.faiza-btn--gold {
+  background-color: var(--faiza-gold);
+  border-color: var(--faiza-gold);
+  color: #1a1614;
+}
+.faiza-btn--gold::before { background-color: #1a1614; }
+.faiza-btn--gold:hover,
+.faiza-btn--gold:focus-visible {
+  color: var(--faiza-gold);
+  border-color: #1a1614;
+}
+
+/* ── Variant: Dark filled (primary for light theme) ─────── */
+.faiza-btn--dark {
+  background-color: #1a1614;
+  border-color: #1a1614;
+  color: #ffffff;
+}
+.faiza-btn--dark::before { background-color: var(--faiza-gold); }
+.faiza-btn--dark:hover,
+.faiza-btn--dark:focus-visible {
+  color: #1a1614;
+  border-color: var(--faiza-gold);
+}
+
+/* ── Variant: Ghost gold border ──────────────────────────── */
+.faiza-btn--ghost-gold {
+  background-color: transparent;
+  border-color: var(--faiza-gold-40);
+  color: var(--faiza-gold);
+}
+.faiza-btn--ghost-gold::before { background-color: var(--faiza-gold); }
+.faiza-btn--ghost-gold:hover,
+.faiza-btn--ghost-gold:focus-visible {
+  color: #1a1614;
+  border-color: var(--faiza-gold);
+}
+
+/* ── Variant: Ghost dark border (for light sections) ─────── */
+.faiza-btn--ghost-dark {
+  background-color: transparent;
+  border-color: rgba(26, 22, 20, 0.30);
+  color: #1a1614;
+}
+.faiza-btn--ghost-dark::before { background-color: rgba(26, 22, 20, 0.06); }
+.faiza-btn--ghost-dark:hover,
+.faiza-btn--ghost-dark:focus-visible {
+  border-color: rgba(26, 22, 20, 0.65);
+}
+
+/* ── Variant: Ghost white (hero / dark bg only) ─────────── */
+.faiza-btn--ghost-white {
+  background-color: transparent;
+  border-color: rgba(255, 255, 255, 0.42);
+  color: #ffffff;
+}
+.faiza-btn--ghost-white::before { background-color: rgba(255, 255, 255, 0.1); }
+.faiza-btn--ghost-white:hover,
+.faiza-btn--ghost-white:focus-visible {
+  border-color: rgba(255, 255, 255, 0.72);
+}
+
+/* ── Size modifier: compact ───────────────────────────────── */
+.faiza-btn--sm {
+  height: var(--faiza-btn-h-sm);
+  padding: 0 var(--faiza-btn-px-sm);
+  font-size: 0.625rem;
+  letter-spacing: 0.2em;
+}
+
+/* ── Inline text link ─────────────────────────────────────── */
+.faiza-btn-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--faiza-font-body);
+  font-size: var(--faiza-size-base);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #1a1614;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid rgba(26, 22, 20, 0.30);
+  transition: border-color var(--faiza-dur-base) var(--faiza-ease),
+              color var(--faiza-dur-base) var(--faiza-ease),
+              gap var(--faiza-dur-base) var(--faiza-ease);
+}
+.faiza-btn-text:hover { border-color: var(--faiza-gold); color: var(--faiza-gold); gap: 0.875rem; }
+.faiza-btn-text svg { width: 1rem; height: 1rem; flex-shrink: 0; }
+
+
+/* ─────────────────────────────────────────────────────────────
+   6. CARD BASE
+───────────────────────────────────────────────────────────── */
+
+.faiza-card {
+  position: relative;
+  background-color: var(--faiza-bg-card);
+  border: var(--faiza-border-subtle);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+}
+
+/* Gold shimmer top edge */
+.faiza-card--shimmer-top::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: var(--faiza-grad-gold-h);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Hover elevation */
+.faiza-card--hover {
+  transition:
+    var(--faiza-tx-transform),
+    box-shadow var(--faiza-dur-base) var(--faiza-ease);
+}
+.faiza-card--hover:hover {
+  transform: translateY(-5px);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.10),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   7. GEOMETRIC PATTERN BACKGROUNDS
+───────────────────────────────────────────────────────────── */
+
+.faiza-geo {
+  background-color: var(--faiza-bg-deep);
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      rgba(201, 169, 110, 0.07) 0px,
+      rgba(201, 169, 110, 0.07) 1px,
+      transparent 1px,
+      transparent 18px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(201, 169, 110, 0.07) 0px,
+      rgba(201, 169, 110, 0.07) 1px,
+      transparent 1px,
+      transparent 18px
+    );
+}
+
+.faiza-geo--lg {
+  background-color: var(--faiza-bg-base);
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      rgba(201, 169, 110, 0.04) 0px,
+      rgba(201, 169, 110, 0.04) 1px,
+      transparent 1px,
+      transparent 32px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(201, 169, 110, 0.04) 0px,
+      rgba(201, 169, 110, 0.04) 1px,
+      transparent 1px,
+      transparent 32px
+    );
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   8. DECORATIVE ELEMENTS
+───────────────────────────────────────────────────────────── */
+
+.faiza-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--faiza-sp-3);
+  color: var(--faiza-gold);
+  width: 100%;
+}
+
+.faiza-divider-line {
+  flex: 1;
+  height: 1px;
+  max-width: 5rem;
+  background: linear-gradient(
+    to right,
+    var(--faiza-gold-50),
+    var(--faiza-gold-10)
+  );
+}
+.faiza-divider-line:last-child {
+  background: linear-gradient(
+    to left,
+    var(--faiza-gold-50),
+    var(--faiza-gold-10)
+  );
+}
+
+.faiza-divider-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  opacity: 0.65;
+}
+
+/* ── Gold corner ornament ────────────────────────────────── */
+.faiza-corner-tl {
+  position: absolute;
+  top: -1.25rem;
+  left: -1.25rem;
+  width: 3rem;
+  height: 3rem;
+  border-top: var(--faiza-border-solid);
+  border-left: var(--faiza-border-solid);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.faiza-corner-br {
+  position: absolute;
+  bottom: -1.25rem;
+  right: -1.25rem;
+  width: 3rem;
+  height: 3rem;
+  border-bottom: var(--faiza-border-solid);
+  border-right: var(--faiza-border-solid);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ── Attribution ─────────────────────────────────────────── */
+.faiza-attribution {
+  display: flex;
+  flex-direction: column;
+  gap: var(--faiza-sp-1);
+  padding-left: var(--faiza-sp-4);
+  border-left: 2px solid var(--faiza-gold);
+}
+
+.faiza-attribution__name {
+  font-family: var(--faiza-font-display);
+  font-size: var(--faiza-size-xl);
+  font-weight: 400;
+  letter-spacing: var(--faiza-tracking-wide);
+  color: var(--faiza-cream);
+}
+
+.faiza-attribution__role {
+  font-family: var(--faiza-font-body);
+  font-size: var(--faiza-size-sm);
+  font-weight: 400;
+  letter-spacing: var(--faiza-tracking-eyebrow);
+  text-transform: uppercase;
+  color: rgba(201, 169, 110, 0.75);
+}
+
+/* ── Star rating ─────────────────────────────────────────── */
+.faiza-stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+}
+
+.faiza-star {
+  width: 0.875rem;
+  height: 0.875rem;
+  fill: rgba(0, 0, 0, 0.10);
+  flex-shrink: 0;
+}
+
+.faiza-star--on {
+  fill: var(--faiza-gold);
+}
+
+/* ── Badge ───────────────────────────────────────────────── */
+.faiza-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.65rem;
+  font-family: var(--faiza-font-body);
+  font-size: var(--faiza-size-sm);
+  font-weight: 600;
+  letter-spacing: var(--faiza-tracking-wider);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.faiza-badge--sale {
+  background-color: var(--faiza-gold);
+  color: #1a1614;
+}
+
+.faiza-badge--sold {
+  background-color: rgba(245, 243, 239, 0.95);
+  color: rgba(26, 22, 20, 0.55);
+  border: 1px solid rgba(0, 0, 0, 0.10);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   9. ANIMATION UTILITIES
+───────────────────────────────────────────────────────────── */
+
+@keyframes faiza-fade-up {
+  from { opacity: 0; transform: translateY(1.75rem); }
+  to   { opacity: 1; transform: translateY(0);       }
+}
+
+@keyframes faiza-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes faiza-ken-burns {
+  from { transform: scale(1.04); }
+  to   { transform: scale(1);    }
+}
+
+@keyframes faiza-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes faiza-scroll-dot {
+  0%   { opacity: 1; transform: translateY(0);      }
+  60%  { opacity: 0; transform: translateY(0.75rem); }
+  61%  { opacity: 0; transform: translateY(0);       }
+  100% { opacity: 1; transform: translateY(0);       }
+}
+
+.faiza-anim-fade-up {
+  opacity: 0;
+  animation: faiza-fade-up var(--faiza-dur-slow) var(--faiza-ease-out) both;
+}
+
+.faiza-anim-delay-1 { animation-delay: 0.20s; }
+.faiza-anim-delay-2 { animation-delay: 0.40s; }
+.faiza-anim-delay-3 { animation-delay: 0.60s; }
+.faiza-anim-delay-4 { animation-delay: 0.80s; }
+.faiza-anim-delay-5 { animation-delay: 1.00s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .faiza-anim-fade-up {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   10. TEXT UTILITIES
+───────────────────────────────────────────────────────────── */
+
+.faiza-text-gold    { color: var(--faiza-gold);    }
+.faiza-text-cream   { color: var(--faiza-cream);   }
+.faiza-text-white   { color: var(--faiza-white);   }
+.faiza-text-dark    { color: var(--faiza-cream);   }
+.faiza-text-muted   { color: var(--faiza-text-3);  }
+.faiza-text-faint   { color: var(--faiza-text-4);  }
+.faiza-text-display { font-family: var(--faiza-font-display); }
+.faiza-text-body    { font-family: var(--faiza-font-body);    }
+.faiza-weight-light  { font-weight: 300; }
+.faiza-weight-normal { font-weight: 400; }
+.faiza-weight-medium { font-weight: 500; }
+.faiza-tracking-eyebrow {
+  letter-spacing: var(--faiza-tracking-eyebrow);
+  text-transform: uppercase;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   11. MISC UTILITIES
+───────────────────────────────────────────────────────────── */
+
+.faiza-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.faiza-ratio-portrait { aspect-ratio: 3 / 4; }
+.faiza-ratio-square   { aspect-ratio: 1 / 1; }
+.faiza-ratio-wide     { aspect-ratio: 16 / 9; }
+.faiza-ratio-arch     { aspect-ratio: 220 / 320; }
+
+.faiza-spinner {
+  width: 1.25rem;
+  height: 1.25rem;
+  animation: faiza-spin 0.8s linear infinite;
+}
+
+.faiza-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: var(--faiza-tx-transform);
+}
+
+.faiza-img-zoom:hover .faiza-img {
+  transform: scale(1.05);
+}

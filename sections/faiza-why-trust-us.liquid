@@ -1,0 +1,71 @@
+<section class="faiza-why-trust-us full-width">
+  {% if section.settings.image != blank %}
+    {{
+      section.settings.image
+      | image_url: width: 3000
+      | image_tag:
+        class: 'faiza-why-trust-us__image',
+        loading: 'lazy'
+    }}
+  {% else %}
+    <div class="faiza-why-trust-us__placeholder">
+      Upload Why Trust Us image
+    </div>
+  {% endif %}
+</section>
+
+<style>
+  .faiza-why-trust-us-section {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .shopify-section:has(.faiza-why-trust-us) {
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 0 !important;
+  }
+
+  .faiza-why-trust-us {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+  }
+
+  .faiza-why-trust-us__image {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .faiza-why-trust-us__placeholder {
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f5f5;
+    font-size: 18px;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Faiza Why Trust Us",
+  "tag": "section",
+  "class": "faiza-why-trust-us-section",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Why Trust Us Image"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Faiza Why Trust Us"
+    }
+  ]
+}
+{% endschema %}

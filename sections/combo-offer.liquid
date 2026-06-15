@@ -1,0 +1,587 @@
+{% comment %}
+  Combo Offers Slider Section
+  - Left: fixed title + View All link with geometric bg pattern
+  - Right: horizontal scrolling product cards slider
+  - Background: optional image or color
+{% endcomment %}
+
+{% if section.settings.bg_image != blank %}
+  {% assign has_bg = true %}
+{% else %}
+  {% assign has_bg = false %}
+{% endif %}
+
+<section
+  class="combo-section full-width{% if has_bg %} combo-section--has-bg{% endif %}"
+  id="combo-{{ section.id }}"
+  style="{% if section.settings.bg_image != blank %}background-image: url('{{ section.settings.bg_image | img_url: '2000x' }}');{% endif %}background-color: {{ section.settings.bg_color | default: '#f2ede8' }};"
+>
+  <div class="combo-inner">
+
+    <!-- LEFT: Title panel -->
+    <div class="combo-title-col">
+      <div class="combo-title-wrap">
+        <div class="combo-geo-pattern" aria-hidden="true"></div>
+        <h2 class="combo-heading">{{ section.settings.heading | default: 'Combo Offers' }}</h2>
+        {%- if section.settings.view_all_text != blank and section.settings.view_all_url != blank -%}
+          <a href="{{ section.settings.view_all_url }}" class="combo-view-all">{{ section.settings.view_all_text | default: 'View All' }}</a>
+        {%- endif -%}
+      </div>
+    </div>
+
+    <!-- RIGHT: Slider -->
+    <div class="combo-slider-col">
+      <div class="combo-viewport" data-combo-viewport="{{ section.id }}">
+        <div class="combo-track" data-combo-track="{{ section.id }}">
+
+          {% for block in section.blocks %}
+            {% assign product = block.settings.product %}
+            {% if product != blank %}
+              <div class="combo-card" {{ block.shopify_attributes }}>
+
+                {%- if block.settings.badge != blank -%}
+                  <div class="combo-badge">
+                    <span class="combo-badge-icon">&#9889;</span>
+                    {{ block.settings.badge }}
+                  </div>
+                {%- endif -%}
+
+                <a href="{{ product.url }}" class="combo-card-image-link">
+                  <div class="combo-card-image-wrap">
+                    {%- if product.featured_image -%}
+                      <img
+                        src="{{ product.featured_image | img_url: '500x500', crop: 'center' }}"
+                        alt="{{ product.featured_image.alt | escape }}"
+                        class="combo-card-img"
+                        loading="lazy"
+                        width="500"
+                        height="500"
+                      >
+                    {%- else -%}
+                      <div class="combo-card-img-placeholder">
+                        {{ 'product-1' | placeholder_svg_tag: 'combo-ph-svg' }}
+                      </div>
+                    {%- endif -%}
+                  </div>
+                </a>
+
+                <div class="combo-card-info">
+
+                  <div class="combo-rating-row">
+                    {%- assign rating = product.metafields.reviews.rating.value -%}
+                    {%- assign count = product.metafields.reviews.rating_count.value -%}
+                    {%- if rating != blank -%}
+                      <span class="combo-star">&#9733;</span>
+                      <span class="combo-rating-val">{{ rating }}</span>
+                      {%- if count != blank -%}
+                        <span class="combo-rating-count">| {{ count }}</span>
+                      {%- endif -%}
+                    {%- endif -%}
+                  </div>
+
+                  <a href="{{ product.url }}" class="combo-card-title">{{ product.title }}</a>
+
+                  <div class="combo-price-row">
+                    <span class="combo-price-current">{{ product.price | money }}</span>
+                    {%- if product.compare_at_price > product.price -%}
+                      <span class="combo-price-compare">{{ product.compare_at_price | money }}</span>
+                      {%- assign discount = product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price -%}
+                      <span class="combo-price-badge">{{ discount }}% off</span>
+                    {%- endif -%}
+                  </div>
+
+                  {%- if block.settings.emi_text != blank -%}
+                    <p class="combo-emi">
+                      or {{ block.settings.emi_text }}
+                      <a href="{{ block.settings.emi_link | default: '#' }}" class="combo-emi-link">Buy on EMI &rsaquo;</a>
+                    </p>
+                  {%- endif -%}
+
+                </div>
+
+                <div class="combo-card-footer">
+                  <button
+                    class="combo-atc-btn"
+                    data-variant-id="{{ product.variants.first.id }}"
+                    onclick="comboAddToCart('{{ product.variants.first.id }}', this)"
+                  >
+                    ADD TO CART
+                    <span class="combo-cart-icon">&#128722;</span>
+                  </button>
+                </div>
+
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .shopify-section:has(.combo-section.full-width) {
+    padding: 0;
+    margin: 0;
+  }
+
+  .combo-section.full-width {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .combo-section {
+    overflow: hidden;
+    position: relative;
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+
+  .combo-section--has-bg {
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+  }
+
+  .combo-inner {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    min-height: 520px;
+  }
+
+  .combo-title-col {
+    flex-shrink: 0;
+    width: 280px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .combo-title-wrap {
+    position: relative;
+    z-index: 2;
+    padding: 48px 32px 48px 40px;
+  }
+
+  .combo-geo-pattern {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='69' viewBox='0 0 60 69'%3E%3Cg fill='none' stroke='%23c9a96e' stroke-width='0.6' opacity='0.18'%3E%3Cpolygon points='30,1 58,17 58,52 30,68 2,52 2,17'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 60px 69px;
+  }
+
+  .combo-heading {
+    font-size: clamp(26px, 2.5vw, 38px);
+    font-weight: 400;
+    line-height: 1.2;
+    color: #1a1614;
+    margin: 0 0 12px;
+    position: relative;
+    z-index: 2;
+    letter-spacing: -0.01em;
+  }
+
+  .combo-view-all {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 400;
+    color: #1a1614;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    position: relative;
+    z-index: 2;
+    transition: color 0.2s;
+  }
+
+  .combo-view-all:hover { color: #c9a96e; }
+
+  .combo-slider-col {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .combo-viewport {
+    overflow: hidden;
+    height: 100%;
+  }
+
+  .combo-track {
+    display: flex;
+    gap: 0;
+    height: 100%;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+    font-size: 0;
+  }
+
+  .combo-card {
+    background: #ffffff;
+    flex-shrink: 0;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border-radius: 0;
+    margin: 0;
+    font-size: 16px;
+  }
+
+  .combo-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+    background: #1a1a1a;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.03em;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .combo-badge-icon { color: #f0c040; font-size: 10px; }
+
+  .combo-card-image-link { display: block; text-decoration: none; }
+
+  .combo-card-image-wrap {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: #f8f8f8;
+  }
+
+  .combo-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.35s ease;
+  }
+
+  .combo-card:hover .combo-card-img { transform: scale(1.04); }
+
+  .combo-card-img-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #efefef;
+  }
+
+  .combo-ph-svg { width: 50%; height: 50%; fill: #cccccc; }
+
+  .combo-card-info { padding: 14px 16px 8px; flex: 1; }
+
+  .combo-rating-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 6px;
+    min-height: 18px;
+  }
+
+  .combo-star { color: #f5a623; font-size: 13px; }
+  .combo-rating-val { font-size: 12px; font-weight: 600; color: #333333; }
+  .combo-rating-count { font-size: 12px; color: #888888; }
+
+  .combo-card-title {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+    text-decoration: none;
+    line-height: 1.35;
+    margin-bottom: 10px;
+  }
+
+  .combo-card-title:hover { color: #5a1a1a; }
+
+  .combo-price-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+
+  .combo-price-current { font-size: 16px; font-weight: 700; color: #1a1a1a; }
+  .combo-price-compare { font-size: 13px; color: #999999; text-decoration: line-through; }
+
+  .combo-price-badge {
+    background: #2d7a2d;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+
+  .combo-emi {
+    font-size: 11px;
+    color: #666666;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .combo-emi-link {
+    color: #1a1a1a;
+    font-size: 10px;
+    font-weight: 600;
+    border: 1px solid #cccccc;
+    padding: 1px 6px;
+    border-radius: 3px;
+    text-decoration: none;
+  }
+
+  .combo-emi-link:hover { background: #f5f5f5; }
+
+  .combo-card-footer { padding: 12px 16px 16px; }
+
+  .combo-atc-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #c9a84c 0%, #a8872e 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 13px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+
+  .combo-atc-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+  .combo-atc-btn:active { transform: translateY(0); }
+  .combo-atc-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .combo-cart-icon { font-size: 14px; }
+
+  @media (max-width: 768px) {
+    .combo-section { padding-top: 40px; padding-bottom: 40px; }
+    .combo-inner { flex-direction: column; min-height: auto; }
+    .combo-title-col { width: 100%; }
+    .combo-title-wrap { padding: 32px 24px 24px; }
+    .combo-card { width: 260px; }
+  }
+
+  @media (max-width: 480px) {
+    .combo-card { width: 220px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .combo-track { transition: none; }
+    .combo-card-img { transition: none; }
+  }
+</style>
+
+<script>
+  (function () {
+    var sectionId = '{{ section.id }}';
+
+    function initComboSlider(id) {
+      var track = document.querySelector('[data-combo-track="' + id + '"]');
+      var viewport = document.querySelector('[data-combo-viewport="' + id + '"]');
+      if (!track || !viewport) return;
+
+      var cards = track.querySelectorAll('.combo-card');
+      if (cards.length === 0) return;
+
+      var currentIndex = 0;
+      var isDragging = false;
+      var startX = 0;
+      var startTranslate = 0;
+      var currentTranslate = 0;
+
+      function getCardWidth() { return cards[0].offsetWidth; }
+
+      function maxIndex() {
+        var visible = Math.floor(viewport.offsetWidth / getCardWidth());
+        return Math.max(0, cards.length - visible);
+      }
+
+      function goTo(index) {
+        currentIndex = Math.max(0, Math.min(index, maxIndex()));
+        currentTranslate = -(currentIndex * getCardWidth());
+        track.style.transform = 'translateX(' + currentTranslate + 'px)';
+      }
+
+      track.addEventListener('mousedown', function (e) {
+        isDragging = true;
+        startX = e.clientX;
+        startTranslate = currentTranslate;
+        track.style.transition = 'none';
+      });
+
+      document.addEventListener('mousemove', function (e) {
+        if (!isDragging) return;
+        track.style.transform = 'translateX(' + (startTranslate + (e.clientX - startX)) + 'px)';
+      });
+
+      document.addEventListener('mouseup', function (e) {
+        if (!isDragging) return;
+        isDragging = false;
+        track.style.transition = '';
+        var diff = e.clientX - startX;
+        goTo(Math.abs(diff) > 60 ? (diff < 0 ? currentIndex + 1 : currentIndex - 1) : currentIndex);
+      });
+
+      track.addEventListener('touchstart', function (e) {
+        startX = e.touches[0].clientX;
+        startTranslate = currentTranslate;
+        track.style.transition = 'none';
+      }, { passive: true });
+
+      track.addEventListener('touchmove', function (e) {
+        track.style.transform = 'translateX(' + (startTranslate + (e.touches[0].clientX - startX)) + 'px)';
+      }, { passive: true });
+
+      track.addEventListener('touchend', function (e) {
+        track.style.transition = '';
+        var diff = e.changedTouches[0].clientX - startX;
+        goTo(Math.abs(diff) > 50 ? (diff < 0 ? currentIndex + 1 : currentIndex - 1) : currentIndex);
+      });
+
+      window.addEventListener('resize', function () { goTo(0); });
+      goTo(0);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () { initComboSlider(sectionId); });
+
+    if (window.Shopify && window.Shopify.designMode) {
+      document.addEventListener('shopify:section:load', function (e) {
+        if (e.detail && e.detail.sectionId === sectionId) initComboSlider(sectionId);
+      });
+    }
+  })();
+</script>
+
+<script>
+  function comboAddToCart(variantId, btn) {
+    btn.disabled = true;
+    btn.textContent = 'Adding...';
+    fetch('/cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: variantId, quantity: 1 })
+    })
+      .then(function (res) { if (!res.ok) throw new Error('Failed'); return res.json(); })
+      .then(function () {
+        btn.textContent = 'Added!';
+        setTimeout(function () {
+          btn.innerHTML = 'ADD TO CART <span class="combo-cart-icon">&#128722;</span>';
+          btn.disabled = false;
+        }, 1500);
+        document.dispatchEvent(new CustomEvent('cart:updated'));
+      })
+      .catch(function () { btn.textContent = 'Try Again'; btn.disabled = false; });
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Combo Offers Slider",
+  "tag": "section",
+  "class": "combo-offers-wrapper",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Background"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#f2ede8",
+      "info": "Fallback if no background image is set"
+    },
+    {
+      "type": "image_picker",
+      "id": "bg_image",
+      "label": "Background image",
+      "info": "Optional. Covers full section."
+    },
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section heading",
+      "default": "Combo Offers"
+    },
+    {
+      "type": "text",
+      "id": "view_all_text",
+      "label": "View all link text",
+      "default": "View All"
+    },
+    {
+      "type": "url",
+      "id": "view_all_url",
+      "label": "View all link URL"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product_card",
+      "name": "Product Card",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "text",
+          "id": "badge",
+          "label": "Badge text",
+          "info": "e.g. New Arrival, Best Seller, Hot Deal"
+        },
+        {
+          "type": "text",
+          "id": "emi_text",
+          "label": "EMI text",
+          "placeholder": "e.g. 333/Month"
+        },
+        {
+          "type": "url",
+          "id": "emi_link",
+          "label": "EMI link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Combo Offers Slider",
+      "blocks": [
+        { "type": "product_card" },
+        { "type": "product_card" },
+        { "type": "product_card" },
+        { "type": "product_card" }
+      ]
+    }
+  ],
+  "max_blocks": 20
+}
+{% endschema %}

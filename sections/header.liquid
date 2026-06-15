@@ -1,0 +1,665 @@
+{%- liquid
+  assign show_logo_image = false
+  if section.settings.logo != blank
+    assign show_logo_image = true
+  endif
+  assign logo_center = false
+  if section.settings.logo_position == 'center'
+    assign logo_center = true
+  endif
+-%}
+
+<!-- Announcement bar -->
+{%- if section.settings.show_announcement and section.settings.announcement_text != blank -%}
+  <div
+    class="site-announce site-announce--{{ section.settings.announcement_style }} full-width"
+    id="SiteAnnouncement"
+    role="banner"
+  >
+    <div class="site-announce__inner">
+      <p class="site-announce__text">{{ section.settings.announcement_text | escape }}</p>
+    </div>
+  </div>
+{%- endif -%}
+
+<header
+  class="site-header{% if section.settings.sticky %} site-header--sticky{% endif %}{% if logo_center %} site-header--logo-center{% endif %} full-width"
+  id="SiteHeader"
+>
+  <div class="site-header__inner">
+
+    <!-- Left nav (shown in centered-logo layout only) -->
+    {%- if logo_center -%}
+      <nav
+        class="site-header__nav site-header__nav--left"
+        aria-label="{{ 'sections.header.navigation' | t | default: 'Main navigation' }}"
+      >
+        {%- assign half = section.settings.menu.links.size | divided_by: 2 -%}
+        {%- for link in section.settings.menu.links limit: half -%}
+          {%- if link.links.size > 0 -%}
+            <div class="site-header__nav-item site-header__nav-item--dropdown">
+              <a
+                href="{{ link.url }}"
+                class="site-header__nav-link{% if link.active %} is-active{% endif %}"
+                aria-haspopup="true"
+              >
+                {{- link.title -}}
+                <svg class="site-header__nav-chevron" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <path d="M1 1l5 5 5-5"/>
+                </svg>
+              </a>
+              <div class="site-header__dropdown" role="menu">
+                {%- for child in link.links -%}
+                  <a href="{{ child.url }}" class="site-header__dropdown-link{% if child.active %} is-active{% endif %}" role="menuitem">{{ child.title }}</a>
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- else -%}
+            <a href="{{ link.url }}" class="site-header__nav-link{% if link.active %} is-active{% endif %}">{{ link.title }}</a>
+          {%- endif -%}
+        {%- endfor -%}
+      </nav>
+    {%- endif -%}
+
+    <!-- Logo -->
+    <div class="site-header__logo">
+      <a href="{{ routes.root_url }}" class="site-header__logo-link" aria-label="{{ shop.name }}">
+        {%- if show_logo_image -%}
+          {{
+            section.settings.logo
+            | image_url: height: 60
+            | image_tag:
+              loading: 'eager',
+              fetchpriority: 'high',
+              class: 'site-header__logo-img',
+              alt: shop.name
+          }}
+        {%- else -%}
+          <span class="site-header__logo-text">{{ shop.name }}</span>
+        {%- endif -%}
+      </a>
+    </div>
+
+    <!-- Desktop navigation (left-logo layout) -->
+    {%- unless logo_center -%}
+      <nav
+        class="site-header__nav"
+        aria-label="{{ 'sections.header.navigation' | t | default: 'Main navigation' }}"
+      >
+        {%- for link in section.settings.menu.links -%}
+          {%- if link.links.size > 0 -%}
+            <div class="site-header__nav-item site-header__nav-item--dropdown">
+              <a
+                href="{{ link.url }}"
+                class="site-header__nav-link{% if link.active %} is-active{% endif %}"
+                aria-haspopup="true"
+              >
+                {{- link.title -}}
+                <svg class="site-header__nav-chevron" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <path d="M1 1l5 5 5-5"/>
+                </svg>
+              </a>
+              <div class="site-header__dropdown" role="menu">
+                {%- for child in link.links -%}
+                  <a href="{{ child.url }}" class="site-header__dropdown-link{% if child.active %} is-active{% endif %}" role="menuitem">{{ child.title }}</a>
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- else -%}
+            <a href="{{ link.url }}" class="site-header__nav-link{% if link.active %} is-active{% endif %}">{{ link.title }}</a>
+          {%- endif -%}
+        {%- endfor -%}
+      </nav>
+    {%- endunless -%}
+
+    <!-- Right nav (shown in centered-logo layout) + Actions -->
+    <div class="site-header__right">
+      {%- if logo_center -%}
+        <nav
+          class="site-header__nav site-header__nav--right"
+          aria-label="{{ 'sections.header.navigation_right' | t | default: 'Secondary navigation' }}"
+        >
+          {%- assign half = section.settings.menu.links.size | divided_by: 2 -%}
+          {%- assign offset = half -%}
+          {%- for link in section.settings.menu.links offset: offset -%}
+            {%- if link.links.size > 0 -%}
+              <div class="site-header__nav-item site-header__nav-item--dropdown">
+                <a
+                  href="{{ link.url }}"
+                  class="site-header__nav-link{% if link.active %} is-active{% endif %}"
+                  aria-haspopup="true"
+                >
+                  {{- link.title -}}
+                  <svg class="site-header__nav-chevron" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                    <path d="M1 1l5 5 5-5"/>
+                  </svg>
+                </a>
+                <div class="site-header__dropdown" role="menu">
+                  {%- for child in link.links -%}
+                    <a href="{{ child.url }}" class="site-header__dropdown-link{% if child.active %} is-active{% endif %}" role="menuitem">{{ child.title }}</a>
+                  {%- endfor -%}
+                </div>
+              </div>
+            {%- else -%}
+              <a href="{{ link.url }}" class="site-header__nav-link{% if link.active %} is-active{% endif %}">{{ link.title }}</a>
+            {%- endif -%}
+          {%- endfor -%}
+        </nav>
+      {%- endif -%}
+
+      <!-- Actions (account + cart + hamburger) -->
+      <div class="site-header__actions">
+        {%- if shop.customer_accounts_enabled -%}
+          <shopify-account menu="{{ section.settings.customer_account_menu }}">
+            <a
+              href="{{ routes.account_url }}"
+              class="site-header__icon-btn"
+              aria-label="{{ 'customer.account.title' | t | default: 'Account' }}"
+            >
+              {{ 'icon-account.svg' | inline_asset_content }}
+            </a>
+          </shopify-account>
+        {%- endif -%}
+
+        <a
+          href="{{ routes.cart_url }}"
+          class="site-header__icon-btn site-header__cart-btn"
+          aria-label="{{ 'sections.cart_icon_bubble.accessible_label_cart_count' | t: count: cart.item_count | default: 'Cart' }}"
+        >
+          {{ 'icon-cart.svg' | inline_asset_content }}
+          {%- if cart.item_count > 0 -%}
+            <span class="site-header__cart-count" data-cart-count="{{ cart.item_count }}">{{ cart.item_count }}</span>
+          {%- endif -%}
+        </a>
+
+        <button
+          class="site-header__hamburger"
+          type="button"
+          aria-label="{{ 'sections.header.menu' | t | default: 'Open menu' }}"
+          aria-expanded="false"
+          aria-controls="SiteMobileMenu"
+        >
+          <span class="site-header__hamburger-bar"></span>
+          <span class="site-header__hamburger-bar"></span>
+          <span class="site-header__hamburger-bar"></span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Mobile menu -->
+  <div class="site-header__mobile-menu" id="SiteMobileMenu" aria-hidden="true">
+    <nav class="site-header__mobile-nav">
+      {%- for link in section.settings.menu.links -%}
+        <a href="{{ link.url }}" class="site-header__mobile-link{% if link.active %} is-active{% endif %}">{{ link.title }}</a>
+        {%- if link.links.size > 0 -%}
+          {%- for child in link.links -%}
+            <a href="{{ child.url }}" class="site-header__mobile-link site-header__mobile-link--child">{{ child.title }}</a>
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </nav>
+  </div>
+</header>
+
+{% stylesheet %}
+  /* ── Announcement bar ── */
+  .site-announce {
+    width: 100%;
+    text-align: center;
+  }
+
+  .site-announce--dark {
+    background-color: #1a1614;
+    color: #c9a96e;
+  }
+
+  .site-announce--gold {
+    background-color: #c9a96e;
+    color: #1a1614;
+  }
+
+  .site-announce__inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .site-announce__text {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.6875rem;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* ── Header shell ── */
+  .site-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+    z-index: 100;
+    position: relative;
+    transition: box-shadow 0.3s ease;
+  }
+
+  .site-header--sticky {
+    position: sticky;
+    top: 0;
+  }
+
+  /* ── Inner layout (left-logo default) ── */
+  .site-header__inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    height: 4.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  /* ── Inner layout (centered logo) ── */
+  .site-header--logo-center .site-header__inner {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .site-header--logo-center .site-header__logo {
+    grid-column: 2;
+    justify-self: center;
+    flex-shrink: 0;
+  }
+
+  .site-header--logo-center .site-header__right {
+    grid-column: 3;
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+
+  /* ── Logo ── */
+  .site-header__logo { flex-shrink: 0; }
+
+  .site-header__logo-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+  }
+
+  .site-header__logo-text {
+    font-family: var(--font-heading-family, serif);
+    font-size: 1.375rem;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #1a1614;
+    line-height: 1;
+  }
+
+  .site-header__logo-img {
+    height: 2.625rem;
+    width: auto;
+    display: block;
+  }
+
+  /* ── Desktop nav ── */
+  .site-header__nav {
+    display: none;
+    align-items: center;
+    gap: 0;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .site-header--logo-center .site-header__nav { flex: none; }
+  .site-header--logo-center .site-header__nav--left  { justify-content: flex-end; }
+  .site-header--logo-center .site-header__nav--right { justify-content: flex-start; }
+
+  .site-header__nav-item { position: relative; }
+
+  .site-header__nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #1a1614;
+    text-decoration: none;
+    padding: 0.5rem 0.9rem;
+    position: relative;
+    transition: color 0.22s ease;
+    white-space: nowrap;
+  }
+
+  .site-header__nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0.9rem;
+    right: 0.9rem;
+    height: 1.5px;
+    background-color: #c9a96e;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.25s ease;
+  }
+
+  .site-header__nav-link:hover,
+  .site-header__nav-link.is-active { color: #c9a96e; }
+
+  .site-header__nav-link:hover::after,
+  .site-header__nav-link.is-active::after { transform: scaleX(1); }
+
+  .site-header__nav-chevron {
+    width: 0.6rem;
+    height: 0.6rem;
+    flex-shrink: 0;
+  }
+
+  /* ── Dropdown ── */
+  .site-header__dropdown {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    min-width: 13rem;
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.09);
+    padding: 0.5rem 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s;
+    z-index: 200;
+  }
+
+  .site-header__nav-item--dropdown:hover .site-header__dropdown,
+  .site-header__nav-item--dropdown:focus-within .site-header__dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .site-header__dropdown-link {
+    display: block;
+    padding: 0.625rem 1.25rem;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: #1a1614;
+    text-decoration: none;
+    transition: background-color 0.18s ease, color 0.18s ease;
+  }
+
+  .site-header__dropdown-link:hover,
+  .site-header__dropdown-link.is-active {
+    background-color: #faf8f5;
+    color: #c9a96e;
+  }
+
+  /* ── Right wrapper ── */
+  .site-header__right {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 0;
+  }
+
+  /* ── Actions ── */
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.125rem;
+    flex-shrink: 0;
+  }
+
+  .site-header__icon-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1a1614;
+    text-decoration: none;
+    position: relative;
+    border-radius: 2px;
+    transition: color 0.22s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .site-header__icon-btn:hover { color: #c9a96e; }
+
+  .site-header__icon-btn svg {
+    width: 1.4rem;
+    height: 1.4rem;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .site-header__cart-btn { position: relative; }
+
+  .site-header__cart-count {
+    position: absolute;
+    top: 0.2rem;
+    right: 0.1rem;
+    min-width: 1.05rem;
+    height: 1.05rem;
+    background-color: #c9a96e;
+    color: #ffffff;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.5625rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  /* ── Hamburger ── */
+  .site-header__hamburger {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.375rem;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .site-header__hamburger-bar {
+    display: block;
+    width: 1.375rem;
+    height: 1.5px;
+    background-color: #1a1614;
+    border-radius: 1px;
+    transition: transform 0.28s ease, opacity 0.22s ease;
+  }
+
+  .site-header--menu-open .site-header__hamburger-bar:nth-child(1) { transform: rotate(45deg) translate(4.5px, 4.5px); }
+  .site-header--menu-open .site-header__hamburger-bar:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .site-header--menu-open .site-header__hamburger-bar:nth-child(3) { transform: rotate(-45deg) translate(4.5px, -4.5px); }
+
+  /* ── Mobile menu ── */
+  .site-header__mobile-menu {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    background-color: #ffffff;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .site-header__mobile-menu[aria-hidden="false"] { max-height: 560px; }
+
+  .site-header__mobile-nav {
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem 2rem 1.5rem;
+  }
+
+  .site-header__mobile-link {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.9375rem;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    color: #1a1614;
+    text-decoration: none;
+    padding: 0.875rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    transition: color 0.22s ease;
+  }
+
+  .site-header__mobile-link:hover,
+  .site-header__mobile-link.is-active { color: #c9a96e; }
+
+  .site-header__mobile-link--child {
+    padding-left: 1.25rem;
+    font-size: 0.875rem;
+    color: rgba(26, 22, 20, 0.62);
+    border-bottom-style: dashed;
+  }
+
+  /* ── Desktop breakpoint ── */
+  @media screen and (min-width: 990px) {
+    .site-header__nav { display: flex; }
+    .site-header__hamburger { display: none; }
+    .site-header__inner { padding: 0 3rem; }
+    .site-announce__inner { padding-left: 3rem; padding-right: 3rem; }
+  }
+
+  @media screen and (min-width: 1440px) {
+    .site-header__inner { padding: 0 4.5rem; }
+    .site-announce__inner { padding-left: 4.5rem; padding-right: 4.5rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-header__hamburger-bar,
+    .site-header__mobile-menu,
+    .site-header__dropdown { transition: none; }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    var header = document.getElementById('SiteHeader');
+    if (!header) return;
+
+    var hamburger  = header.querySelector('.site-header__hamburger');
+    var mobileMenu = document.getElementById('SiteMobileMenu');
+
+    if (hamburger && mobileMenu) {
+      hamburger.addEventListener('click', function () {
+        var expanded = hamburger.getAttribute('aria-expanded') === 'true';
+        hamburger.setAttribute('aria-expanded', String(!expanded));
+        mobileMenu.setAttribute('aria-hidden', String(expanded));
+        header.classList.toggle('site-header--menu-open', !expanded);
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!header.contains(e.target) && header.classList.contains('site-header--menu-open')) {
+          hamburger.setAttribute('aria-expanded', 'false');
+          mobileMenu.setAttribute('aria-hidden', 'true');
+          header.classList.remove('site-header--menu-open');
+        }
+      });
+    }
+
+    window.addEventListener('scroll', function () {
+      header.style.boxShadow = window.scrollY > 60 ? '0 2px 16px rgba(0,0,0,0.08)' : '';
+    }, { passive: true });
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "t:general.header",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Announcement bar"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_announcement",
+      "label": "Show announcement bar",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "announcement_text",
+      "label": "Announcement text",
+      "default": "Free shipping on orders over ₹999 — Use code WELCOME10 for 10% off"
+    },
+    {
+      "type": "select",
+      "id": "announcement_style",
+      "label": "Bar style",
+      "options": [
+        { "value": "dark", "label": "Dark" },
+        { "value": "gold", "label": "Gold" }
+      ],
+      "default": "dark"
+    },
+    {
+      "type": "header",
+      "content": "Logo"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo image"
+    },
+    {
+      "type": "select",
+      "id": "logo_position",
+      "label": "Logo position (desktop)",
+      "options": [
+        { "value": "left",   "label": "Left"   },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Navigation"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "t:labels.menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "link_list",
+      "id": "customer_account_menu",
+      "label": "t:labels.customer_account_menu",
+      "default": "customer-account-main-menu"
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky",
+      "label": "Sticky header",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

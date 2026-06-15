@@ -1,0 +1,489 @@
+{% comment %}
+  Founder Story Section
+  - Left: founder image (the pre-edited arch PNG you upload)
+  - Right: heading, text, name, title, CTA
+  - Background: optional image from settings, fallback to bg color
+{% endcomment %}
+
+{% if section.settings.bg_image != blank %}
+  {% assign has_bg = true %}
+{% else %}
+  {% assign has_bg = false %}
+{% endif %}
+
+<section
+  class="founder-section full-width{% if has_bg %} founder-section--has-bg{% endif %}"
+  id="founder-{{ section.id }}"
+  style="
+    {% if section.settings.bg_image != blank %}background-image: url('{{ section.settings.bg_image | img_url: '2000x' }}');{% endif %}
+    background-color: {{ section.settings.bg_color | default: '#f5f0e8' }};
+    padding-top: {{ section.settings.section_spacing }}px;
+    padding-bottom: {{ section.settings.section_spacing }}px;
+  "
+>
+  <div class="founder-inner">
+    <div class="founder-grid">
+
+      <!-- LEFT: Founder Image -->
+      <div class="founder-media-col">
+        <div class="founder-media-wrap">
+          {%- if section.settings.founder_image != blank -%}
+            {{
+              section.settings.founder_image
+              | image_url: width: 900
+              | image_tag:
+                loading: 'lazy',
+                widths: '400, 600, 800, 900',
+                sizes: '(min-width: 990px) 45vw, 100vw',
+                class: 'founder-img',
+                alt: section.settings.founder_image.alt | default: section.settings.founder_name | escape
+            }}
+          {%- else -%}
+            <div class="founder-img-placeholder">
+              {{ 'image' | placeholder_svg_tag: 'founder-ph-svg' }}
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+
+      <!-- RIGHT: Content -->
+      <div class="founder-content-col">
+        <div class="founder-content">
+
+          {%- if section.settings.eyebrow != blank -%}
+            <p class="founder-eyebrow">
+              <span class="founder-eyebrow-rule" aria-hidden="true"></span>
+              {{ section.settings.eyebrow | escape }}
+            </p>
+          {%- endif -%}
+
+          {%- if section.settings.story_heading != blank -%}
+            <h2 class="founder-heading">{{ section.settings.story_heading | escape }}</h2>
+          {%- endif -%}
+
+          <div class="founder-divider" aria-hidden="true">
+            <span class="founder-divider-line"></span>
+            <svg class="founder-divider-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 2 C9 6 4 8 4 12 C4 16 7.5 19 12 22 C16.5 19 20 16 20 12 C20 8 15 6 12 2Z" fill="currentColor"/>
+            </svg>
+            <span class="founder-divider-line"></span>
+          </div>
+
+          {%- if section.settings.story_text != blank -%}
+            <div class="founder-body">{{ section.settings.story_text }}</div>
+          {%- endif -%}
+
+          {%- if section.settings.signature_image != blank -%}
+            <div class="founder-signature">
+              {{
+                section.settings.signature_image
+                | image_url: width: 240
+                | image_tag:
+                  loading: 'lazy',
+                  class: 'founder-signature-img',
+                  alt: section.settings.founder_name | default: '' | escape
+              }}
+            </div>
+          {%- endif -%}
+
+          {%- if section.settings.founder_name != blank or section.settings.founder_title != blank -%}
+            <div class="founder-attribution">
+              {%- if section.settings.founder_name != blank -%}
+                <span class="founder-name">{{ section.settings.founder_name | escape }}</span>
+              {%- endif -%}
+              {%- if section.settings.founder_title != blank -%}
+                <span class="founder-title">{{ section.settings.founder_title | escape }}</span>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+          {%- if section.settings.cta_text != blank -%}
+            <div class="founder-cta-wrap">
+              <a href="{{ section.settings.cta_url | default: '#' }}" class="founder-cta">
+                <span>{{ section.settings.cta_text | escape }}</span>
+              </a>
+            </div>
+          {%- endif -%}
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ── Section ── */
+  .founder-section {
+    overflow: hidden;
+    position: relative;
+  }
+
+  .founder-section--has-bg {
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+  }
+
+  .founder-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Grid: image left, content right ── */
+  .founder-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    align-items: center;
+  }
+
+  @media (min-width: 990px) {
+    .founder-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+    }
+
+    .founder-media-col {
+      order: 1;
+    }
+
+    .founder-content-col {
+      order: 2;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .founder-grid {
+      gap: 80px;
+    }
+
+    .founder-inner {
+      padding: 0 48px;
+    }
+  }
+
+  /* ── Media column ── */
+  .founder-media-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .founder-img {
+    width: 100%;
+    max-width: 480px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .founder-img-placeholder {
+    width: 100%;
+    max-width: 480px;
+    aspect-ratio: 3 / 4;
+    background-color: rgba(201, 169, 110, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+  }
+
+  .founder-ph-svg {
+    width: 50%;
+    height: 50%;
+    fill: rgba(201, 169, 110, 0.2);
+  }
+
+  /* ── Content column ── */
+  .founder-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* ── Eyebrow ── */
+  .founder-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #c9a96e;
+    margin: 0 0 20px;
+  }
+
+  .founder-eyebrow-rule {
+    display: block;
+    flex-shrink: 0;
+    width: 40px;
+    height: 1px;
+    background-color: #c9a96e;
+  }
+
+  /* ── Heading ── */
+  .founder-heading {
+    font-size: clamp(24px, 3.5vw, 40px);
+    font-weight: 300;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: #1a1614;
+    margin: 0 0 24px;
+  }
+
+  /* ── Divider ── */
+  .founder-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    color: #c9a96e;
+  }
+
+  .founder-divider-line {
+    flex: 1;
+    max-width: 56px;
+    height: 1px;
+    background: linear-gradient(to right, rgba(201,169,110,0.6), rgba(201,169,110,0.1));
+  }
+
+  .founder-divider-line:last-child {
+    background: linear-gradient(to left, rgba(201,169,110,0.6), rgba(201,169,110,0.1));
+  }
+
+  .founder-divider-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    opacity: 0.8;
+  }
+
+  /* ── Body text ── */
+  .founder-body {
+    font-size: clamp(14px, 1.2vw, 16px);
+    font-weight: 300;
+    line-height: 1.85;
+    letter-spacing: 0.02em;
+    color: rgba(26, 22, 20, 0.72);
+    margin-bottom: 28px;
+  }
+
+  .founder-body p {
+    margin: 0 0 14px;
+  }
+
+  .founder-body p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ── Signature ── */
+  .founder-signature {
+    margin-bottom: 20px;
+  }
+
+  .founder-signature-img {
+    height: 52px;
+    width: auto;
+    display: block;
+    opacity: 0.85;
+  }
+
+  /* ── Attribution ── */
+  .founder-attribution {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 28px;
+    border-left: 2px solid #c9a96e;
+    padding-left: 16px;
+  }
+
+  .founder-name {
+    display: block;
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: #1a1614;
+  }
+
+  .founder-title {
+    display: block;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(201, 169, 110, 0.8);
+  }
+
+  /* ── CTA ── */
+  .founder-cta-wrap {
+    display: flex;
+  }
+
+  .founder-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+    padding: 0 36px;
+    background-color: transparent;
+    border: 1px solid rgba(201, 169, 110, 0.5);
+    color: #c9a96e;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    transition: color 0.32s ease, border-color 0.32s ease;
+  }
+
+  .founder-cta span {
+    position: relative;
+    z-index: 1;
+  }
+
+  .founder-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: #c9a96e;
+    transform: scaleX(0);
+    transform-origin: right center;
+    transition: transform 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .founder-cta:hover {
+    color: #ffffff;
+    border-color: #c9a96e;
+  }
+
+  .founder-cta:hover::before {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .founder-cta,
+    .founder-cta::before {
+      transition: none;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Founder Story",
+  "tag": "section",
+  "class": "founder-story-section",
+  "settings": [
+    {
+      "type": "range",
+      "id": "section_spacing",
+      "label": "Section top/bottom spacing",
+      "min": 40,
+      "max": 160,
+      "step": 8,
+      "unit": "px",
+      "default": 96
+    },
+    {
+      "type": "header",
+      "content": "Background"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#f5f0e8",
+      "info": "Used as fallback if no background image is set"
+    },
+    {
+      "type": "image_picker",
+      "id": "bg_image",
+      "label": "Background image",
+      "info": "Optional. Covers full section. Upload a texture or pattern."
+    },
+    {
+      "type": "header",
+      "content": "Founder Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "founder_image",
+      "label": "Founder image",
+      "info": "Upload your pre-edited arch/frame PNG here. Displays on the left."
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow text",
+      "default": "Our Story"
+    },
+    {
+      "type": "text",
+      "id": "story_heading",
+      "label": "Heading",
+      "default": "Meet The Founder"
+    },
+    {
+      "type": "richtext",
+      "id": "story_text",
+      "label": "Story text",
+      "default": "<p>Adil Qadri, the visionary Founder and CEO of Adil Qadri, has carved a niche for himself in the premium perfume industry, building a brand synonymous with luxury and sophistication.</p><p>Understanding the evolving preferences of his loyal clientele, Adil Qadri has introduced a distinctive range of attars designed to seamlessly complement contemporary lifestyles.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Founder Details"
+    },
+    {
+      "type": "text",
+      "id": "founder_name",
+      "label": "Founder name",
+      "default": "Adil Qadri"
+    },
+    {
+      "type": "text",
+      "id": "founder_title",
+      "label": "Founder title",
+      "default": "Founder & CEO, Adil Qadri"
+    },
+    {
+      "type": "image_picker",
+      "id": "signature_image",
+      "label": "Signature image",
+      "info": "Optional. Upload a signature PNG."
+    },
+    {
+      "type": "header",
+      "content": "Button"
+    },
+    {
+      "type": "text",
+      "id": "cta_text",
+      "label": "Button label",
+      "default": "Discover Our Story"
+    },
+    {
+      "type": "url",
+      "id": "cta_url",
+      "label": "Button link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Founder Story"
+    }
+  ]
+}
+{% endschema %}

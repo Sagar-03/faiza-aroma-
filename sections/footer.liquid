@@ -1,0 +1,743 @@
+{%- liquid
+  assign show_logo = false
+  if section.settings.logo != blank
+    assign show_logo = true
+  endif
+-%}
+
+<footer class="faiza-footer full-width" role="contentinfo">
+
+  <!-- Scam Alert -->
+  <div class="faiza-scam-alert">
+    <div class="faiza-scam-alert__inner">
+
+      <h3>⚠️ धोखाधड़ी से सावधान / Scam Alert</h3>
+
+      <p><strong>🚨 विभिन्न माध्यमों पर बढ़ती धोखाधड़ी से सावधान</strong></p>
+
+      <ul>
+        <li>
+          धोखेबाज लॉजिस्टिक्स/डिलीवरी एजेंट बनकर कॉल कर सकते हैं और डिलीवरी के नाम पर पैसे मांग सकते हैं —
+          <strong>भुगतान न करें।</strong>
+          FAIZA AROMA कभी भी अपने आधिकारिक प्लेटफ़ॉर्म के बाहर किसी भी कॉन्टेस्ट, डील या प्रमोशन के लिए भुगतान नहीं मांगता।
+        </li>
+        <li>
+          यदि आपको ऐसा कोई संदेश मिले, तो अपनी जानकारी साझा न करें —
+          संपर्क करें:
+          <strong>+91 8885978692</strong> या
+          <strong>info@faizaaroma.com</strong>
+        </li>
+      </ul>
+
+      <p><strong>🚨 Rise in Fraudulent Activities Across Channels</strong></p>
+
+      <ul>
+        <li>
+          Fraudsters may impersonate delivery partners asking for payment.
+          <strong>Do not pay.</strong>
+        </li>
+        <li>
+          Contact us at
+          <strong>+91 8885978692</strong> or
+          <strong>info@faizaaroma.com</strong>
+        </li>
+      </ul>
+
+      <p class="faiza-scam-alert__safe">
+        सुरक्षित रहें / Stay Safe!
+      </p>
+
+    </div>
+  </div>
+
+  <!-- Top bar: brand + columns -->
+  <div class="faiza-footer__top">
+    <div class="faiza-footer__inner">
+
+      <!-- Brand column -->
+      <div class="faiza-footer__brand">
+        <a href="{{ routes.root_url }}" class="faiza-footer__logo-link" aria-label="{{ shop.name }}">
+          {%- if show_logo -%}
+            {{
+              section.settings.logo
+              | image_url: height: 56
+              | image_tag:
+                loading: 'lazy',
+                class: 'faiza-footer__logo-img',
+                alt: shop.name
+            }}
+          {%- else -%}
+            <span class="faiza-footer__logo-text">{{ shop.name }}</span>
+          {%- endif -%}
+        </a>
+
+        {%- if section.settings.brand_tagline != blank -%}
+          <p class="faiza-footer__tagline">{{ section.settings.brand_tagline | escape }}</p>
+        {%- endif -%}
+
+        <!-- Contact info -->
+        <div class="faiza-footer__contact">
+          {%- if section.settings.contact_phone != blank -%}
+            <a href="tel:{{ section.settings.contact_phone | remove: ' ' }}" class="faiza-footer__contact-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14">
+                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/>
+              </svg>
+              {{ section.settings.contact_phone }}
+            </a>
+          {%- endif -%}
+          {%- if section.settings.contact_email != blank -%}
+            <a href="mailto:{{ section.settings.contact_email }}" class="faiza-footer__contact-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              {{ section.settings.contact_email }}
+            </a>
+          {%- endif -%}
+        </div>
+
+        <!-- Social icons -->
+        <div class="faiza-footer__social">
+          {%- if section.settings.social_facebook != blank -%}
+            <a href="{{ section.settings.social_facebook }}" class="faiza-footer__social-link" aria-label="Facebook" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="16" height="16">
+                <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
+              </svg>
+            </a>
+          {%- endif -%}
+          {%- if section.settings.social_instagram != blank -%}
+            <a href="{{ section.settings.social_instagram }}" class="faiza-footer__social-link" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="16" height="16">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <circle cx="12" cy="12" r="4"/>
+                <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
+              </svg>
+            </a>
+          {%- endif -%}
+          {%- if section.settings.social_youtube != blank -%}
+            <a href="{{ section.settings.social_youtube }}" class="faiza-footer__social-link" aria-label="YouTube" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="16" height="16">
+                <path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 00-1.95 1.96A29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.95 1.95C5.12 20 12 20 12 20s6.88 0 8.59-.47a2.78 2.78 0 001.95-1.95A29 29 0 0023 12a29 29 0 00-.46-5.58zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/>
+              </svg>
+            </a>
+          {%- endif -%}
+          {%- if section.settings.social_tiktok != blank -%}
+            <a href="{{ section.settings.social_tiktok }}" class="faiza-footer__social-link" aria-label="TikTok" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="16" height="16">
+                <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.93a8.14 8.14 0 004.77 1.52V6.99a4.85 4.85 0 01-1-.3z"/>
+              </svg>
+            </a>
+          {%- endif -%}
+        </div>
+      </div>
+
+      <!-- Link columns -->
+      {%- if section.settings.menu_1 != blank -%}
+        <div class="faiza-footer__col">
+          {%- if section.settings.menu_1_label != blank -%}
+            <h3 class="faiza-footer__col-heading">{{ section.settings.menu_1_label | escape }}</h3>
+          {%- endif -%}
+          <ul class="faiza-footer__links" role="list">
+            {%- for link in section.settings.menu_1.links -%}
+              <li><a href="{{ link.url }}" class="faiza-footer__link">{{ link.title }}</a></li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.menu_2 != blank -%}
+        <div class="faiza-footer__col">
+          {%- if section.settings.menu_2_label != blank -%}
+            <h3 class="faiza-footer__col-heading">{{ section.settings.menu_2_label | escape }}</h3>
+          {%- endif -%}
+          <ul class="faiza-footer__links" role="list">
+            {%- for link in section.settings.menu_2.links -%}
+              <li><a href="{{ link.url }}" class="faiza-footer__link">{{ link.title }}</a></li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+
+      <!-- Newsletter column -->
+      <div class="faiza-footer__col faiza-footer__col--newsletter">
+        {%- if section.settings.newsletter_heading != blank -%}
+          <h3 class="faiza-footer__col-heading">{{ section.settings.newsletter_heading | escape }}</h3>
+        {%- endif -%}
+        {%- if section.settings.newsletter_text != blank -%}
+          <p class="faiza-footer__newsletter-text">{{ section.settings.newsletter_text | escape }}</p>
+        {%- endif -%}
+        {%- form 'customer' -%}
+          {%- if form.posted_successfully? -%}
+            <p class="faiza-footer__success">{{ 'general.newsletter.success' | t | default: 'Thank you for subscribing.' }}</p>
+          {%- else -%}
+            <div class="faiza-footer__newsletter-form">
+              <input type="hidden" name="contact[tags]" value="newsletter">
+              <label for="FooterNewsletter" class="visually-hidden">{{ 'general.newsletter.email_placeholder' | t | default: 'Email address' }}</label>
+              <input
+                id="FooterNewsletter"
+                type="email"
+                name="contact[email]"
+                autocomplete="email"
+                required
+                class="faiza-footer__email-input"
+                placeholder="{{ 'general.newsletter.email_placeholder' | t | default: 'Enter Your Email' }}"
+                aria-required="true"
+              >
+              <button type="submit" class="faiza-footer__subscribe-btn" aria-label="{{ 'general.newsletter.submit' | t | default: 'Subscribe' }}">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <path d="M4 10h12M11 5l5 5-5 5"/>
+                </svg>
+              </button>
+            </div>
+          {%- endif -%}
+        {%- endform -%}
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Gold divider -->
+  <div class="faiza-footer__divider" aria-hidden="true"></div>
+
+  <!-- Bottom bar -->
+  <div class="faiza-footer__bottom">
+    <div class="faiza-footer__inner faiza-footer__inner--bottom">
+
+      <p class="faiza-footer__copyright">
+        &copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. {{ 'general.footer.all_rights_reserved' | t | default: 'All rights reserved.' }}
+      </p>
+
+      <div class="faiza-footer__bottom-center">
+        {%- if section.settings.menu_legal != blank -%}
+          <ul class="faiza-footer__legal" role="list">
+            {%- for link in section.settings.menu_legal.links -%}
+              <li><a href="{{ link.url }}" class="faiza-footer__legal-link">{{ link.title }}</a></li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+      </div>
+
+      {%- if section.settings.show_payment_icons -%}
+        <div class="faiza-footer__payment" aria-label="{{ 'general.footer.payment_methods' | t | default: 'Payment methods' }}">
+          {%- for type in shop.enabled_payment_types -%}
+            {{ type | payment_type_svg_tag: class: 'faiza-footer__payment-icon' }}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+
+    </div>
+  </div>
+
+</footer>
+
+{% stylesheet %}
+  /* ── Scam Alert ── */
+  .faiza-scam-alert {
+    background: #681818;
+    padding: 30px;
+  }
+
+  .faiza-scam-alert__inner {
+    max-width: 1400px;
+    margin: auto;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 4px;
+    padding: 24px;
+    color: #fff;
+  }
+
+  .faiza-scam-alert__inner h3 {
+    margin-bottom: 20px;
+    color: #ff6969;
+    font-size: 22px;
+  }
+
+  .faiza-scam-alert__inner p {
+    margin: 16px 0;
+    line-height: 1.7;
+  }
+
+  .faiza-scam-alert__inner ul {
+    margin: 12px 0 24px 20px;
+  }
+
+  .faiza-scam-alert__inner li {
+    margin-bottom: 12px;
+    line-height: 1.8;
+  }
+
+  .faiza-scam-alert__safe {
+    margin-top: 24px;
+    font-weight: 700;
+  }
+
+  /* ── Footer shell ── */
+  .faiza-footer {
+    background-color: #3d0c0c;
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  /* ── Inner constraint ── */
+  .faiza-footer__inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  /* ── Top section ── */
+  .faiza-footer__top {
+    padding: 3rem 0 2.5rem;
+  }
+
+  .faiza-footer__inner {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  /* ── Brand ── */
+  .faiza-footer__logo-link {
+    display: inline-block;
+    margin-bottom: 1.25rem;
+    text-decoration: none;
+  }
+
+  .faiza-footer__logo-img {
+    height: 3rem;
+    width: auto;
+    display: block;
+    filter: brightness(0) invert(1);
+    opacity: 0.9;
+  }
+
+  .faiza-footer__logo-text {
+    font-family: var(--font-heading-family, serif);
+    font-size: 1.375rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #ffffff;
+    line-height: 1;
+  }
+
+  /* ── Contact info ── */
+  .faiza-footer__contact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .faiza-footer__contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.875rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.60);
+    text-decoration: none;
+    transition: color 0.22s ease;
+  }
+
+  .faiza-footer__contact-item:hover {
+    color: #c9a96e;
+  }
+
+  .faiza-footer__tagline {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.875rem;
+    font-weight: 300;
+    line-height: 1.75;
+    color: rgba(255, 255, 255, 0.50);
+    margin: 0 0 1.25rem;
+    max-width: 28ch;
+  }
+
+  /* ── Social ── */
+  .faiza-footer__social {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  .faiza-footer__social-link {
+    width: 2.25rem;
+    height: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.80);
+    background-color: rgba(0, 0, 0, 0.35);
+    border-radius: 50%;
+    text-decoration: none;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  .faiza-footer__social-link:hover {
+    background-color: #c9a96e;
+    color: #3d0c0c;
+  }
+
+  /* ── Column headings ── */
+  .faiza-footer__col-heading {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #ffffff;
+    margin: 0 0 1.5rem;
+  }
+
+  /* ── Link lists ── */
+  .faiza-footer__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+  }
+
+  .faiza-footer__link {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.875rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.60);
+    text-decoration: none;
+    transition: color 0.22s ease;
+  }
+
+  .faiza-footer__link:hover {
+    color: #c9a96e;
+  }
+
+  /* ── Newsletter ── */
+  .faiza-footer__newsletter-text {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.875rem;
+    font-weight: 300;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.50);
+    margin: 0 0 1.25rem;
+  }
+
+  .faiza-footer__newsletter-form {
+    display: flex;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background-color: #ffffff;
+    transition: border-color 0.25s ease;
+  }
+
+  .faiza-footer__newsletter-form:focus-within {
+    border-color: #c9a96e;
+  }
+
+  .faiza-footer__email-input {
+    flex: 1;
+    min-width: 0;
+    height: 3rem;
+    padding: 0 1rem;
+    background: none;
+    border: none;
+    outline: none;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: #1a1614;
+  }
+
+  .faiza-footer__email-input::placeholder {
+    color: rgba(26, 22, 20, 0.40);
+  }
+
+  .faiza-footer__subscribe-btn {
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #c9a96e;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+    flex-shrink: 0;
+  }
+
+  .faiza-footer__subscribe-btn:hover {
+    background-color: #b8923c;
+  }
+
+  .faiza-footer__subscribe-btn svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  .faiza-footer__success {
+    font-size: 0.875rem;
+    color: rgba(201, 169, 110, 0.8);
+    padding: 0.75rem 0;
+  }
+
+  /* ── Gold divider ── */
+  .faiza-footer__divider {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(201, 169, 110, 0.25) 20%,
+      rgba(201, 169, 110, 0.45) 50%,
+      rgba(201, 169, 110, 0.25) 80%,
+      transparent
+    );
+    margin: 0 2rem;
+  }
+
+  /* ── Bottom bar ── */
+  .faiza-footer__bottom {
+    padding: 1.5rem 0;
+  }
+
+  .faiza-footer__inner--bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .faiza-footer__copyright {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.75rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.32);
+    margin: 0;
+  }
+
+  .faiza-footer__legal {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem 1.25rem;
+  }
+
+  .faiza-footer__legal-link {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.75rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.32);
+    text-decoration: none;
+    transition: color 0.22s ease;
+  }
+
+  .faiza-footer__legal-link:hover {
+    color: rgba(201, 169, 110, 0.7);
+  }
+
+  .faiza-footer__payment {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .faiza-footer__payment-icon {
+    height: 1.5rem;
+    width: auto;
+    opacity: 0.45;
+    filter: grayscale(1) brightness(1.8);
+    display: block;
+  }
+
+  /* ── Tablet ── */
+  @media screen and (min-width: 750px) {
+    .faiza-footer__inner {
+      grid-template-columns: 1.5fr 1fr 1fr;
+      padding: 0 2.5rem;
+    }
+
+    .faiza-footer__brand {
+      grid-column: 1 / -1;
+    }
+
+    .faiza-footer__inner--bottom {
+      flex-direction: row;
+      justify-content: space-between;
+      text-align: left;
+      padding: 0 2.5rem;
+    }
+
+    .faiza-footer__divider {
+      margin: 0 2.5rem;
+    }
+  }
+
+  /* ── Desktop ── */
+  @media screen and (min-width: 990px) {
+    .faiza-footer__inner {
+      grid-template-columns: 1.6fr 1fr 1fr 1.5fr;
+      gap: 2.5rem 3rem;
+      padding: 0 3rem;
+    }
+
+    .faiza-footer__brand {
+      grid-column: auto;
+    }
+
+    .faiza-footer__inner--bottom {
+      padding: 0 3rem;
+    }
+
+    .faiza-footer__divider {
+      margin: 0 3rem;
+    }
+  }
+
+  @media screen and (min-width: 1440px) {
+    .faiza-footer__inner { padding: 0 4.5rem; }
+    .faiza-footer__inner--bottom { padding: 0 4.5rem; }
+    .faiza-footer__divider { margin: 0 4.5rem; }
+  }
+
+  /* ── Utilities ── */
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:general.footer",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo image"
+    },
+    {
+      "type": "text",
+      "id": "brand_tagline",
+      "label": "Brand tagline",
+      "default": "Crafted with the finest ingredients from around the world."
+    },
+    {
+      "type": "header",
+      "content": "Contact info"
+    },
+    {
+      "type": "text",
+      "id": "contact_phone",
+      "label": "Phone number",
+      "placeholder": "+91 00000 00000"
+    },
+    {
+      "type": "text",
+      "id": "contact_email",
+      "label": "Email address",
+      "placeholder": "info@yourstore.com"
+    },
+    {
+      "type": "header",
+      "content": "Social media"
+    },
+    {
+      "type": "url",
+      "id": "social_facebook",
+      "label": "Facebook URL"
+    },
+    {
+      "type": "url",
+      "id": "social_instagram",
+      "label": "Instagram URL"
+    },
+    {
+      "type": "url",
+      "id": "social_youtube",
+      "label": "YouTube URL"
+    },
+    {
+      "type": "url",
+      "id": "social_tiktok",
+      "label": "TikTok URL"
+    },
+    {
+      "type": "header",
+      "content": "Quick links column"
+    },
+    {
+      "type": "text",
+      "id": "menu_1_label",
+      "label": "Column 1 heading",
+      "default": "Categories"
+    },
+    {
+      "type": "link_list",
+      "id": "menu_1",
+      "label": "Column 1 menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "header",
+      "content": "Help column"
+    },
+    {
+      "type": "text",
+      "id": "menu_2_label",
+      "label": "Column 2 heading",
+      "default": "Quick Links"
+    },
+    {
+      "type": "link_list",
+      "id": "menu_2",
+      "label": "Column 2 menu"
+    },
+    {
+      "type": "header",
+      "content": "Newsletter"
+    },
+    {
+      "type": "text",
+      "id": "newsletter_heading",
+      "label": "Newsletter heading",
+      "default": "Newsletter"
+    },
+    {
+      "type": "text",
+      "id": "newsletter_text",
+      "label": "Newsletter text",
+      "default": "A short sentence describing what someone will receive by subscribing"
+    },
+    {
+      "type": "header",
+      "content": "Bottom bar"
+    },
+    {
+      "type": "link_list",
+      "id": "menu_legal",
+      "label": "Legal links menu"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_payment_icons",
+      "label": "t:labels.show_payment_icons",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

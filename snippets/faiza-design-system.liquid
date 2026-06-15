@@ -1,0 +1,41 @@
+{% doc %}
+  Loads the Faiza Aroma global design system stylesheet and injects
+  runtime CSS variables that resolve against Shopify theme settings.
+
+  Must be rendered inside <head>, before any other Faiza section styles.
+
+  @example
+  {% render 'faiza-design-system' %}
+{% enddoc %}
+
+{{ 'faiza-design-system.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign heading_font = settings.type_header_font
+  assign body_font    = settings.type_body_font
+-%}
+
+{{ heading_font | font_face: font_display: 'swap' }}
+{{ body_font    | font_face: font_display: 'swap' }}
+
+{%- style -%}
+  :root {
+    /* ── Shopify font references ──────────────────────────────── */
+    --font-heading-family: {{ heading_font.family | default: 'Georgia' }}, {{ heading_font.fallback_families | default: 'serif' }};
+    --font-heading-style:  {{ heading_font.style  | default: 'normal' }};
+    --font-heading-weight: {{ heading_font.weight | default: 400 }};
+
+    --font-body-family: {{ body_font.family | default: 'Inter' }}, {{ body_font.fallback_families | default: 'sans-serif' }};
+    --font-body-style:  {{ body_font.style  | default: 'normal' }};
+    --font-body-weight: {{ body_font.weight | default: 400 }};
+
+    /* ── Shopify color_scheme overrides (if applicable) ──────── */
+    {%- if settings.colors_background_1 -%}
+      --color-background: {{ settings.colors_background_1 }};
+    {%- endif -%}
+
+    {%- if settings.colors_text -%}
+      --color-foreground: {{ settings.colors_text }};
+    {%- endif -%}
+  }
+{%- endstyle -%}

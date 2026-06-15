@@ -1,0 +1,56 @@
+{
+  "sections": {
+    "hero": {
+      "type": "faiza-hero",
+      "settings": {}
+    },
+    "collection": {
+      "type": "faiza-best-sellers",
+      "settings": {}
+    },
+    "categories": {
+      "type": "faiza-category-grid",
+      "settings": {}
+    },
+    "bestseller": {
+      "type": "bestseller",
+      "settings": {}
+    },
+    "combo_offer": {
+      "type": "combo-offer",
+      "settings": {}
+    },
+    "explore_range": {
+      "type": "faiza-explore-range",
+      "settings": {}
+    },
+    "founder_story": {
+      "type": "faiza-founder-story",
+      "settings": {}
+    },
+    "why_trust_us": {
+      "type": "faiza-why-trust-us",
+      "settings": {}
+    },
+    "testimonials": {
+      "type": "faiza-testimonials",
+      "settings": {}
+    },
+    "faq": {
+      "type": "faiza-faq",
+      "settings": {}
+    }
+  },
+  "order": [
+    "hero",
+    "collection",
+    "categories",
+    "bestseller",
+    "combo_offer",
+    "explore_range",
+    "founder_story",
+    "why_trust_us",
+    "testimonials",
+    "faq"
+  ]
+}

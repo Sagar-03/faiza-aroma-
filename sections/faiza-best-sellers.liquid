@@ -1,0 +1,1147 @@
+{%- liquid
+  assign heading        = section.settings.heading | default: 'Collection'
+  assign products_limit = section.settings.products_count | default: 12
+  assign emi_months     = section.settings.emi_months | default: 3
+  assign show_emi       = section.settings.show_emi
+-%}
+
+<div
+  class="faiza-col full-width"
+  id="faiza-col-{{ section.id }}"
+  style="--sec-pad: {{ section.settings.section_spacing }}px;"
+>
+  <div class="faiza-col__inner">
+
+    <h2 class="faiza-col__heading">{{ heading | escape }}</h2>
+
+    <div class="faiza-col__tabs" role="tablist">
+      {%- for i in (1..3) -%}
+        {%- assign tab_key   = 'tab_label_' | append: i -%}
+        {%- assign tab_label = section.settings[tab_key] | default: 'Tab' -%}
+        <button
+          class="faiza-col__tab{% if forloop.first %} faiza-col__tab--active{% endif %}"
+          role="tab"
+          data-tab="{{ forloop.index0 }}"
+          aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+        >{{ tab_label | escape }}</button>
+      {%- endfor -%}
+    </div>
+
+    {%- for i in (1..3) -%}
+      {%- assign col_key = 'collection_' | append: i -%}
+      {%- assign col     = collections[section.settings[col_key]] -%}
+
+      <div
+        class="faiza-col__panel{% if forloop.first %} faiza-col__panel--active{% endif %}"
+        data-panel="{{ forloop.index0 }}"
+      >
+        <div class="faiza-col__slider" data-slider>
+
+          <button class="faiza-col__arrow faiza-col__arrow--prev" aria-label="Previous" data-prev disabled>
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M13 4l-6 6 6 6"/></svg>
+          </button>
+
+          <div class="faiza-col__track-wrap" data-track-wrap>
+            <ul class="faiza-col__track" data-track role="list">
+
+              {%- if col != blank -%}
+                {%- for product in col.products limit: products_limit -%}
+                  {%- liquid
+                    assign on_sale = false
+                    if product.compare_at_price > product.price
+                      assign on_sale = true
+                    endif
+                    assign first_variant = product.variants.first
+                    assign is_simple = false
+                    if product.variants.size == 1
+                      assign is_simple = true
+                    endif
+                    assign sale_pct = 0
+                    if on_sale
+                      assign price_diff = product.compare_at_price | minus: product.price
+                      assign sale_pct = price_diff | times: 100 | divided_by: product.compare_at_price
+                    endif
+                    assign emi_price = product.price | divided_by: emi_months
+                    assign badge_text = ''
+                    if product.tags contains 'Best Seller'
+                      assign badge_text = 'Best Seller'
+                    elsif product.tags contains 'best-seller'
+                      assign badge_text = 'Best Seller'
+                    elsif product.tags contains 'Trending'
+                      assign badge_text = 'Trending'
+                    elsif product.tags contains 'trending'
+                      assign badge_text = 'Trending'
+                    elsif product.tags contains 'Summer Special'
+                      assign badge_text = 'Summer Special'
+                    elsif product.tags contains 'summer-special'
+                      assign badge_text = 'Summer Special'
+                    elsif product.tags contains 'New'
+                      assign badge_text = 'New'
+                    elsif product.tags contains 'new'
+                      assign badge_text = 'New'
+                    endif
+                    assign rating_value = product.metafields.reviews.rating.value.rating | default: 0
+                    assign rating_count = product.metafields.reviews.rating_count.value | default: 0
+                  -%}
+
+                  <li class="faiza-col__card" data-product-id="{{ product.id }}">
+                    <div class="faiza-col__media-wrap">
+                      {%- if badge_text != blank -%}
+                        <div class="faiza-col__badge">
+                          <svg class="faiza-col__badge-bolt" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true"><path d="M6 0L0 9h4l-1 7 7-10H6L7 0z"/></svg>
+                          {{ badge_text }}
+                        </div>
+                      {%- endif -%}
+                      <a href="{{ product.url }}" class="faiza-col__media-link" tabindex="-1" aria-hidden="true">
+                        <div class="faiza-col__media">
+                          {%- if product.featured_image != blank -%}
+                            {{
+                              product.featured_image
+                              | image_url: width: 800
+                              | image_tag:
+                                loading: 'lazy',
+                                widths: '400, 600, 800',
+                                sizes: '(min-width: 990px) 25vw, (min-width: 750px) 50vw, 85vw',
+                                class: 'faiza-col__img faiza-col__img--primary',
+                                alt: product.featured_image.alt | default: product.title | escape
+                            }}
+                            {%- if product.images[1] != blank -%}
+                              {{
+                                product.images[1]
+                                | image_url: width: 800
+                                | image_tag:
+                                  loading: 'lazy',
+                                  widths: '400, 600, 800',
+                                  sizes: '(min-width: 990px) 25vw, (min-width: 750px) 50vw, 85vw',
+                                  class: 'faiza-col__img faiza-col__img--secondary',
+                                  alt: product.images[1].alt | default: product.title | escape
+                              }}
+                            {%- endif -%}
+                          {%- else -%}
+                            {{ 'product-1' | placeholder_svg_tag: 'faiza-col__img-placeholder' }}
+                          {%- endif -%}
+                        </div>
+                      </a>
+                    </div>
+
+                    <div class="faiza-col__info">
+                      <div class="faiza-col__meta">
+                        {%- if product.type != blank -%}
+                          <span class="faiza-col__type">{{ product.type | upcase }}</span>
+                        {%- endif -%}
+                        <span class="faiza-col__rating" aria-label="Rating">
+                          <svg class="faiza-col__star" viewBox="0 0 12 12" aria-hidden="true">
+                            <polygon points="6,1 7.5,4.5 11.5,4.5 8.5,7 9.5,11 6,9 2.5,11 3.5,7 0.5,4.5 4.5,4.5" fill="currentColor"/>
+                          </svg>
+                          <span>{% if rating_value > 0 %}{{ rating_value }}{% else %}4.5{% endif %}</span>
+                          <span class="faiza-col__rating-sep" aria-hidden="true">|</span>
+                          <span>{% if rating_count > 0 %}{{ rating_count }}{% else %}--{% endif %}</span>
+                        </span>
+                      </div>
+
+                      <a href="{{ product.url }}" class="faiza-col__title-link">
+                        <h3 class="faiza-col__title">{{ product.title }}</h3>
+                      </a>
+
+                      <div class="faiza-col__pricing">
+                        <span class="faiza-col__price">{{ product.price | money_without_trailing_zeros }}</span>
+                        {%- if on_sale -%}
+                          <s class="faiza-col__compare">{{ product.compare_at_price | money_without_trailing_zeros }}</s>
+                          <span class="faiza-col__discount">{{ sale_pct | round }}% off</span>
+                        {%- endif -%}
+                      </div>
+
+                      {%- if show_emi -%}
+                        <p class="faiza-col__emi">
+                          or {{ emi_price | money_without_trailing_zeros }}/{{ 'general.month' | t | default: 'Month' }}
+                          <span class="faiza-col__emi-cta">
+                            {{ section.settings.emi_label | default: 'Buy on EMI' | escape }}
+                            <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" width="8" height="5"><path d="M1 1l4 4 4-4"/></svg>
+                          </span>
+                        </p>
+                      {%- endif -%}
+
+                      <div class="faiza-col__atc-wrap">
+                        {%- if is_simple -%}
+                          <form class="faiza-col__atc-form" action="{{ routes.cart_add_url }}" method="post" data-product-form>
+                            <input type="hidden" name="id" value="{{ first_variant.id }}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button
+                              type="submit"
+                              class="faiza-col__atc-btn"
+                              {% unless product.available %}disabled aria-disabled="true"{% endunless %}
+                              data-atc-btn
+                            >
+                              <span class="faiza-col__atc-label">
+                                {%- if product.available -%}
+                                  {{- 'products.product.add_to_cart' | t | default: 'Add to Cart' | upcase -}}
+                                {%- else -%}
+                                  {{- 'products.product.sold_out' | t | default: 'Sold Out' | upcase -}}
+                                {%- endif -%}
+                              </span>
+                              <span class="faiza-col__atc-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2 3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
+                              </span>
+                              <span class="faiza-col__atc-loading" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                              </span>
+                            </button>
+                          </form>
+                        {%- else -%}
+                          <a href="{{ product.url }}" class="faiza-col__atc-btn faiza-col__atc-btn--options">
+                            <span class="faiza-col__atc-label">{{- 'products.product.choose_options' | t | default: 'Choose Options' | upcase -}}</span>
+                            <span class="faiza-col__atc-icon" aria-hidden="true">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2 3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
+                            </span>
+                          </a>
+                        {%- endif -%}
+                      </div>
+                    </div>
+                  </li>
+
+                {%- else -%}
+                  {%- for j in (1..4) -%}
+                    <li class="faiza-col__card faiza-col__card--ph">
+                      <div class="faiza-col__media-wrap">
+                        <div class="faiza-col__media faiza-col__media--ph">
+                          {{ 'product-1' | placeholder_svg_tag: 'faiza-col__img-placeholder' }}
+                        </div>
+                      </div>
+                      <div class="faiza-col__info">
+                        <div class="faiza-col__meta">
+                          <span class="faiza-col__ph-bar faiza-col__ph-bar--sm"></span>
+                        </div>
+                        <div class="faiza-col__ph-bar faiza-col__ph-bar--title"></div>
+                        <div class="faiza-col__pricing">
+                          <span class="faiza-col__ph-bar faiza-col__ph-bar--price"></span>
+                        </div>
+                        <div class="faiza-col__atc-btn faiza-col__atc-btn--ph">{{ 'products.product.add_to_cart' | t | default: 'ADD TO CART' }}</div>
+                      </div>
+                    </li>
+                  {%- endfor -%}
+                {%- endfor -%}
+
+              {%- else -%}
+                {%- for j in (1..4) -%}
+                  <li class="faiza-col__card faiza-col__card--ph">
+                    <div class="faiza-col__media-wrap">
+                      <div class="faiza-col__media faiza-col__media--ph">
+                        {{ 'product-1' | placeholder_svg_tag: 'faiza-col__img-placeholder' }}
+                      </div>
+                    </div>
+                    <div class="faiza-col__info">
+                      <div class="faiza-col__meta">
+                        <span class="faiza-col__ph-bar faiza-col__ph-bar--sm"></span>
+                      </div>
+                      <div class="faiza-col__ph-bar faiza-col__ph-bar--title"></div>
+                      <div class="faiza-col__pricing">
+                        <span class="faiza-col__ph-bar faiza-col__ph-bar--price"></span>
+                      </div>
+                      <div class="faiza-col__atc-btn faiza-col__atc-btn--ph">{{ 'products.product.add_to_cart' | t | default: 'ADD TO CART' }}</div>
+                    </div>
+                  </li>
+                {%- endfor -%}
+              {%- endif -%}
+
+            </ul>
+          </div>
+
+          <button class="faiza-col__arrow faiza-col__arrow--next" aria-label="Next" data-next>
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 4l6 6-6 6"/></svg>
+          </button>
+
+        </div>
+      </div>
+    {%- endfor -%}
+
+  </div>
+</div>
+
+{% stylesheet %}
+/* ─── Wrapper reset ─── */
+.faiza-col-section {
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: 100% !important;
+}
+
+.shopify-section:has(.faiza-col) {
+  padding: 0 !important;
+  margin: 0 !important;
+  gap: 0 !important;
+}
+
+/* ─── Section ─── */
+.faiza-col {
+  padding: var(--sec-pad, 96px) 0;
+  background-color: #f8f4ee;
+}
+
+.faiza-col__inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* ─── Heading ─── */
+.faiza-col__heading {
+  font-family: var(--font-heading-family, Georgia, serif);
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: #1a1614;
+  text-align: center;
+  margin: 0 0 2rem;
+}
+
+/* ─── Tabs ─── */
+.faiza-col__tabs {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid rgba(26, 22, 20, 0.14);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.faiza-col__tabs::-webkit-scrollbar { display: none; }
+
+.faiza-col__tab {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0.75rem 1.375rem;
+  font-family: var(--font-body-family, sans-serif);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(26, 22, 20, 0.45);
+  cursor: pointer;
+  position: relative;
+  transition: color 0.25s ease;
+  white-space: nowrap;
+}
+
+.faiza-col__tab::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #1a1614;
+  transform: scaleX(0);
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.faiza-col__tab--active {
+  color: #1a1614;
+}
+
+.faiza-col__tab--active::after {
+  transform: scaleX(1);
+}
+
+.faiza-col__tab:hover { color: #1a1614; }
+
+/* ─── Panels ─── */
+.faiza-col__panel {
+  display: none;
+}
+
+.faiza-col__panel--active {
+  display: block;
+  animation: faiza-col-fadein 0.35s ease forwards;
+}
+
+@keyframes faiza-col-fadein {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Slider container ─── */
+.faiza-col__slider {
+  display: flex;
+  align-items: center;
+}
+
+/* ─── Arrows ─── */
+.faiza-col__arrow {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  border: 1px solid rgba(26, 22, 20, 0.2);
+  background-color: #ffffff;
+  color: #1a1614;
+  cursor: pointer;
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, opacity 0.25s ease;
+  z-index: 2;
+}
+
+.faiza-col__arrow svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.faiza-col__arrow:hover:not(:disabled) {
+  background-color: #1a1614;
+  border-color: #1a1614;
+  color: #ffffff;
+}
+
+.faiza-col__arrow:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
+.faiza-col__arrow--prev { margin-right: 1rem; }
+.faiza-col__arrow--next { margin-left: 1rem; }
+
+/* ─── Track ─── */
+.faiza-col__track-wrap {
+  flex: 1;
+  overflow: hidden;
+}
+
+.faiza-col__track {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0 0.5rem;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+}
+
+/* ─── Card ─── */
+.faiza-col__card {
+  flex-shrink: 0;
+  width: calc(25% - 1.25rem);
+  background-color: #ffffff;
+  border: 1px solid rgba(26, 22, 20, 0.07);
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+@media screen and (max-width: 989px) {
+  .faiza-col__card {
+    width: calc(50% - 0.75rem);
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .faiza-col__card {
+    width: 83%;
+  }
+}
+
+.faiza-col__card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.09);
+}
+
+/* ─── Media ─── */
+.faiza-col__media-wrap {
+  position: relative;
+}
+
+.faiza-col__media-link { display: block; }
+
+.faiza-col__media {
+  position: relative;
+  overflow: hidden;
+  background-color: #ede9e1;
+  aspect-ratio: 1 / 1;
+}
+
+.faiza-col__media--ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.faiza-col__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              opacity 0.35s ease;
+}
+
+.faiza-col__img--primary {
+  position: relative;
+  z-index: 1;
+}
+
+.faiza-col__img--secondary {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.faiza-col__card:hover .faiza-col__img--primary {
+  transform: scale(1.07);
+  opacity: 0;
+}
+
+.faiza-col__card:hover .faiza-col__img--secondary {
+  opacity: 1;
+}
+
+.faiza-col__card:hover .faiza-col__img--primary:only-child {
+  opacity: 1;
+}
+
+.faiza-col__img-placeholder {
+  width: 55%;
+  height: 55%;
+  fill: rgba(201, 169, 110, 0.15);
+}
+
+/* ─── Badge ─── */
+.faiza-col__badge {
+  position: absolute;
+  top: 0.625rem;
+  left: 0.625rem;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background-color: #1e1c1a;
+  color: #ffffff;
+  font-family: var(--font-body-family, sans-serif);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 0.3rem 0.55rem 0.3rem 0.45rem;
+  border-radius: 2rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.faiza-col__badge-bolt {
+  width: 0.45rem;
+  height: 0.7rem;
+  flex-shrink: 0;
+  color: #f5c842;
+}
+
+/* ─── Info ─── */
+.faiza-col__info {
+  padding: 0.875rem 0.875rem 1rem;
+}
+
+/* ─── Meta ─── */
+.faiza-col__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.375rem;
+  gap: 0.5rem;
+}
+
+.faiza-col__type {
+  font-family: var(--font-body-family, sans-serif);
+  font-size: 0.5625rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: rgba(26, 22, 20, 0.4);
+  flex-shrink: 0;
+}
+
+.faiza-col__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-family: var(--font-body-family, sans-serif);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: rgba(26, 22, 20, 0.55);
+  flex-shrink: 0;
+}
+
+.faiza-col__star {
+  width: 0.7rem;
+  height: 0.7rem;
+  color: #f5a623;
+  flex-shrink: 0;
+}
+
+.faiza-col__rating-sep {
+  color: rgba(26, 22, 20, 0.2);
+  margin: 0 0.1rem;
+}
+
+/* ─── Title ─── */
+.faiza-col__title-link {
+  display: block;
+  text-decoration: none;
+  margin-bottom: 0.5rem;
+}
+
+.faiza-col__title {
+  font-family: var(--font-body-family, sans-serif);
+  font-size: clamp(0.8125rem, 1vw, 0.9375rem);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: #1a1614;
+  margin: 0;
+  line-height: 1.35;
+  transition: color 0.2s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.faiza-col__title-link:hover .faiza-col__title { color: #b8923c; }
+
+/* ─── Pricing ─── */
+.faiza-col__pricing {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-bottom: 0.5rem;
+}
+
+.faiza-col__price {
+  font-family: var(--font-body-family, sans-serif);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: #1a1614;
+}
+
+.faiza-col__compare {
+  font-size: 0.8125rem;
+  color: rgba(26, 22, 20, 0.38);
+  text-decoration: line-through;
+  font-weight: 400;
+}
+
+.faiza-col__discount {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #1a7a36;
+  background-color: #d0f0d9;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.2rem;
+  line-height: 1;
+}
+
+/* ─── EMI ─── */
+.faiza-col__emi {
+  font-family: var(--font-body-family, sans-serif);
+  font-size: 0.6875rem;
+  color: rgba(26, 22, 20, 0.5);
+  margin: 0 0 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.faiza-col__emi-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  background-color: rgba(26, 22, 20, 0.07);
+  color: #1a1614;
+  font-weight: 600;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.2rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ─── ATC button ─── */
+.faiza-col__atc-wrap { width: 100%; }
+.faiza-col__atc-form { width: 100%; }
+
+.faiza-col__atc-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 2.875rem;
+  background: linear-gradient(135deg, #c9a96e 0%, #a8872e 100%);
+  border: none;
+  color: #ffffff;
+  font-family: var(--font-body-family, sans-serif);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: opacity 0.22s ease, transform 0.15s ease;
+}
+
+.faiza-col__atc-btn:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.faiza-col__atc-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.faiza-col__atc-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.faiza-col__atc-btn--ph {
+  background: linear-gradient(135deg, rgba(201, 169, 110, 0.32) 0%, rgba(168, 135, 46, 0.32) 100%);
+  color: rgba(26, 22, 20, 0.4);
+  cursor: default;
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+}
+
+.faiza-col__atc-label,
+.faiza-col__atc-icon {
+  display: flex;
+  align-items: center;
+}
+
+.faiza-col__atc-icon svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.faiza-col__atc-loading {
+  display: none;
+  position: absolute;
+  z-index: 1;
+}
+
+.faiza-col__atc-loading svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  animation: faiza-col-spin 0.8s linear infinite;
+}
+
+.faiza-col__atc-btn[data-loading] .faiza-col__atc-label,
+.faiza-col__atc-btn[data-loading] .faiza-col__atc-icon {
+  visibility: hidden;
+}
+
+.faiza-col__atc-btn[data-loading] .faiza-col__atc-loading { display: flex; }
+
+.faiza-col__atc-btn[data-success] {
+  background: #2e7d32;
+  color: #ffffff;
+  opacity: 1;
+  transform: none;
+}
+
+/* ─── Placeholder bars ─── */
+.faiza-col__ph-bar {
+  display: block;
+  background: linear-gradient(90deg,
+    rgba(26,22,20,0.07) 0%,
+    rgba(26,22,20,0.13) 50%,
+    rgba(26,22,20,0.07) 100%);
+  background-size: 200% 100%;
+  animation: faiza-col-shimmer 1.6s ease-in-out infinite;
+  border-radius: 0.25rem;
+}
+
+.faiza-col__ph-bar--sm    { width: 40%; height: 0.5rem; }
+.faiza-col__ph-bar--title { width: 85%; height: 0.875rem; margin-bottom: 0.5rem; }
+.faiza-col__ph-bar--price { width: 30%; height: 1rem; }
+
+/* ─── Keyframes ─── */
+@keyframes faiza-col-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes faiza-col-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── Responsive ─── */
+@media screen and (min-width: 750px) {
+  .faiza-col__inner { padding: 0 2.5rem; }
+}
+
+@media screen and (min-width: 990px) {
+  .faiza-col__inner { padding: 0 3rem; }
+  .faiza-col__arrow--prev { margin-right: 1.25rem; }
+  .faiza-col__arrow--next { margin-left: 1.25rem; }
+}
+
+@media screen and (min-width: 1440px) {
+  .faiza-col__inner { padding: 0 4.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faiza-col__panel--active { animation: none; }
+  .faiza-col__card,
+  .faiza-col__img,
+  .faiza-col__img--secondary,
+  .faiza-col__atc-btn,
+  .faiza-col__atc-btn::before,
+  .faiza-col__track {
+    transition: none;
+  }
+  .faiza-col__card:hover { transform: none; }
+  .faiza-col__card:hover .faiza-col__img--primary { transform: none; }
+  .faiza-col__atc-loading svg { animation: none; }
+  .faiza-col__ph-bar { animation: none; }
+}
+{% endstylesheet %}
+
+{% javascript %}
+(function () {
+  function initSection(SECTION) {
+    if (SECTION.getAttribute('data-col-init')) return;
+    SECTION.setAttribute('data-col-init', '1');
+
+    /* ── Tabs ── */
+    var tabs        = Array.prototype.slice.call(SECTION.querySelectorAll('[data-tab]'));
+    var panels      = Array.prototype.slice.call(SECTION.querySelectorAll('[data-panel]'));
+    var initialized = {};
+
+    /* hide non-first panels immediately */
+    panels.forEach(function (p, i) {
+      if (i !== 0) p.style.display = 'none';
+    });
+
+    function showPanel(idx) {
+      tabs.forEach(function (t) {
+        var on = t.getAttribute('data-tab') === String(idx);
+        t.classList.toggle('faiza-col__tab--active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+
+      panels.forEach(function (p) {
+        var on = p.getAttribute('data-panel') === String(idx);
+        if (on) {
+          p.style.display = 'block';
+          p.classList.add('faiza-col__panel--active');
+          if (!initialized[idx]) {
+            var s = p.querySelector('[data-slider]');
+            if (s) initSlider(s);
+            initialized[idx] = true;
+          }
+        } else {
+          p.classList.remove('faiza-col__panel--active');
+          p.style.display = 'none';
+        }
+      });
+    }
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        showPanel(parseInt(tab.getAttribute('data-tab'), 10));
+      });
+    });
+
+    /* ── Slider ── */
+    function initSlider(sliderEl) {
+      var wrap    = sliderEl.querySelector('[data-track-wrap]');
+      var track   = sliderEl.querySelector('[data-track]');
+      var prevBtn = sliderEl.querySelector('[data-prev]');
+      var nextBtn = sliderEl.querySelector('[data-next]');
+      var cards   = Array.prototype.slice.call(track.querySelectorAll('.faiza-col__card'));
+      if (!cards.length) return;
+
+      var idx    = 0;
+      var cardW  = 0;
+      var gapPx  = 0;
+      var maxIdx = 0;
+
+      function visibleCount() {
+        var w = window.innerWidth;
+        if (w >= 990) return 4;
+        if (w >= 750) return 2;
+        return 1.2;
+      }
+
+      function recalc() {
+        var vc    = visibleCount();
+        var wrapW = wrap.offsetWidth;
+        gapPx     = parseFloat(getComputedStyle(track).columnGap) || 24;
+        cardW     = (wrapW - gapPx * (Math.ceil(vc) - 1)) / vc;
+
+        cards.forEach(function (c) { c.style.width = cardW + 'px'; });
+
+        maxIdx = Math.max(0, cards.length - Math.floor(vc));
+        idx    = Math.min(idx, maxIdx);
+        moveTo(idx, false);
+        refreshArrows();
+      }
+
+      function moveTo(i, animate) {
+        track.style.transition = animate
+          ? 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+          : 'none';
+        track.style.transform = 'translateX(-' + (i * (cardW + gapPx)) + 'px)';
+      }
+
+      function refreshArrows() {
+        prevBtn.disabled = idx <= 0;
+        nextBtn.disabled = idx >= maxIdx;
+      }
+
+      prevBtn.addEventListener('click', function () {
+        if (idx > 0) { idx--; moveTo(idx, true); refreshArrows(); }
+      });
+
+      nextBtn.addEventListener('click', function () {
+        if (idx < maxIdx) { idx++; moveTo(idx, true); refreshArrows(); }
+      });
+
+      /* touch swipe */
+      var tx = 0, ty = 0, dragging = false;
+
+      wrap.addEventListener('touchstart', function (e) {
+        tx = e.touches[0].clientX;
+        ty = e.touches[0].clientY;
+        dragging = true;
+      }, { passive: true });
+
+      wrap.addEventListener('touchmove', function (e) {
+        if (!dragging) return;
+        if (Math.abs(e.touches[0].clientX - tx) > Math.abs(e.touches[0].clientY - ty)) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+
+      wrap.addEventListener('touchend', function (e) {
+        if (!dragging) return;
+        dragging = false;
+        var dx = e.changedTouches[0].clientX - tx;
+        if (Math.abs(dx) > 48) {
+          if (dx < 0 && idx < maxIdx)  idx++;
+          if (dx > 0 && idx > 0)       idx--;
+          moveTo(idx, true);
+          refreshArrows();
+        }
+      }, { passive: true });
+
+      recalc();
+
+      var rTimer;
+      window.addEventListener('resize', function () {
+        clearTimeout(rTimer);
+        rTimer = setTimeout(recalc, 120);
+      });
+    }
+
+    /* init first panel's slider */
+    var firstPanel = panels[0];
+    if (firstPanel) {
+      var firstSlider = firstPanel.querySelector('[data-slider]');
+      if (firstSlider) { initSlider(firstSlider); initialized[0] = true; }
+    }
+
+    /* ── Add to cart ── */
+    function updateCartCount(n) {
+      document.querySelectorAll('.cart-count-bubble span, [data-cart-count]').forEach(function (el) {
+        el.textContent = n;
+        if (el.hasAttribute('data-cart-count')) el.setAttribute('data-cart-count', n);
+      });
+    }
+
+    SECTION.querySelectorAll('[data-product-form]').forEach(function (form) {
+      var btn = form.querySelector('[data-atc-btn]');
+      if (btn) {
+        var lbl = btn.querySelector('.faiza-col__atc-label');
+        if (lbl) btn.setAttribute('data-original-label', lbl.textContent.trim());
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var b = form.querySelector('[data-atc-btn]');
+        if (!b || b.disabled || b.hasAttribute('data-loading')) return;
+        b.setAttribute('data-loading', '');
+
+        fetch(form.action, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+            Accept: 'application/json'
+          },
+          body: new URLSearchParams(new FormData(form))
+        })
+          .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+          .then(function () { return fetch('/cart.js', { headers: { Accept: 'application/json' } }); })
+          .then(function (r) { return r.json(); })
+          .then(function (cart) {
+            b.removeAttribute('data-loading');
+            b.setAttribute('data-success', '');
+            var lbl = b.querySelector('.faiza-col__atc-label');
+            if (lbl) lbl.textContent = 'Added';
+            updateCartCount(cart.item_count);
+            document.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true }));
+            setTimeout(function () {
+              b.removeAttribute('data-success');
+              var lbl2 = b.querySelector('.faiza-col__atc-label');
+              if (lbl2) lbl2.textContent = b.getAttribute('data-original-label') || lbl2.textContent;
+            }, 2200);
+          })
+          .catch(function () {
+            b.removeAttribute('data-loading');
+            b.style.outline = '1.5px solid rgba(200,60,60,0.45)';
+            var lbl = b.querySelector('.faiza-col__atc-label');
+            if (lbl) lbl.textContent = 'Try again';
+            setTimeout(function () {
+              b.style.outline = '';
+              var lbl2 = b.querySelector('.faiza-col__atc-label');
+              if (lbl2) lbl2.textContent = b.getAttribute('data-original-label') || lbl2.textContent;
+            }, 2200);
+          });
+      });
+    });
+  }
+
+  function initAll() {
+    document.querySelectorAll('.faiza-col').forEach(initSection);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAll);
+  } else {
+    initAll();
+  }
+
+  document.addEventListener('shopify:section:load', initAll);
+})();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Faiza Collection Showcase",
+  "tag": "section",
+  "class": "faiza-col-section",
+  "settings": [
+    {
+      "type": "range",
+      "id": "section_spacing",
+      "label": "Section spacing",
+      "min": 40,
+      "max": 160,
+      "step": 8,
+      "unit": "px",
+      "default": 96
+    },
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading text",
+      "default": "Collection"
+    },
+    {
+      "type": "header",
+      "content": "Tab 1"
+    },
+    {
+      "type": "text",
+      "id": "tab_label_1",
+      "label": "Tab 1 label",
+      "default": "Best Seller Attars"
+    },
+    {
+      "type": "collection",
+      "id": "collection_1",
+      "label": "Tab 1 collection"
+    },
+    {
+      "type": "header",
+      "content": "Tab 2"
+    },
+    {
+      "type": "text",
+      "id": "tab_label_2",
+      "label": "Tab 2 label",
+      "default": "Best Seller Perfumes"
+    },
+    {
+      "type": "collection",
+      "id": "collection_2",
+      "label": "Tab 2 collection"
+    },
+    {
+      "type": "header",
+      "content": "Tab 3"
+    },
+    {
+      "type": "text",
+      "id": "tab_label_3",
+      "label": "Tab 3 label",
+      "default": "Non Alcoholic Perfumes"
+    },
+    {
+      "type": "collection",
+      "id": "collection_3",
+      "label": "Tab 3 collection"
+    },
+    {
+      "type": "header",
+      "content": "Products"
+    },
+    {
+      "type": "range",
+      "id": "products_count",
+      "label": "Products per tab",
+      "min": 4,
+      "max": 20,
+      "step": 1,
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "EMI"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_emi",
+      "label": "Show EMI text",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "emi_months",
+      "label": "EMI months",
+      "min": 2,
+      "max": 24,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "text",
+      "id": "emi_label",
+      "label": "EMI button label",
+      "default": "Buy on EMI"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Faiza Collection Showcase"
+    }
+  ]
+}
+{% endschema %}

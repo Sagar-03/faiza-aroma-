@@ -1,0 +1,508 @@
+{%- liquid
+  assign slide_count = section.blocks.size
+-%}
+
+<section
+  class="faiza-slider full-width"
+  id="faiza-slider-{{ section.id }}"
+  style="
+    --slider-h-desktop: {{ section.settings.height_desktop }}vh;
+    --slider-h-tablet: {{ section.settings.height_tablet }}vh;
+    --slider-h-mobile: {{ section.settings.height_mobile }}vh;
+  "
+  data-autoplay="{{ section.settings.autoplay }}"
+  data-interval="{{ section.settings.autoplay_speed | times: 1000 }}"
+>
+  <!-- Slides -->
+  <div class="faiza-slider__track" aria-live="polite" aria-atomic="false">
+    {%- for block in section.blocks -%}
+      <div
+        class="faiza-slider__slide{% if forloop.first %} is-active{% endif %}"
+        data-index="{{ forloop.index0 }}"
+        role="group"
+        aria-label="{{ forloop.index }} / {{ slide_count }}"
+        {{ block.shopify_attributes }}
+      >
+        <div class="faiza-slider__media" aria-hidden="true">
+          {%- if block.settings.image != blank -%}
+            {%- if forloop.first -%}
+              {{
+                block.settings.image  
+                | image_url: width: 3840
+                | image_tag:
+                  loading: 'eager',
+                  fetchpriority: 'high',
+                  class: 'faiza-slider__img',
+                  widths: '375, 750, 1080, 1440, 1920, 2560, 3840',
+                  sizes: '100vw',
+                  alt: block.settings.image.alt | default: shop.name | escape
+              }}
+            {%- else -%}
+              {{
+                block.settings.image
+                | image_url: width: 3840
+                | image_tag:
+                  loading: 'lazy',
+                  class: 'faiza-slider__img',
+                  widths: '375, 750, 1080, 1440, 1920, 2560, 3840',
+                  sizes: '100vw',
+                  alt: block.settings.image.alt | default: shop.name | escape
+              }}
+            {%- endif -%}
+          {%- else -%}
+            <div class="faiza-slider__img-ph">
+              {{ 'lifestyle-1' | placeholder_svg_tag: 'faiza-slider__ph-svg' }}
+            </div>
+          {%- endif -%}
+        </div>
+
+      </div>
+
+    {%- else -%}
+      <!-- Placeholder (no slides added yet) -->
+      <div class="faiza-slider__slide is-active">
+        <div class="faiza-slider__media" aria-hidden="true">
+          <div class="faiza-slider__img-ph">
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'faiza-slider__ph-svg' }}
+          </div>
+        </div>
+      </div>
+    {%- endfor -%}
+  </div>
+
+  <!-- Dots (only when 2+ slides) -->
+  {%- if slide_count > 1 -%}
+    <div class="faiza-slider__dots" role="tablist">
+      {%- for block in section.blocks -%}
+        <button
+          class="faiza-slider__dot{% if forloop.first %} is-active{% endif %}"
+          type="button"
+          role="tab"
+          aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+          data-target="{{ forloop.index0 }}"
+        ></button>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+
+  <!-- Scroll indicator (single-slide / first-slide feel) -->
+  {%- if section.settings.show_scroll and slide_count < 2 -%}
+    <div class="faiza-slider__scroll" aria-hidden="true">
+      <div class="faiza-slider__scroll-track">
+        <div class="faiza-slider__scroll-dot"></div>
+      </div>
+      <span class="faiza-slider__scroll-lbl">{{ 'sections.faiza_hero.scroll' | t }}</span>
+    </div>
+  {%- endif -%}
+</section>
+
+{% stylesheet %}
+  /* ── Section wrapper ── */
+  .faiza-slider-section {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Ensure no vertical gap is introduced by the Shopify section grid */
+  .shopify-section:has(.faiza-slider) {
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 0 !important;
+  }
+
+  /* ── Shell ── */
+  .faiza-slider {
+    position: relative;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    height: var(--slider-h-mobile, 70vh);
+    min-height: 480px;
+    overflow: hidden;
+    background: #1a1614;
+  }
+
+  /* ── Track ── */
+  .faiza-slider__track {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* ── Slides ── */
+  .faiza-slider__slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    backface-visibility: hidden;
+    will-change: transform, opacity;
+    transform: translateX(100%);
+  }
+
+  .faiza-slider__slide.is-active {
+    z-index: 2;
+    opacity: 1;
+    pointer-events: auto;
+    animation: slideInFromRight 0.8s ease forwards;
+  }
+
+  .faiza-slider__slide.is-leaving {
+    z-index: 1;
+    pointer-events: none;
+    animation: slideOutToLeft 0.8s ease forwards;
+  }
+
+
+  /* ── Media ── */
+  .faiza-slider__media {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .faiza-slider__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transform: scale(1.04);
+  }
+
+
+  .faiza-slider__img-ph {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, #3d2b15 0%, #2a1e0f 100%);
+  }
+
+  .faiza-slider__ph-svg {
+    width: 100%;
+    height: 100%;
+    opacity: 0.25;
+  }
+
+  /* ── Dots ── */
+  .faiza-slider__dots {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  .faiza-slider__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.3s ease, width 0.3s ease, border-radius 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .faiza-slider__dot.is-active {
+    background: #c9a96e;
+    width: 1.625rem;
+    border-radius: 0.25rem;
+  }
+
+  /* ── Scroll indicator ── */
+  .faiza-slider__scroll {
+    position: absolute;
+    bottom: 2.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.625rem;
+    opacity: 0;
+    animation: faiza-fade-in 0.8s ease 1.4s forwards;
+  }
+
+  .faiza-slider__scroll-track {
+    width: 1.375rem;
+    height: 2.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 0.75rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0.3125rem 0;
+  }
+
+  .faiza-slider__scroll-dot {
+    width: 0.1875rem;
+    height: 0.4375rem;
+    background: #c9a96e;
+    border-radius: 0.09375rem;
+    animation: faiza-scroll-drop 2.2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+  }
+
+  .faiza-slider__scroll-lbl {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.5625rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  /* ── Keyframes ── */
+
+  @keyframes slideInFromRight {
+    from {
+      opacity: 1;
+      transform: translateX(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideOutToLeft {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-100%);
+    }
+  }
+
+  @keyframes faiza-kb {
+    from { transform: scale(1.04); }
+    to   { transform: scale(1); }
+  }
+
+  @keyframes faiza-fade-in {
+    to { opacity: 1; }
+  }
+
+  @keyframes faiza-scroll-drop {
+    0%   { opacity: 1; transform: translateY(0); }
+    60%  { opacity: 0; transform: translateY(0.75rem); }
+    61%  { opacity: 0; transform: translateY(0); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Tablet ── */
+  @media screen and (min-width: 750px) {
+    .faiza-slider { height: var(--slider-h-tablet, 80vh); }
+  }
+
+  /* ── Desktop ── */
+  @media screen and (min-width: 990px) {
+    .faiza-slider { height: var(--slider-h-desktop, 100vh); }
+  }
+
+  /* ── Reduced motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    .faiza-slider__slide.is-active {
+      animation: none;
+      transform: translateX(0);
+      opacity: 1;
+    }
+    .faiza-slider__slide.is-leaving {
+      animation: none;
+      transform: translateX(0);
+      opacity: 0;
+    }
+    .faiza-slider__img { animation: none; transform: scale(1); }
+    .faiza-slider__scroll-dot { animation: none; }
+    .faiza-slider__scroll     { animation: none; opacity: 1; }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    var sliders = document.querySelectorAll('.faiza-slider');
+
+    sliders.forEach(function (slider) {
+      var slides   = Array.from(slider.querySelectorAll('.faiza-slider__slide'));
+      var dots     = Array.from(slider.querySelectorAll('.faiza-slider__dot'));
+      var total    = slides.length;
+
+      if (total < 2) return;
+
+      var current    = 0;
+      var timer      = null;
+      var interval   = parseInt(slider.dataset.interval, 10) || 5000;
+      var isAutoplay = slider.dataset.autoplay === 'true';
+
+      function goTo(index) {
+        var leaving = current;
+        current = ((index % total) + total) % total;
+        if (leaving === current) return;
+
+        /* clear any in-progress leave animation on all slides */
+        slides.forEach(function(s) { s.classList.remove('is-leaving'); });
+
+        /* exit the outgoing slide */
+        slides[leaving].classList.remove('is-active');
+        slides[leaving].classList.add('is-leaving');
+        if (dots[leaving]) {
+          dots[leaving].classList.remove('is-active');
+          dots[leaving].setAttribute('aria-selected', 'false');
+        }
+
+        /* enter the incoming slide */
+        slides[current].classList.add('is-active');
+        if (dots[current]) {
+          dots[current].classList.add('is-active');
+          dots[current].setAttribute('aria-selected', 'true');
+        }
+
+        /* clean up is-leaving after animation completes */
+        var leavingSlide = slides[leaving];
+        setTimeout(function() {
+          leavingSlide.classList.remove('is-leaving');
+        }, 900);
+      }
+
+      function next() { goTo(current + 1); }
+      function prev() { goTo(current - 1); }
+
+      function startTimer() {
+        if (!isAutoplay || interval <= 0) return;
+        clearInterval(timer);
+        timer = setInterval(next, interval);
+      }
+
+      function stopTimer() { clearInterval(timer); timer = null; }
+
+      dots.forEach(function (dot) {
+        dot.addEventListener('click', function () {
+          var t = parseInt(dot.dataset.target, 10);
+          if (t !== current) { stopTimer(); goTo(t); startTimer(); }
+        });
+      });
+
+      slider.addEventListener('mouseenter', stopTimer);
+      slider.addEventListener('mouseleave', startTimer);
+
+      /* Swipe */
+      var txStart = 0, tyStart = 0;
+      slider.addEventListener('touchstart', function (e) {
+        txStart = e.changedTouches[0].clientX;
+        tyStart = e.changedTouches[0].clientY;
+        stopTimer();
+      }, { passive: true });
+      slider.addEventListener('touchend', function (e) {
+        var dx = e.changedTouches[0].clientX - txStart;
+        var dy = e.changedTouches[0].clientY - tyStart;
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+          dx > 0 ? prev() : next();
+        }
+        startTimer();
+      }, { passive: true });
+
+      startTimer();
+    });
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Faiza Hero",
+  "tag": "div",
+  "class": "faiza-slider-section",
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "limit": 5,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Background image"
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Autoplay"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Enable autoplay",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Autoplay speed",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "Section height"
+    },
+    {
+      "type": "range",
+      "id": "height_desktop",
+      "label": "Desktop height",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "vh",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "height_tablet",
+      "label": "Tablet height",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "vh",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "height_mobile",
+      "label": "Mobile height",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "vh",
+      "default": 70
+    },
+    {
+      "type": "header",
+      "content": "Extras"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_scroll",
+      "label": "Show scroll indicator (single slide only)",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Faiza Hero",
+      "blocks": [
+        { "type": "slide" },
+        { "type": "slide" }
+      ]
+    }
+  ]
+}
+{% endschema %}

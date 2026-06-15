@@ -1,0 +1,861 @@
+{%- liquid
+  assign products_per_page = section.settings.products_per_page | default: 20
+  assign cols_d = section.settings.columns_desktop | default: '3'
+  assign cols_t = section.settings.columns_tablet | default: '2'
+  assign cols_m = section.settings.columns_mobile | default: '1'
+-%}
+
+<div
+  class="faiza-coll full-width"
+  style="
+    --cols-d: {{ cols_d }};
+    --cols-t: {{ cols_t }};
+    --cols-m: {{ cols_m }};
+    --sec-pad: {{ section.settings.section_spacing }}px;
+  "
+>
+  <div class="faiza-coll__inner">
+
+    <header class="faiza-coll__header">
+      <h1 class="faiza-coll__heading">{{ collection.title }}</h1>
+      {%- if collection.description != blank -%}
+        <div class="faiza-coll__desc">{{ collection.description }}</div>
+      {%- endif -%}
+    </header>
+
+    {%- paginate collection.products by products_per_page -%}
+
+      {%- if section.settings.show_sort -%}
+        <div class="faiza-coll__toolbar">
+          <p class="faiza-coll__count">
+            {{- collection.products_count -}}
+            {{- ' ' -}}
+            {{- 'sections.collection.products' | t | default: 'products' -}}
+          </p>
+          <div class="faiza-coll__sort-wrap">
+            <label class="faiza-coll__sort-label" for="faiza-coll-sort-{{ section.id }}">
+              {{- 'sections.collection.sort_by' | t | default: 'Sort by' -}}
+            </label>
+            <div class="faiza-coll__select-wrap">
+              <select
+                id="faiza-coll-sort-{{ section.id }}"
+                class="faiza-coll__sort-select"
+                data-faiza-sort
+              >
+                {%- for option in collection.sort_options -%}
+                  <option value="{{ option.value }}"{% if option.value == collection.sort_by %} selected{% endif %}>
+                    {{- option.name -}}
+                  </option>
+                {%- endfor -%}
+              </select>
+              <svg class="faiza-coll__chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path d="M4 6l4 4 4-4"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
+
+      <div class="faiza-coll__grid">
+        {%- for product in collection.products -%}
+          {%- liquid
+            assign on_sale = false
+            if product.compare_at_price > product.price
+              assign on_sale = true
+            endif
+            assign first_variant = product.variants.first
+            assign is_simple = false
+            if product.variants.size == 1
+              assign is_simple = true
+            endif
+            assign sale_pct = 0
+            if on_sale
+              assign price_diff = product.compare_at_price | minus: product.price
+              assign sale_pct = price_diff | times: 100 | divided_by: product.compare_at_price
+            endif
+            assign rating_val = product.metafields.reviews.rating.value | default: product.metafields.reviews.rating
+            assign rating_cnt = product.metafields.reviews.rating_count.value | default: product.metafields.reviews.rating_count
+          -%}
+
+          <div class="faiza-coll__card" data-product-id="{{ product.id }}">
+
+            <a class="faiza-coll__media-link" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
+              <div class="faiza-coll__media">
+                {%- if product.featured_image != blank -%}
+                  {{
+                    product.featured_image
+                    | image_url: width: 800
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '400, 600, 800',
+                      sizes: '(min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
+                      class: 'faiza-coll__img faiza-coll__img--primary',
+                      alt: product.featured_image.alt | default: product.title | escape
+                  }}
+                  {%- if product.images[1] != blank -%}
+                    {{
+                      product.images[1]
+                      | image_url: width: 800
+                      | image_tag:
+                        loading: 'lazy',
+                        widths: '400, 600, 800',
+                        sizes: '(min-width: 990px) 33vw, (min-width: 750px) 50vw, 100vw',
+                        class: 'faiza-coll__img faiza-coll__img--secondary',
+                        alt: product.images[1].alt | default: product.title | escape
+                    }}
+                  {%- endif -%}
+                {%- else -%}
+                  {{ 'product-1' | placeholder_svg_tag: 'faiza-coll__img-placeholder' }}
+                {%- endif -%}
+
+                {%- if on_sale -%}
+                  <div class="faiza-coll__badge faiza-coll__badge--sale">
+                    {{- sale_pct | round -}}% {{ 'general.off' | t | default: 'off' }}
+                  </div>
+                {%- endif -%}
+                {%- unless product.available -%}
+                  <div class="faiza-coll__badge faiza-coll__badge--sold">
+                    {{- 'products.product.sold_out' | t | default: 'Sold out' -}}
+                  </div>
+                {%- endunless -%}
+              </div>
+            </a>
+
+            <div class="faiza-coll__info">
+
+              {%- if rating_cnt and rating_cnt != blank -%}
+                <div class="faiza-coll__rating" aria-label="{{ 'products.product.rating' | t | default: 'Rating' }}">
+                  <svg class="faiza-coll__star-icon" viewBox="0 0 12 12" aria-hidden="true">
+                    <polygon points="6,1 7.5,4.5 11.5,4.5 8.5,7 9.5,11 6,9 2.5,11 3.5,7 0.5,4.5 4.5,4.5" fill="currentColor"/>
+                  </svg>
+                  <span class="faiza-coll__rating-val">{{ rating_val }}</span>
+                  <span class="faiza-coll__rating-sep" aria-hidden="true">|</span>
+                  <span class="faiza-coll__rating-cnt">{{ rating_cnt }}</span>
+                </div>
+              {%- endif -%}
+
+              <a class="faiza-coll__title-link" href="{{ product.url }}">
+                <h3 class="faiza-coll__title">{{ product.title | escape }}</h3>
+              </a>
+
+              <div class="faiza-coll__pricing">
+                <span class="faiza-coll__price">{{ product.price | money }}</span>
+                {%- if on_sale -%}
+                  <s class="faiza-coll__compare">{{ product.compare_at_price | money }}</s>
+                  <span class="faiza-coll__sale-pill">{{ sale_pct | round }}% {{ 'general.off' | t | default: 'off' }}</span>
+                {%- endif -%}
+              </div>
+
+              <div class="faiza-coll__atc-wrap">
+                {%- if is_simple -%}
+                  <form class="faiza-coll__atc-form" action="{{ routes.cart_add_url }}" method="post" data-product-form>
+                    <input type="hidden" name="id" value="{{ first_variant.id }}">
+                    <input type="hidden" name="quantity" value="1">
+                    <button
+                      type="submit"
+                      class="faiza-coll__atc-btn"
+                      {% unless product.available %}disabled aria-disabled="true"{% endunless %}
+                      data-atc-btn
+                    >
+                      <span class="faiza-coll__atc-label">
+                        {%- if product.available -%}
+                          {{ 'products.product.add_to_cart' | t | default: 'Add to cart' }}
+                          <svg class="faiza-coll__cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <circle cx="9" cy="21" r="1"/>
+                            <circle cx="20" cy="21" r="1"/>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                          </svg>
+                        {%- else -%}
+                          {{ 'products.product.sold_out' | t | default: 'Sold out' }}
+                        {%- endif -%}
+                      </span>
+                      <span class="faiza-coll__atc-loading" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                        </svg>
+                      </span>
+                    </button>
+                  </form>
+                {%- else -%}
+                  <a href="{{ product.url }}" class="faiza-coll__atc-btn faiza-coll__atc-btn--opts">
+                    {{ 'products.product.choose_options' | t | default: 'Choose options' }}
+                  </a>
+                {%- endif -%}
+              </div>
+
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+
+      {%- if paginate.pages > 1 -%}
+        <nav class="faiza-coll__pagination" aria-label="{{ 'general.pagination.label' | t | default: 'Pagination' }}">
+          {{ paginate | default_pagination }}
+        </nav>
+      {%- endif -%}
+
+    {%- endpaginate -%}
+
+  </div>
+</div>
+
+{% stylesheet %}
+  /* ─── Section wrapper ─── */
+  .faiza-coll {
+    padding: var(--sec-pad, 64px) 0;
+    background-color: #faf8f5;
+  }
+
+  .faiza-coll__inner {
+    max-width: var(--page-width);
+    margin: 0 auto;
+    padding: 0 var(--page-margin);
+  }
+
+  /* ─── Header ─── */
+  .faiza-coll__header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .faiza-coll__heading {
+    font-family: var(--font-heading-family, serif);
+    font-size: clamp(1.75rem, 4vw, 3rem);
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    color: #1a1614;
+    margin: 0 0 0.75rem;
+  }
+
+  .faiza-coll__desc {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: clamp(0.875rem, 1.2vw, 0.9375rem);
+    line-height: 1.7;
+    color: rgba(26, 22, 20, 0.55);
+    max-width: 56ch;
+    margin: 0 auto;
+  }
+
+  /* ─── Toolbar ─── */
+  .faiza-coll__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(26, 22, 20, 0.08);
+    flex-wrap: wrap;
+  }
+
+  .faiza-coll__count {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.8125rem;
+    color: rgba(26, 22, 20, 0.45);
+    margin: 0;
+    letter-spacing: 0.02em;
+  }
+
+  .faiza-coll__sort-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+
+  .faiza-coll__sort-label {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.8125rem;
+    color: rgba(26, 22, 20, 0.5);
+    white-space: nowrap;
+  }
+
+  .faiza-coll__select-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .faiza-coll__sort-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: transparent;
+    border: 1px solid rgba(26, 22, 20, 0.18);
+    border-radius: 4px;
+    padding: 0.4rem 2rem 0.4rem 0.75rem;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.8125rem;
+    color: #1a1614;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .faiza-coll__sort-select:focus-visible {
+    border-color: #c9a96e;
+  }
+
+  .faiza-coll__chevron {
+    position: absolute;
+    right: 0.5rem;
+    width: 1rem;
+    height: 1rem;
+    pointer-events: none;
+    color: rgba(26, 22, 20, 0.45);
+  }
+
+  /* ─── Grid ─── */
+  .faiza-coll__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--cols-m, 1), 1fr);
+    gap: 1.5rem 1rem;
+  }
+
+  /* ─── Card ─── */
+  .faiza-coll__card {
+    position: relative;
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    transition:
+      transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      box-shadow 0.3s ease;
+  }
+
+  .faiza-coll__card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.10);
+  }
+
+  /* ─── Media ─── */
+  .faiza-coll__media-link {
+    display: block;
+    overflow: hidden;
+  }
+
+  .faiza-coll__media {
+    position: relative;
+    overflow: hidden;
+    background-color: #f5f3ef;
+    aspect-ratio: 4 / 5;
+  }
+
+  .faiza-coll__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition:
+      transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      opacity 0.35s ease;
+  }
+
+  .faiza-coll__img--primary {
+    position: relative;
+    z-index: 1;
+  }
+
+  .faiza-coll__img--secondary {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 0.45s ease;
+  }
+
+  .faiza-coll__card:hover .faiza-coll__img--primary {
+    transform: scale(1.05);
+    opacity: 0;
+  }
+
+  .faiza-coll__card:hover .faiza-coll__img--secondary {
+    opacity: 1;
+  }
+
+  .faiza-coll__card:hover .faiza-coll__img--primary:only-child {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+
+  .faiza-coll__img-placeholder {
+    width: 60%;
+    height: 60%;
+    fill: rgba(201, 169, 110, 0.15);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  /* ─── Badges ─── */
+  .faiza-coll__badge {
+    position: absolute;
+    top: 0.75rem;
+    z-index: 3;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.6rem;
+    border-radius: 2px;
+    line-height: 1;
+  }
+
+  .faiza-coll__badge--sale {
+    left: 0.75rem;
+    background-color: #c9a96e;
+    color: #1a1614;
+  }
+
+  .faiza-coll__badge--sold {
+    right: 0.75rem;
+    background-color: rgba(20, 20, 20, 0.82);
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* ─── Info ─── */
+  .faiza-coll__info {
+    padding: 1rem 1rem 1.125rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  /* ─── Rating ─── */
+  .faiza-coll__rating {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    margin-bottom: 0.5rem;
+    color: #c9a96e;
+  }
+
+  .faiza-coll__star-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .faiza-coll__rating-val {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #c9a96e;
+    margin-left: 0.1rem;
+  }
+
+  .faiza-coll__rating-sep {
+    font-size: 0.6875rem;
+    color: rgba(26, 22, 20, 0.25);
+    margin: 0 0.1rem;
+  }
+
+  .faiza-coll__rating-cnt {
+    font-size: 0.6875rem;
+    color: rgba(26, 22, 20, 0.4);
+  }
+
+  /* ─── Title ─── */
+  .faiza-coll__title-link {
+    display: block;
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+  }
+
+  .faiza-coll__title {
+    font-family: var(--font-heading-family, serif);
+    font-size: clamp(0.875rem, 1.15vw, 1rem);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: #1a1614;
+    margin: 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.22s ease;
+  }
+
+  .faiza-coll__title-link:hover .faiza-coll__title {
+    color: #c9a96e;
+  }
+
+  /* ─── Pricing ─── */
+  .faiza-coll__pricing {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.875rem;
+  }
+
+  .faiza-coll__price {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1614;
+    letter-spacing: 0.02em;
+  }
+
+  .faiza-coll__compare {
+    font-size: 0.8125rem;
+    color: rgba(26, 22, 20, 0.38);
+    text-decoration: line-through;
+  }
+
+  .faiza-coll__sale-pill {
+    display: inline-flex;
+    align-items: center;
+    background-color: #16a34a;
+    color: #ffffff;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border-radius: 20px;
+    line-height: 1;
+  }
+
+  /* ─── Add to cart ─── */
+  .faiza-coll__atc-wrap {
+    width: 100%;
+  }
+
+  .faiza-coll__atc-form {
+    width: 100%;
+  }
+
+  .faiza-coll__atc-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    height: 2.875rem;
+    background-color: #c9a96e;
+    border: none;
+    color: #1a1614;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0 0 4px 4px;
+    transition:
+      background-color 0.28s ease,
+      color 0.28s ease;
+  }
+
+  .faiza-coll__atc-btn:hover:not(:disabled) {
+    background-color: #b8924a;
+  }
+
+  .faiza-coll__atc-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background-color: rgba(201, 169, 110, 0.35);
+  }
+
+  .faiza-coll__atc-btn--opts {
+    border-radius: 0 0 4px 4px;
+  }
+
+  .faiza-coll__cart-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  .faiza-coll__atc-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .faiza-coll__atc-loading {
+    display: none;
+    position: absolute;
+    z-index: 1;
+  }
+
+  .faiza-coll__atc-loading svg {
+    width: 1.125rem;
+    height: 1.125rem;
+    animation: faiza-coll-spin 0.8s linear infinite;
+  }
+
+  .faiza-coll__atc-btn[data-loading] .faiza-coll__atc-label {
+    visibility: hidden;
+  }
+
+  .faiza-coll__atc-btn[data-loading] .faiza-coll__atc-loading {
+    display: flex;
+  }
+
+  .faiza-coll__atc-btn[data-success] {
+    background-color: #d1f0db;
+    color: #166534;
+  }
+
+  /* ─── Pagination ─── */
+  .faiza-coll__pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+  }
+
+  .faiza-coll__pagination .pagination {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .faiza-coll__pagination a,
+  .faiza-coll__pagination span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    padding: 0 0.5rem;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.8125rem;
+    color: #1a1614;
+    text-decoration: none;
+    border: 1px solid rgba(26, 22, 20, 0.14);
+    border-radius: 4px;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .faiza-coll__pagination a:hover {
+    background-color: #c9a96e;
+    border-color: #c9a96e;
+    color: #1a1614;
+  }
+
+  .faiza-coll__pagination .current span {
+    background-color: #c9a96e;
+    border-color: #c9a96e;
+    font-weight: 600;
+  }
+
+  /* ─── Keyframes ─── */
+  @keyframes faiza-coll-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ─── Tablet 750px ─── */
+  @media screen and (min-width: 750px) {
+    .faiza-coll__grid {
+      grid-template-columns: repeat(var(--cols-t, 2), 1fr);
+      gap: 2rem 1.5rem;
+    }
+  }
+
+  /* ─── Desktop 990px ─── */
+  @media screen and (min-width: 990px) {
+    .faiza-coll__header {
+      margin-bottom: 2.5rem;
+    }
+
+    .faiza-coll__grid {
+      grid-template-columns: repeat(var(--cols-d, 3), 1fr);
+      gap: 2rem 1.75rem;
+    }
+  }
+
+  /* ─── Wide 1200px ─── */
+  @media screen and (min-width: 1200px) {
+    .faiza-coll__info {
+      padding: 1.125rem 1.25rem 1.25rem;
+    }
+  }
+
+  /* ─── Reduced motion ─── */
+  @media (prefers-reduced-motion: reduce) {
+    .faiza-coll__card,
+    .faiza-coll__img,
+    .faiza-coll__img--secondary,
+    .faiza-coll__atc-btn {
+      transition: none;
+    }
+
+    .faiza-coll__card:hover { transform: none; }
+    .faiza-coll__card:hover .faiza-coll__img--primary { transform: none; }
+    .faiza-coll__atc-loading svg { animation: none; }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    var SECTION = document.currentScript.closest('.faiza-coll');
+    if (!SECTION) return;
+
+    /* Sort by navigation */
+    var sortSelect = SECTION.querySelector('[data-faiza-sort]');
+    if (sortSelect) {
+      sortSelect.addEventListener('change', function () {
+        var url = new URL(window.location.href);
+        url.searchParams.set('sort_by', this.value);
+        window.location.href = url.toString();
+      });
+    }
+
+    /* Cart count helper */
+    function updateCartCount(count) {
+      document.querySelectorAll('.cart-count-bubble span, [data-cart-count]').forEach(function (el) {
+        if (el.tagName === 'SPAN') el.textContent = count;
+        else { el.textContent = count; el.setAttribute('data-cart-count', count); }
+      });
+    }
+
+    /* AJAX add to cart */
+    SECTION.querySelectorAll('[data-product-form]').forEach(function (form) {
+      var btn = form.querySelector('[data-atc-btn]');
+      if (btn) {
+        btn.setAttribute('data-original-label', btn.querySelector('.faiza-coll__atc-label')
+          ? btn.querySelector('.faiza-coll__atc-label').textContent.trim()
+          : '');
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (!btn || btn.disabled || btn.hasAttribute('data-loading')) return;
+
+        btn.setAttribute('data-loading', '');
+
+        fetch(form.action, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+            Accept: 'application/json'
+          },
+          body: new URLSearchParams(new FormData(form))
+        })
+          .then(function (r) { if (!r.ok) throw new Error('cart'); return r.json(); })
+          .then(function () { return fetch('/cart.js', { headers: { Accept: 'application/json' } }); })
+          .then(function (r) { return r.json(); })
+          .then(function (cart) {
+            btn.removeAttribute('data-loading');
+            btn.setAttribute('data-success', '');
+            var label = btn.querySelector('.faiza-coll__atc-label');
+            if (label) label.textContent = '✓ Added';
+            updateCartCount(cart.item_count);
+            document.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true }));
+            setTimeout(function () {
+              btn.removeAttribute('data-success');
+              if (label) label.textContent = btn.getAttribute('data-original-label') || label.textContent;
+            }, 2200);
+          })
+          .catch(function () {
+            btn.removeAttribute('data-loading');
+            btn.style.backgroundColor = 'rgba(200, 60, 60, 0.12)';
+            btn.style.color = 'rgba(180, 40, 40, 0.85)';
+            var label = btn.querySelector('.faiza-coll__atc-label');
+            if (label) label.textContent = 'Try again';
+            setTimeout(function () {
+              btn.style.backgroundColor = '';
+              btn.style.color = '';
+              if (label) label.textContent = btn.getAttribute('data-original-label') || label.textContent;
+            }, 2200);
+          });
+      });
+    });
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "t:general.collection",
+  "tag": "section",
+  "class": "faiza-coll-section",
+  "settings": [
+    {
+      "type": "range",
+      "id": "section_spacing",
+      "label": "t:labels.section_spacing",
+      "min": 32,
+      "max": 128,
+      "step": 8,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "header",
+      "content": "t:headers.products"
+    },
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "t:labels.products_per_page",
+      "min": 12,
+      "max": 48,
+      "step": 4,
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "t:headers.layout"
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "t:labels.columns_desktop",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ],
+      "default": "3"
+    },
+    {
+      "type": "select",
+      "id": "columns_tablet",
+      "label": "t:labels.columns_tablet",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "t:labels.columns_mobile",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "header",
+      "content": "t:headers.sorting"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sort",
+      "label": "t:labels.show_sort",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:general.collection"
+    }
+  ]
+}
+{% endschema %}
