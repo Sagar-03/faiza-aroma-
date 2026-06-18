@@ -1,0 +1,360 @@
+<section class="faiza-promo">
+  <div class="faiza-promo__container">
+
+    <div class="faiza-promo__track">
+      {% for block in section.blocks %}
+        <a
+          href="{{ block.settings.link | default: '#' }}"
+          class="faiza-promo__card"
+          {{ block.shopify_attributes }}
+        >
+
+          <div class="faiza-promo__frame"></div>
+
+          {% if block.settings.image != blank %}
+            {{
+              block.settings.image
+              | image_url: width: 1200
+              | image_tag:
+                class: 'faiza-promo__image',
+                loading: 'lazy',
+                alt: block.settings.heading
+            }}
+          {% endif %}
+
+          <div class="faiza-promo__content">
+            {% if block.settings.heading != blank %}
+              <h3 class="faiza-promo__title">
+                {{ block.settings.heading }}
+              </h3>
+            {% endif %}
+
+            {% if block.settings.text != blank %}
+              <p class="faiza-promo__text">
+                {{ block.settings.text }}
+              </p>
+            {% endif %}
+
+            {% if block.settings.button_label != blank %}
+              <span class="faiza-promo__button">
+                {{ block.settings.button_label }}
+              </span>
+            {% endif %}
+          </div>
+
+        </a>
+      {% endfor %}
+    </div>
+
+    {% if section.blocks.size > 1 %}
+      <div class="faiza-promo__dots">
+        {% for block in section.blocks %}
+          <button
+            class="faiza-promo__dot{% if forloop.first %} faiza-promo__dot--active{% endif %}"
+            data-index="{{ forloop.index0 }}"
+            aria-label="Go to slide {{ forloop.index }}"
+          ></button>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% stylesheet %}
+
+.faiza-promo {
+  padding: 40px 0;
+  background: #ffffff;
+}
+
+.faiza-promo__container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.faiza-promo__track {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 48px;
+}
+
+.faiza-promo__card {
+  position: relative;
+  display: block;
+  aspect-ratio: 1.55 / 1;
+  overflow: visible;
+  text-decoration: none;
+}
+
+.faiza-promo__frame {
+  position: absolute;
+  top: -24px;
+  left: -24px;
+  right: 24px;
+  bottom: 24px;
+
+  border: 4px solid #c9a96e;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.faiza-promo__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.faiza-promo__content {
+  position: absolute;
+  top: 50%;
+  left: 56px;
+  transform: translateY(-50%);
+  z-index: 4;
+
+  color: #ffffff;
+  max-width: 45%;
+}
+
+.faiza-promo__title {
+  margin: 0 0 16px;
+
+  font-family: var(--font-heading-family);
+  font-size: clamp(2rem, 4vw, 4.5rem);
+  font-weight: 300;
+  line-height: 1.1;
+}
+
+.faiza-promo__text {
+  margin: 0 0 28px;
+
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+
+.faiza-promo__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 16px 32px;
+
+  background: #c9a96e;
+  color: #ffffff;
+
+  border-radius: 6px;
+
+  font-size: 1rem;
+  font-weight: 500;
+
+  transition: background-color 0.3s ease;
+}
+
+.faiza-promo__card:hover .faiza-promo__button {
+  background: #b8914f;
+}
+
+/* Dots — hidden on desktop */
+.faiza-promo__dots {
+  display: none;
+}
+
+@media screen and (max-width: 989px) {
+
+  .faiza-promo__track {
+    grid-template-columns: 1fr;
+    gap: 56px;
+  }
+
+  .faiza-promo__content {
+    left: 32px;
+    max-width: 55%;
+  }
+
+  .faiza-promo__title {
+    font-size: 2rem;
+  }
+
+  .faiza-promo__text {
+    font-size: 1rem;
+  }
+}
+
+@media screen and (max-width: 749px) {
+
+  .faiza-promo {
+    padding: 40px 0;
+  }
+
+  .faiza-promo__container {
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .faiza-promo__track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    /* 20px all sides: gives 6px clearance for the -14px frame overhang */
+    padding: 20px;
+    scroll-padding-left: 20px;
+    gap: 20px;
+  }
+
+  .faiza-promo__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .faiza-promo__card {
+    flex: 0 0 calc(100vw - 40px);
+    scroll-snap-align: start;
+    aspect-ratio: 1.5 / 1;
+  }
+
+  .faiza-promo__frame {
+    top: -14px;
+    left: -14px;
+    right: 14px;
+    bottom: 14px;
+    border-width: 2px;
+  }
+
+  .faiza-promo__content {
+    left: 24px;
+    max-width: 65%;
+  }
+
+  .faiza-promo__title {
+    font-size: 1.75rem;
+  }
+
+  .faiza-promo__button {
+    padding: 12px 24px;
+  }
+
+  /* Show dots on mobile */
+  .faiza-promo__dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+  }
+
+  .faiza-promo__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    background: #c9a96e;
+    opacity: 0.35;
+    cursor: pointer;
+    padding: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+
+  .faiza-promo__dot--active {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+}
+
+{% endstylesheet %}
+
+{% javascript %}
+(function () {
+  var section = document.currentScript.closest('.faiza-promo');
+  if (!section) return;
+
+  var track = section.querySelector('.faiza-promo__track');
+  var dots = section.querySelectorAll('.faiza-promo__dot');
+
+  if (!track || !dots.length) return;
+
+  function getActiveIndex() {
+    var cards = track.querySelectorAll('.faiza-promo__card');
+    if (!cards.length) return 0;
+    var cardWidth = cards[0].offsetWidth + 20;
+    return Math.round(track.scrollLeft / cardWidth);
+  }
+
+  function updateDots() {
+    var active = getActiveIndex();
+    dots.forEach(function (dot, i) {
+      dot.classList.toggle('faiza-promo__dot--active', i === active);
+    });
+  }
+
+  track.addEventListener('scroll', updateDots, { passive: true });
+
+  dots.forEach(function (dot, i) {
+    dot.addEventListener('click', function () {
+      var cards = track.querySelectorAll('.faiza-promo__card');
+      if (!cards.length) return;
+      var cardWidth = cards[0].offsetWidth + 20;
+      track.scrollTo({ left: cardWidth * i, behavior: 'smooth' });
+    });
+  });
+})();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Faiza Promo Banners",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "banner",
+      "name": "Banner",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Banner image"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "New Launch"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Description",
+          "default": "Premium fragrances crafted for every occasion."
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Shop Now"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Button link"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 2,
+  "presets": [
+    {
+      "name": "Faiza Promo Banners",
+      "blocks": [
+        {
+          "type": "banner"
+        },
+        {
+          "type": "banner"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

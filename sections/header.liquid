@@ -62,17 +62,19 @@
     {%- endif -%}
 
     <!-- Logo -->
-    <div class="site-header__logo">
+    <div class="site-header__logo" style="--logo-max-w: {{ section.settings.logo_max_width | default: 160 }}px">
       <a href="{{ routes.root_url }}" class="site-header__logo-link" aria-label="{{ shop.name }}">
         {%- if show_logo_image -%}
           {{
             section.settings.logo
-            | image_url: height: 60
+            | image_url: width: 480
             | image_tag:
               loading: 'eager',
               fetchpriority: 'high',
               class: 'site-header__logo-img',
-              alt: shop.name
+              alt: shop.name,
+              width: section.settings.logo.width,
+              height: section.settings.logo.height
           }}
         {%- else -%}
           <span class="site-header__logo-text">{{ shop.name }}</span>
@@ -298,18 +300,21 @@
 
   .site-header__logo-text {
     font-family: var(--font-heading-family, serif);
-    font-size: 1.375rem;
+    font-size: 1.25rem;
     font-weight: 400;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: #1a1614;
     line-height: 1;
   }
 
   .site-header__logo-img {
-    height: 2.625rem;
-    width: auto;
     display: block;
+    height: auto;
+    max-height: 3.5rem;
+    max-width: var(--logo-max-w, 160px);
+    width: auto;
+    object-fit: contain;
   }
 
   /* ── Desktop nav ── */
@@ -331,10 +336,10 @@
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    font-family: var(--font-body-family, sans-serif);
-    font-size: 0.8125rem;
-    font-weight: 500;
-    letter-spacing: 0.06em;
+    font-family: var(--font-heading-family, serif);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: #1a1614;
     text-decoration: none;
@@ -627,6 +632,16 @@
       "type": "image_picker",
       "id": "logo",
       "label": "Logo image"
+    },
+    {
+      "type": "range",
+      "id": "logo_max_width",
+      "label": "Logo max width",
+      "min": 60,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "default": 160
     },
     {
       "type": "select",

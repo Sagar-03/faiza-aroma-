@@ -1,15 +1,3 @@
-{%- liquid
-  assign arch_id = 'faiza-arch-' | append: section.id
--%}
-
-<svg width="0" height="0" focusable="false" style="position:absolute;overflow:hidden" aria-hidden="true">
-  <defs>
-    <clipPath id="{{ arch_id }}" clipPathUnits="objectBoundingBox">
-      <path d="M 0,1 L 0,0.42 C 0,0.08 0.12,0 0.5,0 C 0.88,0 1,0.08 1,0.42 L 1,1 Z"/>
-    </clipPath>
-  </defs>
-</svg>
-
 <div
   class="faiza-cat full-width"
   style="--sec-pad: {{ section.settings.section_spacing }}px;"
@@ -41,61 +29,24 @@
             class="faiza-cat__link"
             href="{{ block.settings.collection_url | default: routes.collections_url }}"
           >
-            <div class="faiza-cat__frame">
-              <svg
-                class="faiza-cat__border-svg"
-                viewBox="0 0 220 320"
-                preserveAspectRatio="none"
-                aria-hidden="true"
-                focusable="false"
-              >
-                <defs>
-                  <linearGradient
-                    id="faiza-g-{{ section.id }}-{{ forloop.index }}"
-                    x1="0%" y1="0%" x2="100%" y2="100%"
-                  >
-                    <stop offset="0%"   stop-color="#5c3d10"/>
-                    <stop offset="28%"  stop-color="#c9a96e"/>
-                    <stop offset="50%"  stop-color="#f0d090"/>
-                    <stop offset="72%"  stop-color="#c9a96e"/>
-                    <stop offset="100%" stop-color="#5c3d10"/>
-                  </linearGradient>
-                </defs>
-                <path
-                  d="M 1.5,318.5 L 1.5,134.4 C 1.5,27 40,1.5 110,1.5 C 180,1.5 218.5,27 218.5,134.4 L 218.5,318.5 Z"
-                  fill="none"
-                  stroke="url(#faiza-g-{{ section.id }}-{{ forloop.index }})"
-                  stroke-width="1.5"
-                  vector-effect="non-scaling-stroke"
-                />
-              </svg>
-
-              <div
-                class="faiza-cat__card"
-                style="clip-path: url(#{{ arch_id }});"
-              >
-                <div class="faiza-cat__pattern" aria-hidden="true"></div>
-
-                <div class="faiza-cat__media">
-                  {%- if block.settings.image != blank -%}
-                    {{
-                      block.settings.image
-                      | image_url: width: 600
-                      | image_tag:
-                        loading: 'lazy',
-                        widths: '200, 300, 400, 600',
-                        sizes: '(min-width: 990px) 220px, (min-width: 750px) calc(33vw - 2.5rem), calc(50vw - 2.5rem)',
-                        class: 'faiza-cat__img',
-                        alt: block.settings.image.alt | default: block.settings.title | escape
-                    }}
-                  {%- else -%}
-                    <div class="faiza-cat__media-empty">
-                      {{ 'collection-1' | placeholder_svg_tag: 'faiza-cat__placeholder-svg' }}
-                    </div>
-                  {%- endif -%}
-                </div>
-
-                <div class="faiza-cat__veil" aria-hidden="true"></div>
+            <div class="faiza-cat__card">
+              <div class="faiza-cat__media">
+                {%- if block.settings.image != blank -%}
+                  {{
+                    block.settings.image
+                    | image_url: width: 600
+                    | image_tag:
+                      loading: 'lazy',
+                      widths: '200, 300, 400, 600',
+                      sizes: '(min-width: 990px) 220px, (min-width: 750px) calc(33vw - 2.5rem), calc(50vw - 2.5rem)',
+                      class: 'faiza-cat__img',
+                      alt: block.settings.image.alt | default: block.settings.title | escape
+                  }}
+                {%- else -%}
+                  <div class="faiza-cat__media-empty">
+                    {{ 'collection-1' | placeholder_svg_tag: 'faiza-cat__placeholder-svg' }}
+                  </div>
+                {%- endif -%}
               </div>
             </div>
 
@@ -114,43 +65,11 @@
         {%- for i in (1..6) -%}
           <li class="faiza-cat__item faiza-cat__item--ph">
             <div class="faiza-cat__link">
-              <div class="faiza-cat__frame">
-                <svg
-                  class="faiza-cat__border-svg"
-                  viewBox="0 0 220 320"
-                  preserveAspectRatio="none"
-                  aria-hidden="true"
-                  focusable="false"
-                >
-                  <defs>
-                    <linearGradient
-                      id="faiza-g-ph-{{ section.id }}-{{ forloop.index }}"
-                      x1="0%" y1="0%" x2="100%" y2="100%"
-                    >
-                      <stop offset="0%"   stop-color="#5c3d10"/>
-                      <stop offset="50%"  stop-color="#f0d090"/>
-                      <stop offset="100%" stop-color="#5c3d10"/>
-                    </linearGradient>
-                  </defs>
-                  <path
-                    d="M 1.5,318.5 L 1.5,134.4 C 1.5,27 40,1.5 110,1.5 C 180,1.5 218.5,27 218.5,134.4 L 218.5,318.5 Z"
-                    fill="none"
-                    stroke="url(#faiza-g-ph-{{ section.id }}-{{ forloop.index }})"
-                    stroke-width="1.5"
-                    vector-effect="non-scaling-stroke"
-                  />
-                </svg>
-                <div
-                  class="faiza-cat__card"
-                  style="clip-path: url(#{{ arch_id }});"
-                >
-                  <div class="faiza-cat__pattern" aria-hidden="true"></div>
-                  <div class="faiza-cat__media">
-                    <div class="faiza-cat__media-empty">
-                      {{ 'collection-1' | placeholder_svg_tag: 'faiza-cat__placeholder-svg' }}
-                    </div>
+              <div class="faiza-cat__card">
+                <div class="faiza-cat__media">
+                  <div class="faiza-cat__media-empty">
+                    {{ 'collection-1' | placeholder_svg_tag: 'faiza-cat__placeholder-svg' }}
                   </div>
-                  <div class="faiza-cat__veil" aria-hidden="true"></div>
                 </div>
               </div>
               <div class="faiza-cat__caption">
@@ -168,9 +87,8 @@
 {% stylesheet %}
   /* ─── Section ─── */
   .faiza-cat {
-    padding: var(--sec-pad, 96px) 0;
-    background-color: #faf8f5;
-    overflow: hidden;
+    padding: var(--sec-pad, 24px) 0;
+    background-color: #ffffff;
   }
 
   .faiza-cat__inner {
@@ -182,7 +100,7 @@
   /* ─── Header ─── */
   .faiza-cat__header {
     text-align: center;
-    margin-bottom: 3.5rem;
+    margin-bottom: 1.5rem;
   }
 
   .faiza-cat__eyebrow {
@@ -224,26 +142,22 @@
     line-height: 1.75;
     letter-spacing: 0.03em;
     color: rgba(26, 22, 20, 0.55);
-    margin: 0;
+    margin: 0 auto;
     max-width: 50ch;
-    margin-left: auto;
-    margin-right: auto;
   }
 
   /* ─── Grid ─── */
   .faiza-cat__grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem 1.25rem;
+    gap: 1.25rem;
     list-style: none;
     margin: 0;
     padding: 0;
   }
 
   /* ─── Item / Link ─── */
-  .faiza-cat__item {
-    display: block;
-  }
+  .faiza-cat__item { display: block; }
 
   .faiza-cat__link {
     display: block;
@@ -251,99 +165,49 @@
     cursor: pointer;
   }
 
-  /* ─── Arch frame ─── */
-  .faiza-cat__frame {
+  /* ─── Transparent card ─── */
+  .faiza-cat__card {
     position: relative;
     width: 100%;
-    padding-bottom: 145.45%; /* 320 / 220 */
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.14));
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                filter 0.3s ease;
-  }
-
-  .faiza-cat__link:hover .faiza-cat__frame,
-  .faiza-cat__link:focus-visible .faiza-cat__frame {
-    transform: translateY(-7px);
-    filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.18))
-            drop-shadow(0 0 20px rgba(201, 169, 110, 0.28));
-  }
-
-  /* ─── Gold SVG border ─── */
-  .faiza-cat__border-svg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 3;
-    pointer-events: none;
-  }
-
-  /* ─── Card (clipped to arch) ─── */
-  .faiza-cat__card {
-    position: absolute;
-    inset: 2px;
+    padding-bottom: 185%;
+    background: rgba(255, 255, 255, 0.45);
+   
+    border-radius: 4px;
     overflow: hidden;
-    background-color: #ede9e3;
+    transition:
+      border-color 0.3s ease,
+      box-shadow 0.3s ease,
+      transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 
-  /* ─── Geometric luxury pattern ─── */
-  .faiza-cat__pattern {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    background-color: #ede9e3;
-    background-image:
-      repeating-linear-gradient(
-        45deg,
-        rgba(201, 169, 110, 0.065) 0px,
-        rgba(201, 169, 110, 0.065) 1px,
-        transparent 1px,
-        transparent 16px
-      ),
-      repeating-linear-gradient(
-        -45deg,
-        rgba(201, 169, 110, 0.065) 0px,
-        rgba(201, 169, 110, 0.065) 1px,
-        transparent 1px,
-        transparent 16px
-      ),
-      repeating-linear-gradient(
-        0deg,
-        rgba(201, 169, 110, 0.028) 0px,
-        rgba(201, 169, 110, 0.028) 1px,
-        transparent 1px,
-        transparent 16px
-      ),
-      repeating-linear-gradient(
-        90deg,
-        rgba(201, 169, 110, 0.028) 0px,
-        rgba(201, 169, 110, 0.028) 1px,
-        transparent 1px,
-        transparent 16px
-      );
+  .faiza-cat__link:hover .faiza-cat__card,
+  .faiza-cat__link:focus-visible .faiza-cat__card {
+     box-shadow: none;
+  transform: translateY(-5px);
   }
 
   /* ─── Media ─── */
   .faiza-cat__media {
     position: absolute;
     inset: 0;
-    z-index: 1;
-    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 1rem;
   }
 
   .faiza-cat__img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    object-position: center top;
+    object-fit: contain;
+    object-position: center;
     display: block;
-    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 
   .faiza-cat__link:hover .faiza-cat__img,
   .faiza-cat__link:focus-visible .faiza-cat__img {
-    transform: scale(1.08);
+    transform: scale(1.05);
   }
 
   .faiza-cat__media-empty {
@@ -352,30 +216,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #e8e4de;
   }
 
   .faiza-cat__placeholder-svg {
     width: 55%;
     height: 55%;
-    fill: rgba(201, 169, 110, 0.18);
-  }
-
-  /* ─── Bottom gradient veil ─── */
-  .faiza-cat__veil {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 50%;
-    z-index: 2;
-    background: linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.35) 0%,
-      rgba(0, 0, 0, 0.08) 55%,
-      transparent 100%
-    );
-    pointer-events: none;
+    fill: rgba(201, 169, 110, 0.25);
   }
 
   /* ─── Caption ─── */
@@ -411,7 +257,7 @@
     text-transform: uppercase;
     color: #c9a96e;
     opacity: 0;
-    transform: translateY(5px);
+    transform: translateY(4px);
     transition: opacity 0.3s ease, transform 0.3s ease;
   }
 
@@ -423,32 +269,24 @@
 
   /* ─── Tablet: 3 columns ─── */
   @media screen and (min-width: 750px) {
-    .faiza-cat__inner {
-      padding: 0 2.5rem;
-    }
-
+    .faiza-cat__inner { padding: 0 2.5rem; }
     .faiza-cat__grid {
       grid-template-columns: repeat(3, 1fr);
-      gap: 2rem 1.5rem;
+      gap: 1.5rem;
     }
   }
 
   /* ─── Desktop: 6 columns ─── */
   @media screen and (min-width: 990px) {
-    .faiza-cat__inner {
-      padding: 0 3rem;
-    }
-
+    .faiza-cat__inner { padding: 0 3rem; }
     .faiza-cat__grid {
       grid-template-columns: repeat(6, 1fr);
-      gap: 2rem 1.25rem;
+      gap: 1.5rem;
     }
   }
 
   @media screen and (min-width: 1440px) {
-    .faiza-cat__inner {
-      padding: 0 4.5rem;
-    }
+    .faiza-cat__inner { padding: 0 4.5rem; }
   }
 
   /* ─── Focus ─── */
@@ -460,31 +298,16 @@
 
   /* ─── Reduced motion ─── */
   @media (prefers-reduced-motion: reduce) {
-    .faiza-cat__frame {
-      transition: none;
-    }
+    .faiza-cat__card,
+    .faiza-cat__img,
+    .faiza-cat__name,
+    .faiza-cat__cta-text { transition: none; }
 
-    .faiza-cat__img {
-      transition: none;
-    }
-
-    .faiza-cat__cta-text {
-      transition: none;
-    }
-
-    .faiza-cat__name {
-      transition: none;
-    }
-
-    .faiza-cat__link:hover .faiza-cat__frame,
-    .faiza-cat__link:focus-visible .faiza-cat__frame {
-      transform: none;
-    }
+    .faiza-cat__link:hover .faiza-cat__card,
+    .faiza-cat__link:focus-visible .faiza-cat__card { transform: none; }
 
     .faiza-cat__link:hover .faiza-cat__img,
-    .faiza-cat__link:focus-visible .faiza-cat__img {
-      transform: none;
-    }
+    .faiza-cat__link:focus-visible .faiza-cat__img { transform: none; }
 
     .faiza-cat__link:hover .faiza-cat__cta-text,
     .faiza-cat__link:focus-visible .faiza-cat__cta-text {
@@ -504,11 +327,11 @@
       "type": "range",
       "id": "section_spacing",
       "label": "Section spacing",
-      "min": 40,
+      "min": 8,
       "max": 160,
       "step": 8,
       "unit": "px",
-      "default": 96
+      "default": 24
     },
     {
       "type": "header",

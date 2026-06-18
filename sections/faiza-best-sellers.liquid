@@ -37,10 +37,6 @@
       >
         <div class="faiza-col__slider" data-slider>
 
-          <button class="faiza-col__arrow faiza-col__arrow--prev" aria-label="Previous" data-prev disabled>
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M13 4l-6 6 6 6"/></svg>
-          </button>
-
           <div class="faiza-col__track-wrap" data-track-wrap>
             <ul class="faiza-col__track" data-track role="list">
 
@@ -152,13 +148,10 @@
                       </div>
 
                       {%- if show_emi -%}
-                        <p class="faiza-col__emi">
-                          or {{ emi_price | money_without_trailing_zeros }}/{{ 'general.month' | t | default: 'Month' }}
-                          <span class="faiza-col__emi-cta">
-                            {{ section.settings.emi_label | default: 'Buy on EMI' | escape }}
-                            <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" width="8" height="5"><path d="M1 1l4 4 4-4"/></svg>
-                          </span>
-                        </p>
+                        <div class="faiza-col__emi">
+                          <span class="faiza-col__emi-text">or {{ emi_price | money_without_trailing_zeros }}/Month</span>
+                          <a href="{{ product.url }}" class="faiza-col__emi-cta">{{ section.settings.emi_label | default: 'Buy on EMI' }} &#9658;</a>
+                        </div>
                       {%- endif -%}
 
                       <div class="faiza-col__atc-wrap">
@@ -246,10 +239,6 @@
             </ul>
           </div>
 
-          <button class="faiza-col__arrow faiza-col__arrow--next" aria-label="Next" data-next>
-            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 4l6 6-6 6"/></svg>
-          </button>
-
         </div>
       </div>
     {%- endfor -%}
@@ -273,7 +262,8 @@
 
 /* ─── Section ─── */
 .faiza-col {
-  padding: var(--sec-pad, 96px) 0;
+  padding-top: 20px;
+  padding-bottom: 20px;
   background-color: #f8f4ee;
 }
 
@@ -286,12 +276,12 @@
 /* ─── Heading ─── */
 .faiza-col__heading {
   font-family: var(--font-heading-family, Georgia, serif);
-  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-size: clamp(1.75rem, 3.5vw, 2.75rem);
   font-weight: 400;
   letter-spacing: -0.01em;
   color: #1a1614;
   text-align: center;
-  margin: 0 0 2rem;
+  margin: 0 0 0.75rem;
 }
 
 /* ─── Tabs ─── */
@@ -299,7 +289,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.25rem;
   border-bottom: 1px solid rgba(26, 22, 20, 0.14);
   overflow-x: auto;
   scrollbar-width: none;
@@ -363,45 +353,8 @@
 
 /* ─── Slider container ─── */
 .faiza-col__slider {
-  display: flex;
-  align-items: center;
+  display: block;
 }
-
-/* ─── Arrows ─── */
-.faiza-col__arrow {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 50%;
-  border: 1px solid rgba(26, 22, 20, 0.2);
-  background-color: #ffffff;
-  color: #1a1614;
-  cursor: pointer;
-  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, opacity 0.25s ease;
-  z-index: 2;
-}
-
-.faiza-col__arrow svg {
-  width: 1rem;
-  height: 1rem;
-}
-
-.faiza-col__arrow:hover:not(:disabled) {
-  background-color: #1a1614;
-  border-color: #1a1614;
-  color: #ffffff;
-}
-
-.faiza-col__arrow:disabled {
-  opacity: 0.28;
-  cursor: default;
-}
-
-.faiza-col__arrow--prev { margin-right: 1rem; }
-.faiza-col__arrow--next { margin-left: 1rem; }
 
 /* ─── Track ─── */
 .faiza-col__track-wrap {
@@ -412,7 +365,7 @@
 .faiza-col__track {
   display: flex;
   flex-wrap: nowrap;
-  gap: 1.5rem;
+  gap: 1rem;
   list-style: none;
   margin: 0;
   padding: 0.25rem 0 0.5rem;
@@ -423,30 +376,96 @@
 /* ─── Card ─── */
 .faiza-col__card {
   flex-shrink: 0;
-  width: calc(25% - 1.25rem);
+  width: calc(25% - 1.125rem);
   background-color: #ffffff;
   border: 1px solid rgba(26, 22, 20, 0.07);
+  border-radius: 12px;
   transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
               box-shadow 0.3s ease;
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 @media screen and (max-width: 989px) {
   .faiza-col__card {
-    width: calc(50% - 0.75rem);
+    width: calc(33.333% - 1rem);
   }
 }
 
 @media screen and (max-width: 749px) {
+  .faiza-col__inner {
+    padding: 0 1rem;
+  }
+
+  .faiza-col__track {
+    gap: 12px;
+  }
+
   .faiza-col__card {
-    width: 83%;
+    width: calc(72% - 8px);
+    border-radius: 14px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    border: none;
+  }
+
+  .faiza-col__info {
+    padding: 10px 12px 0;
+  }
+
+  .faiza-col__title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.35;
+    min-height: 38px;
+    margin-bottom: 6px;
+  }
+
+  .faiza-col__pricing {
+    margin-bottom: 6px;
+    gap: 6px;
+  }
+
+  .faiza-col__price {
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .faiza-col__compare {
+    font-size: 12px;
+  }
+
+  .faiza-col__discount {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+  }
+
+  .faiza-col__atc-wrap {
+    padding: 8px 12px 12px;
+  }
+
+  .faiza-col__atc-btn {
+    min-height: 44px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #e8c14e 0%, #c8890a 100%);
+    color: #1a1614;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 8px rgba(200, 137, 10, 0.3);
+  }
+
+  .faiza-col__atc-icon svg {
+    width: 16px;
+    height: 16px;
   }
 }
 
 .faiza-col__card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.09);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.11);
 }
 
 /* ─── Media ─── */
@@ -459,8 +478,9 @@
 .faiza-col__media {
   position: relative;
   overflow: hidden;
-  background-color: #ede9e1;
-  aspect-ratio: 1 / 1;
+  background-color: #f0ece4;
+  aspect-ratio: 0.9 / 1;
+  border-radius: 12px 12px 0 0;
 }
 
 .faiza-col__media--ph {
@@ -514,8 +534,8 @@
 /* ─── Badge ─── */
 .faiza-col__badge {
   position: absolute;
-  top: 0.625rem;
-  left: 0.625rem;
+  top: 8px;
+  left: 8px;
   z-index: 3;
   display: inline-flex;
   align-items: center;
@@ -523,11 +543,11 @@
   background-color: #1e1c1a;
   color: #ffffff;
   font-family: var(--font-body-family, sans-serif);
-  font-size: 0.5625rem;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.05em;
-  padding: 0.3rem 0.55rem 0.3rem 0.45rem;
-  border-radius: 2rem;
+  padding: 6px 10px;
+  border-radius: 999px;
   line-height: 1;
   white-space: nowrap;
 }
@@ -541,18 +561,22 @@
 
 /* ─── Info ─── */
 .faiza-col__info {
-  padding: 14px 16px 8px;
+  padding: 12px 14px 6px;
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ─── ATC wrap (footer) ─── */
 .faiza-col__atc-wrap {
-  padding: 12px 16px 16px;
+  padding: 8px 14px 14px;
+  margin-top: auto;
 }
 
 /* ─── Meta ─── */
 .faiza-col__meta {
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.375rem;
@@ -560,12 +584,7 @@
 }
 
 .faiza-col__type {
-  font-family: var(--font-body-family, sans-serif);
-  font-size: 0.5625rem;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  color: rgba(26, 22, 20, 0.4);
-  flex-shrink: 0;
+  display: none;
 }
 
 .faiza-col__rating {
@@ -573,15 +592,17 @@
   align-items: center;
   gap: 0.2rem;
   font-family: var(--font-body-family, sans-serif);
-  font-size: 0.6875rem;
+  font-size: 11px;
   font-weight: 500;
-  color: rgba(26, 22, 20, 0.55);
-  flex-shrink: 0;
+  color: rgba(26, 22, 20, 0.65);
+  background: #f2f2f2;
+  border-radius: 999px;
+  padding: 4px 8px;
 }
 
 .faiza-col__star {
-  width: 0.7rem;
-  height: 0.7rem;
+  width: 0.8rem;
+  height: 0.8rem;
   color: #f5a623;
   flex-shrink: 0;
 }
@@ -600,8 +621,8 @@
 
 .faiza-col__title {
   font-family: var(--font-body-family, sans-serif);
-  font-size: clamp(0.8125rem, 1vw, 0.9375rem);
-  font-weight: 500;
+  font-size: clamp(0.875rem, 1.1vw, 1rem);
+  font-weight: 600;
   letter-spacing: 0.01em;
   color: #1a1614;
   margin: 0;
@@ -639,39 +660,50 @@
 }
 
 .faiza-col__discount {
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  color: #1a7a36;
-  background-color: #d0f0d9;
-  padding: 0.2rem 0.4rem;
-  border-radius: 0.2rem;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  background-color: #2d7a2d;
+  padding: 0.2rem 0.45rem;
+  border-radius: 4px;
   line-height: 1;
 }
 
-/* ─── EMI ─── */
+/* ─── EMI row ─── */
 .faiza-col__emi {
-  font-family: var(--font-body-family, sans-serif);
-  font-size: 0.6875rem;
-  color: rgba(26, 22, 20, 0.5);
-  margin: 0 0 0.75rem;
-  display: flex;
+  display: none;
   align-items: center;
-  gap: 0.3rem;
   flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.375rem;
+}
+
+.faiza-col__emi-text {
+  font-family: var(--font-body-family, sans-serif);
+  font-size: 0.625rem;
+  color: rgba(26, 22, 20, 0.55);
+  font-weight: 400;
 }
 
 .faiza-col__emi-cta {
   display: inline-flex;
   align-items: center;
-  gap: 0.2rem;
-  background-color: rgba(26, 22, 20, 0.07);
+  background: rgba(26, 22, 20, 0.07);
   color: #1a1614;
-  font-weight: 600;
-  padding: 0.2rem 0.45rem;
-  border-radius: 0.2rem;
-  cursor: pointer;
+  font-family: var(--font-body-family, sans-serif);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-decoration: none;
   white-space: nowrap;
+  transition: background 0.2s ease;
+}
+
+.faiza-col__emi-cta:hover {
+  background: rgba(26, 22, 20, 0.13);
 }
 
 /* ─── ATC button ─── */
@@ -683,10 +715,10 @@
   justify-content: center;
   gap: 8px;
   width: 100%;
-  background: linear-gradient(135deg, #c9a84c 0%, #a8872e 100%);
+  background: linear-gradient(135deg, #e8c14e 0%, #d4972a 40%, #b07218 100%);
   border: none;
-  border-radius: 6px;
-  padding: 13px 16px;
+  border-radius: 0;
+  padding: 14px 16px;
   color: #ffffff;
   font-family: var(--font-body-family, sans-serif);
   font-size: 13px;
@@ -712,7 +744,7 @@
 .faiza-col__atc-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
 .faiza-col__atc-btn--ph {
-  background: linear-gradient(135deg, rgba(201, 168, 76, 0.32) 0%, rgba(168, 135, 46, 0.32) 100%);
+  background: linear-gradient(135deg, rgba(232, 193, 78, 0.32) 0%, rgba(176, 114, 24, 0.32) 100%);
   color: rgba(26, 22, 20, 0.4);
   cursor: default;
 }
@@ -787,8 +819,6 @@
 
 @media screen and (min-width: 990px) {
   .faiza-col__inner { padding: 0 3rem; }
-  .faiza-col__arrow--prev { margin-right: 1.25rem; }
-  .faiza-col__arrow--next { margin-left: 1.25rem; }
 }
 
 @media screen and (min-width: 1440px) {
@@ -801,7 +831,6 @@
   .faiza-col__img,
   .faiza-col__img--secondary,
   .faiza-col__atc-btn,
-  .faiza-col__atc-btn::before,
   .faiza-col__track {
     transition: none;
   }
@@ -860,11 +889,9 @@
 
     /* ── Slider ── */
     function initSlider(sliderEl) {
-      var wrap    = sliderEl.querySelector('[data-track-wrap]');
-      var track   = sliderEl.querySelector('[data-track]');
-      var prevBtn = sliderEl.querySelector('[data-prev]');
-      var nextBtn = sliderEl.querySelector('[data-next]');
-      var cards   = Array.prototype.slice.call(track.querySelectorAll('.faiza-col__card'));
+      var wrap  = sliderEl.querySelector('[data-track-wrap]');
+      var track = sliderEl.querySelector('[data-track]');
+      var cards = Array.prototype.slice.call(track.querySelectorAll('.faiza-col__card'));
       if (!cards.length) return;
 
       var idx    = 0;
@@ -875,22 +902,21 @@
       function visibleCount() {
         var w = window.innerWidth;
         if (w >= 990) return 4;
-        if (w >= 750) return 2;
-        return 1.2;
+        if (w >= 750) return 3;
+        return 1.4;
       }
 
       function recalc() {
         var vc    = visibleCount();
         var wrapW = wrap.offsetWidth;
-        gapPx     = parseFloat(getComputedStyle(track).columnGap) || 24;
-        cardW     = (wrapW - gapPx * (Math.ceil(vc) - 1)) / vc;
+        gapPx     = parseFloat(getComputedStyle(track).columnGap) || 16;
+        cardW     = (wrapW - gapPx * (vc - 1)) / vc;
 
         cards.forEach(function (c) { c.style.width = cardW + 'px'; });
 
-        maxIdx = Math.max(0, cards.length - Math.floor(vc));
+        maxIdx = Math.max(0, cards.length - vc);
         idx    = Math.min(idx, maxIdx);
         moveTo(idx, false);
-        refreshArrows();
       }
 
       function moveTo(i, animate) {
@@ -899,19 +925,6 @@
           : 'none';
         track.style.transform = 'translateX(-' + (i * (cardW + gapPx)) + 'px)';
       }
-
-      function refreshArrows() {
-        prevBtn.disabled = idx <= 0;
-        nextBtn.disabled = idx >= maxIdx;
-      }
-
-      prevBtn.addEventListener('click', function () {
-        if (idx > 0) { idx--; moveTo(idx, true); refreshArrows(); }
-      });
-
-      nextBtn.addEventListener('click', function () {
-        if (idx < maxIdx) { idx++; moveTo(idx, true); refreshArrows(); }
-      });
 
       /* touch swipe */
       var tx = 0, ty = 0, dragging = false;
@@ -937,7 +950,6 @@
           if (dx < 0 && idx < maxIdx)  idx++;
           if (dx > 0 && idx > 0)       idx--;
           moveTo(idx, true);
-          refreshArrows();
         }
       }, { passive: true });
 
@@ -1042,11 +1054,11 @@
       "type": "range",
       "id": "section_spacing",
       "label": "Section spacing",
-      "min": 40,
+      "min": 8,
       "max": 160,
       "step": 8,
       "unit": "px",
-      "default": 96
+      "default": 24
     },
     {
       "type": "header",

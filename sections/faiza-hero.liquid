@@ -25,30 +25,44 @@
       >
         <div class="faiza-slider__media" aria-hidden="true">
           {%- if block.settings.image != blank -%}
-            {%- if forloop.first -%}
-              {{
-                block.settings.image  
-                | image_url: width: 3840
-                | image_tag:
-                  loading: 'eager',
-                  fetchpriority: 'high',
-                  class: 'faiza-slider__img',
-                  widths: '375, 750, 1080, 1440, 1920, 2560, 3840',
-                  sizes: '100vw',
-                  alt: block.settings.image.alt | default: shop.name | escape
-              }}
-            {%- else -%}
-              {{
-                block.settings.image
-                | image_url: width: 3840
-                | image_tag:
-                  loading: 'lazy',
-                  class: 'faiza-slider__img',
-                  widths: '375, 750, 1080, 1440, 1920, 2560, 3840',
-                  sizes: '100vw',
-                  alt: block.settings.image.alt | default: shop.name | escape
-              }}
-            {%- endif -%}
+            <picture>
+              {%- if block.settings.mobile_image != blank -%}
+                <source
+                  media="(max-width: 749px)"
+                  srcset="
+                    {{ block.settings.mobile_image | image_url: width: 375 }} 375w,
+                    {{ block.settings.mobile_image | image_url: width: 550 }} 550w,
+                    {{ block.settings.mobile_image | image_url: width: 750 }} 750w,
+                    {{ block.settings.mobile_image | image_url: width: 900 }} 900w
+                  "
+                  sizes="100vw"
+                >
+              {%- endif -%}
+              {%- if forloop.first -%}
+                {{
+                  block.settings.image
+                  | image_url: width: 3840
+                  | image_tag:
+                    loading: 'eager',
+                    fetchpriority: 'high',
+                    class: 'faiza-slider__img',
+                    widths: '375, 750, 1080, 1440, 1920, 2560, 3840',
+                    sizes: '100vw',
+                    alt: block.settings.image.alt | default: shop.name | escape
+                }}
+              {%- else -%}
+                {{
+                  block.settings.image
+                  | image_url: width: 3840
+                  | image_tag:
+                    loading: 'lazy',
+                    class: 'faiza-slider__img',
+                    widths: '375, 750, 1080, 1440, 1920, 2560, 3840',
+                    sizes: '100vw',
+                    alt: block.settings.image.alt | default: shop.name | escape
+                }}
+              {%- endif -%}
+            </picture>
           {%- else -%}
             <div class="faiza-slider__img-ph">
               {{ 'lifestyle-1' | placeholder_svg_tag: 'faiza-slider__ph-svg' }}
@@ -113,60 +127,63 @@
 
   /* ── Shell ── */
   .faiza-slider {
-    position: relative;
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
-    height: var(--slider-h-mobile, 70vh);
-    min-height: 480px;
-    overflow: hidden;
-    background: #1a1614;
-  }
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  background: #1a1614;
+}
 
   /* ── Track ── */
   .faiza-slider__track {
-    position: absolute;
-    inset: 0;
+    position: relative;
+    width: 100%;
   }
 
   /* ── Slides ── */
   .faiza-slider__slide {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    pointer-events: none;
-    backface-visibility: hidden;
-    will-change: transform, opacity;
-    transform: translateX(100%);
+    display: none;
+    width: 100%;
   }
 
   .faiza-slider__slide.is-active {
-    z-index: 2;
+    display: block;
     opacity: 1;
-    pointer-events: auto;
-    animation: slideInFromRight 0.8s ease forwards;
   }
 
+  /* Leaving slide: absolute so it overlays the incoming slide without adding height */
   .faiza-slider__slide.is-leaving {
+    display: block;
+    position: absolute;
+    inset: 0;
     z-index: 1;
     pointer-events: none;
-    animation: slideOutToLeft 0.8s ease forwards;
+    opacity: 0;
+    transition: opacity 0.4s ease;
   }
-
 
   /* ── Media ── */
   .faiza-slider__media {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
+    position: relative;
+    width: 100%;
+  }
+
+  .faiza-slider__media picture {
+    display: block;
+    width: 100%;
   }
 
   .faiza-slider__img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
     display: block;
-    transform: scale(1.04);
+    width: 100%;
+    height: auto;
+  }
+
+  /* ── Mobile image: portrait aspect (e.g. 430×538) ── */
+  @media screen and (max-width: 749px) {
+    .faiza-slider__img {
+      width: 100%;
+      height: auto;
+    }
   }
 
 
@@ -256,33 +273,6 @@
 
   /* ── Keyframes ── */
 
-  @keyframes slideInFromRight {
-    from {
-      opacity: 1;
-      transform: translateX(100%);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes slideOutToLeft {
-    from {
-      opacity: 1;
-      transform: translateX(0);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(-100%);
-    }
-  }
-
-  @keyframes faiza-kb {
-    from { transform: scale(1.04); }
-    to   { transform: scale(1); }
-  }
-
   @keyframes faiza-fade-in {
     to { opacity: 1; }
   }
@@ -294,29 +284,9 @@
     100% { opacity: 1; transform: translateY(0); }
   }
 
-  /* ── Tablet ── */
-  @media screen and (min-width: 750px) {
-    .faiza-slider { height: var(--slider-h-tablet, 80vh); }
-  }
-
-  /* ── Desktop ── */
-  @media screen and (min-width: 990px) {
-    .faiza-slider { height: var(--slider-h-desktop, 100vh); }
-  }
-
   /* ── Reduced motion ── */
   @media (prefers-reduced-motion: reduce) {
-    .faiza-slider__slide.is-active {
-      animation: none;
-      transform: translateX(0);
-      opacity: 1;
-    }
-    .faiza-slider__slide.is-leaving {
-      animation: none;
-      transform: translateX(0);
-      opacity: 0;
-    }
-    .faiza-slider__img { animation: none; transform: scale(1); }
+    .faiza-slider__slide.is-leaving { transition: none; }
     .faiza-slider__scroll-dot { animation: none; }
     .faiza-slider__scroll     { animation: none; opacity: 1; }
   }
@@ -424,7 +394,13 @@
         {
           "type": "image_picker",
           "id": "image",
-          "label": "Background image"
+          "label": "Desktop banner"
+        },
+        {
+          "type": "image_picker",
+          "id": "mobile_image",
+          "label": "Mobile banner",
+          "info": "Optional. Shown on screens under 750px. If not set, desktop image is used."
         }
       ]
     }
