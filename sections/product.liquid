@@ -1,50 +1,2361 @@
 {% comment %}
-  This section is used in the product template to render product page with
-  media, content, and add-to-cart form.
-
-  https://shopify.dev/docs/storefronts/themes/architecture/templates/product
+  Product page — premium layout inspired by top Indian perfume e-commerce sites.
+  Features: image gallery + thumbnails, product info, trust badges, content tabs, FAQ accordion.
 {% endcomment %}
 
-<div class="product-images">
-  {% for image in product.images %}
-    {% render 'image', class: 'product-image', image: image %}
-  {% endfor %}
-</div>
+<div class="fp-product">
+  <div class="faiza-container fp-product__wrap">
 
-<div class="product-info">
-  <h1>{{ product.title }}</h1>
-  <p>{{ product.price | money }}</p>
-  <p>{{ product.description }}</p>
-</div>
+    {%- assign current_variant = product.selected_or_first_available_variant -%}
 
-<div class="product-form">
-  {% form 'product', product %}
-    {% assign current_variant = product.selected_or_first_available_variant %}
+    <!-- ─── Main 2-column layout ─────────────────────────────── -->
+    <div class="fp-product__layout">
 
-    <select name="id">
-      {% for variant in product.variants %}
-        <option
-          value="{{ variant.id }}"
-          {% if variant == current_variant %}
-            selected="selected"
+      <!-- LEFT ── Gallery -->
+      <div class="fp-product__gallery">
+
+        <!-- Thumbnail strip -->
+        <div class="fp-product__thumbs" id="fp-thumbs">
+          {% for media in product.media %}
+            <button
+              class="fp-product__thumb{% if forloop.first %} fp-product__thumb--active{% endif %}"
+              type="button"
+              data-fp-idx="{{ forloop.index0 }}"
+              aria-label="View image {{ forloop.index }} of {{ product.media.size }}"
+            >
+              {%- assign thumb_alt = media.alt | escape -%}
+              {{- media.preview_image | image_url: width: 160 | image_tag:
+                  loading: 'lazy',
+                  class: 'fp-product__thumb-img',
+                  alt: thumb_alt,
+                  widths: '80, 160'
+              -}}
+            </button>
+          {% else %}
+            <button class="fp-product__thumb fp-product__thumb--active" type="button" data-fp-idx="0" aria-label="Product image">
+              {{ 'product-1' | placeholder_svg_tag: 'fp-product__thumb-img' }}
+            </button>
+          {% endfor %}
+        </div>
+
+        <!-- Main stage -->
+        <div class="fp-product__stage" id="fp-stage">
+
+          <!-- Discount badge -->
+          {%- assign cv = current_variant -%}
+          {%- if cv.compare_at_price > cv.price -%}
+            {%- assign pct_off = cv.compare_at_price | minus: cv.price | times: 100 | divided_by: cv.compare_at_price -%}
+            <div class="fp-product__stage-badge" id="fp-stage-badge">{{ pct_off }}% {{ 'general.off' | t }}</div>
+          {%- else -%}
+            <div class="fp-product__stage-badge fp-product__stage-badge--hidden" id="fp-stage-badge"></div>
+          {%- endif -%}
+
+          <!-- Media slides -->
+          {% for media in product.media %}
+            <div
+              class="fp-product__slide{% if forloop.first %} fp-product__slide--active{% endif %}"
+              data-fp-idx="{{ forloop.index0 }}"
+              data-fp-media-id="{{ media.id }}"
+            >
+              {%- if media.media_type == 'video' -%}
+                {{- media | video_tag: autoplay: false, loop: false, controls: true, class: 'fp-product__stage-img' -}}
+              {%- elsif media.media_type == 'external_video' -%}
+                {{- media | external_video_tag: class: 'fp-product__stage-img' -}}
+              {%- else -%}
+                {%- assign stage_alt = media.alt | escape -%}
+                {%- if forloop.first -%}
+                  {%- assign stage_loading = 'eager' -%}
+                {%- else -%}
+                  {%- assign stage_loading = 'lazy' -%}
+                {%- endif -%}
+                {{- media | image_url: width: 900 | image_tag:
+                    class: 'fp-product__stage-img',
+                    loading: stage_loading,
+                    alt: stage_alt,
+                    widths: '450, 600, 750, 900'
+                -}}
+              {%- endif -%}
+            </div>
+          {% else %}
+            <div class="fp-product__slide fp-product__slide--active" data-fp-idx="0">
+              {{ 'product-1' | placeholder_svg_tag: 'fp-product__stage-img' }}
+            </div>
+          {% endfor %}
+
+          <!-- Nav arrows -->
+          {% if product.media.size > 1 %}
+            <button class="fp-product__arrow fp-product__arrow--prev" id="fp-prev" type="button" aria-label="Previous image">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <button class="fp-product__arrow fp-product__arrow--next" id="fp-next" type="button" aria-label="Next image">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
           {% endif %}
-        >
-          {{ variant.title }} - {{ variant.price | money }}
-        </option>
-      {% endfor %}
-    </select>
 
-    <input type="text" name="quantity" min="1" value="1">
+        </div><!-- /fp-product__stage -->
+      </div><!-- /fp-product__gallery -->
 
-    <input type="submit" value="Add to cart">
-    {{ form | payment_button }}
-  {% endform %}
-</div>
+      <!-- RIGHT ── Product info -->
+      <div class="fp-product__info" id="fp-info">
+
+        <!-- Breadcrumb -->
+        <nav class="fp-product__bc" aria-label="Breadcrumb">
+          <a href="{{ routes.root_url }}" class="fp-product__bc-link">Home</a>
+          {%- if collection -%}
+            <span class="fp-product__bc-sep" aria-hidden="true">/</span>
+            <a href="{{ collection.url }}" class="fp-product__bc-link">{{ collection.title }}</a>
+          {%- endif -%}
+          <span class="fp-product__bc-sep" aria-hidden="true">/</span>
+          <span class="fp-product__bc-cur">{{ product.title }}</span>
+        </nav>
+
+        <!-- Trending badge -->
+        {%- if section.settings.show_trending_badge -%}
+          <div class="fp-product__trending">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 3L4 14h7l-2 7 9-11h-7z"/></svg>
+            {{ section.settings.trending_text }}
+          </div>
+        {%- endif -%}
+
+        <!-- Title -->
+        <h1 class="fp-product__title">{{ product.title }}</h1>
+
+        <!-- Rating -->
+        {%- if section.settings.show_rating -%}
+          {%- assign rv = section.settings.rating_value -%}
+          <div class="fp-product__rating-row">
+            <div class="faiza-stars" aria-label="{{ 'products.product.rating' | t }}: {{ rv }}">
+              {% for i in (1..5) %}
+                <svg class="faiza-star{% if i <= rv %} faiza-star--on{% endif %}" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              {% endfor %}
+            </div>
+            <span class="fp-product__rating-txt">{{ rv }} | {{ section.settings.rating_count }}</span>
+          </div>
+        {%- endif -%}
+
+        <!-- Product tag chips (attributes) -->
+        {%- if product.tags.size > 0 -%}
+          <div class="fp-product__tags">
+            {%- for tag in product.tags -%}
+              <span class="fp-product__tag">
+                <svg class="fp-product__tag-check" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z"/></svg>
+                {{ tag }}
+              </span>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+
+        <!-- Price block -->
+        <div class="fp-product__price-block" id="fp-price-block">
+          <div class="fp-product__prices">
+            <span
+              class="fp-product__price{% if current_variant.compare_at_price > current_variant.price %} fp-product__price--sale{% endif %}"
+              id="fp-price"
+              data-fp-raw="{{ current_variant.price }}"
+            >{{ current_variant.price | money }}</span>
+
+            {%- if current_variant.compare_at_price > current_variant.price -%}
+              <span class="fp-product__compare" id="fp-compare" data-fp-raw="{{ current_variant.compare_at_price }}">{{ current_variant.compare_at_price | money }}</span>
+              {%- assign save_pct = current_variant.compare_at_price | minus: current_variant.price | times: 100 | divided_by: current_variant.compare_at_price -%}
+              <span class="fp-product__save" id="fp-save">{{ save_pct }}% {{ 'general.off' | t }}</span>
+            {%- else -%}
+              <span class="fp-product__compare fp-product__compare--hidden" id="fp-compare"></span>
+              <span class="fp-product__save fp-product__save--hidden" id="fp-save"></span>
+            {%- endif -%}
+          </div>
+          <p class="fp-product__tax-note">{{ 'products.product.tax_included' | t }}</p>
+        </div>
+
+        <!-- ── Collection product strip ─────────────── -->
+        {%- assign fp_cstrip = collection | default: section.settings.related_collection -%}
+        {%- if fp_cstrip != blank -%}
+          <div class="fp-cstrip">
+            <p class="fp-cstrip__hd">
+              <strong>{{ fp_cstrip.title }}:</strong>
+              <span>{{ product.title | truncatewords: 3 }}</span>
+            </p>
+            <div class="fp-cstrip__track">
+              {%- for csp in fp_cstrip.products limit: 12 -%}
+                <a
+                  href="{{ csp.url | within: fp_cstrip }}"
+                  class="fp-cstrip__item{% if csp.handle == product.handle %} fp-cstrip__item--active{% endif %}"
+                >
+                  <div class="fp-cstrip__img-wrap">
+                    {%- if csp.featured_image -%}
+                      {{ csp.featured_image | image_url: width: 160 | image_tag: loading: 'lazy', class: 'fp-cstrip__img', alt: csp.title }}
+                    {%- else -%}
+                      {{ 'product-1' | placeholder_svg_tag: 'fp-cstrip__img' }}
+                    {%- endif -%}
+                  </div>
+                  <p class="fp-cstrip__name">{{ csp.title | truncatewords: 3 }}</p>
+                  <div class="fp-cstrip__prices">
+                    <span class="fp-cstrip__price">{{ csp.price | money }}</span>
+                    {%- if csp.compare_at_price > csp.price -%}
+                      <span class="fp-cstrip__compare">{{ csp.compare_at_price | money }}</span>
+                    {%- endif -%}
+                  </div>
+                </a>
+              {%- endfor -%}
+            </div>
+          </div>
+        {%- endif -%}
+
+        <!-- Product form -->
+        {% form 'product', product, id: 'fp-form', class: 'fp-product__form' %}
+
+          <!-- Variant swatches -->
+          {%- unless product.has_only_default_variant -%}
+            {%- for option in product.options_with_values -%}
+              <div class="fp-product__opt-group">
+                <div class="fp-product__opt-hd">
+                  <span class="fp-product__opt-name">{{ option.name }}</span>
+                  <span class="fp-product__opt-val" id="fp-opt-val-{{ option.position }}">{{ option.selected_value }}</span>
+                </div>
+                <div class="fp-product__swatches">
+                  {%- for value in option.values -%}
+                    <button
+                      type="button"
+                      class="fp-product__swatch{% if option.selected_value == value %} fp-product__swatch--on{% endif %}"
+                      data-fp-pos="{{ option.position }}"
+                      data-fp-val="{{ value | escape }}"
+                      aria-pressed="{% if option.selected_value == value %}true{% else %}false{% endif %}"
+                    >{{ value }}</button>
+                  {%- endfor -%}
+                </div>
+              </div>
+            {%- endfor -%}
+
+            <!-- Hidden select (required for form submission) -->
+            <select name="id" id="fp-variant-select" class="faiza-sr-only" aria-label="{{ 'products.product.choose_options' | t }}">
+              {%- for variant in product.variants -%}
+                <option
+                  value="{{ variant.id }}"
+                  {% if variant == current_variant %}selected{% endif %}
+                  {% unless variant.available %}disabled{% endunless %}
+                  data-fp-price="{{ variant.price | money }}"
+                  data-fp-compare="{{ variant.compare_at_price | money }}"
+                  data-fp-price-raw="{{ variant.price }}"
+                  data-fp-compare-raw="{{ variant.compare_at_price }}"
+                  data-fp-opt1="{{ variant.option1 | escape }}"
+                  data-fp-opt2="{{ variant.option2 | escape }}"
+                  data-fp-opt3="{{ variant.option3 | escape }}"
+                  data-fp-media-id="{{ variant.featured_media.id }}"
+                >{{ variant.title }}</option>
+              {%- endfor -%}
+            </select>
+
+          {%- else -%}
+            <input type="hidden" name="id" value="{{ current_variant.id }}">
+          {%- endunless -%}
+
+          <!-- Qty + Add to Cart ─ horizontal row -->
+          <div class="fp-product__cta-row">
+            <div class="fp-product__qty">
+              <button type="button" class="fp-product__qty-btn" id="fp-qty-minus" aria-label="Decrease quantity">−</button>
+              <input
+                type="number"
+                name="quantity"
+                id="fp-qty"
+                value="1"
+                min="1"
+                class="fp-product__qty-input"
+                aria-label="{{ 'products.product.quantity' | t }}"
+              >
+              <button type="button" class="fp-product__qty-btn" id="fp-qty-plus" aria-label="Increase quantity">+</button>
+            </div>
+
+            <button
+              type="submit"
+              name="add"
+              id="fp-add-btn"
+              class="fp-product__add-btn"
+              {% unless current_variant.available %}disabled aria-disabled="true"{% endunless %}
+              data-fp-add="{{ 'products.product.add_to_cart' | t }}"
+              data-fp-sold="{{ 'products.product.sold_out' | t }}"
+            >
+              <span id="fp-add-label">
+                {%- if current_variant.available -%}
+                  {{ 'products.product.add_to_cart' | t }}
+                {%- else -%}
+                  {{ 'products.product.sold_out' | t }}
+                {%- endif -%}
+              </span>
+              <svg class="fp-product__add-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            </button>
+          </div>
+
+          {%- if section.settings.show_buy_now -%}
+            <div class="fp-product__cta-secondary">
+              <button
+                type="button"
+                id="fp-buy-btn"
+                class="faiza-btn faiza-btn--dark fp-product__buy-btn"
+              >
+                <span class="faiza-btn__label">{{ section.settings.buy_now_text }}</span>
+              </button>
+            </div>
+          {%- endif -%}
+
+        {% endform %}
+
+        <!-- Delivery info -->
+        {%- if section.settings.show_delivery -%}
+          <div class="fp-product__delivery">
+            <svg class="fp-product__delivery-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="1" y="3" width="15" height="13" rx="1"/>
+              <path d="M16 8h4l3 5v3h-7V8z"/>
+              <circle cx="5.5" cy="18.5" r="2.5"/>
+              <circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+            <span>{{ section.settings.delivery_text }}</span>
+          </div>
+        {%- endif -%}
+
+      </div><!-- /fp-product__info -->
+    </div><!-- /fp-product__layout -->
+
+    <!-- ─── Highlight banner ────────────────────────────────────── -->
+    {%- if section.settings.highlight_banner != blank -%}
+      <div class="fp-product__highlight">
+        {%- assign fp_highlight_alt = product.title | escape -%}
+        {{ section.settings.highlight_banner | image_url: width: 1400 | image_tag: loading: 'lazy', class: 'fp-product__highlight-img', alt: fp_highlight_alt }}
+      </div>
+    {%- endif -%}
+
+    <!-- ─── Trust badges ──────────────────────────────────────── -->
+    {%- if section.settings.show_trust_badges -%}
+      <div class="fp-product__trust">
+
+        <div class="fp-product__trust-item">
+          <div class="fp-product__trust-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
+          </div>
+          <span class="fp-product__trust-label">{{ section.settings.trust_label_1 }}</span>
+        </div>
+
+        <div class="fp-product__trust-item">
+          <div class="fp-product__trust-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          </div>
+          <span class="fp-product__trust-label">{{ section.settings.trust_label_2 }}</span>
+        </div>
+
+        <div class="fp-product__trust-item">
+          <div class="fp-product__trust-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          </div>
+          <span class="fp-product__trust-label">{{ section.settings.trust_label_3 }}</span>
+        </div>
+
+        <div class="fp-product__trust-item">
+          <div class="fp-product__trust-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <span class="fp-product__trust-label">{{ section.settings.trust_label_4 }}</span>
+        </div>
+
+      </div>
+    {%- endif -%}
+
+    <!-- ─── Product tabs ──────────────────────────────────────── -->
+    <div class="fp-product__tabs">
+      <div class="fp-product__tab-nav" role="tablist" id="fp-tab-nav">
+        <button
+          class="fp-product__tab-btn fp-product__tab-btn--active"
+          role="tab"
+          aria-selected="true"
+          aria-controls="fp-panel-desc"
+          data-fp-panel="fp-panel-desc"
+          type="button"
+        >{{ 'products.product.description' | t }}</button>
+
+        {%- if section.settings.ingredients_content != blank -%}
+          <button
+            class="fp-product__tab-btn"
+            role="tab"
+            aria-selected="false"
+            aria-controls="fp-panel-ingr"
+            data-fp-panel="fp-panel-ingr"
+            type="button"
+          >{{ section.settings.ingredients_label }}</button>
+        {%- endif -%}
+
+        {%- if section.settings.how_to_use_content != blank -%}
+          <button
+            class="fp-product__tab-btn"
+            role="tab"
+            aria-selected="false"
+            aria-controls="fp-panel-htu"
+            data-fp-panel="fp-panel-htu"
+            type="button"
+          >{{ section.settings.how_to_use_label }}</button>
+        {%- endif -%}
+
+        {%- if section.settings.additional_info_content != blank -%}
+          <button
+            class="fp-product__tab-btn"
+            role="tab"
+            aria-selected="false"
+            aria-controls="fp-panel-info"
+            data-fp-panel="fp-panel-info"
+            type="button"
+          >{{ section.settings.additional_info_label }}</button>
+        {%- endif -%}
+      </div>
+
+      <div class="fp-product__tab-panels">
+        <div class="fp-product__tab-panel fp-product__tab-panel--active" id="fp-panel-desc" role="tabpanel">
+          <div class="fp-product__tab-body rte">{{ product.description }}</div>
+        </div>
+
+        {%- if section.settings.ingredients_content != blank -%}
+          <div class="fp-product__tab-panel" id="fp-panel-ingr" role="tabpanel" hidden>
+            <div class="fp-product__tab-body rte">{{ section.settings.ingredients_content }}</div>
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.how_to_use_content != blank -%}
+          <div class="fp-product__tab-panel" id="fp-panel-htu" role="tabpanel" hidden>
+            <div class="fp-product__tab-body rte">{{ section.settings.how_to_use_content }}</div>
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.additional_info_content != blank -%}
+          <div class="fp-product__tab-panel" id="fp-panel-info" role="tabpanel" hidden>
+            <div class="fp-product__tab-body rte">{{ section.settings.additional_info_content }}</div>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+
+    <!-- ─── Combo offers ────────────────────────────────────────── -->
+    {%- assign combo_blocks = section.blocks | where: 'type', 'combo_item' -%}
+    {%- if combo_blocks.size > 0 -%}
+      <div class="fp-product__combos">
+        <h2 class="fp-product__combos-hd">{{ section.settings.combo_heading }}</h2>
+        <div class="fp-product__combos-grid">
+          {%- for block in combo_blocks -%}
+            {%- assign cb_product = block.settings.product -%}
+            {%- assign cb_variant = cb_product.selected_or_first_available_variant -%}
+            <div class="fp-product__combo-card" {{ block.shopify_attributes }}>
+              {%- if block.settings.combo_badge != blank -%}
+                <div class="fp-product__combo-badge">{{ block.settings.combo_badge }}</div>
+              {%- endif -%}
+              <div class="fp-product__combo-imgs">
+                <div class="fp-product__combo-img-wrap">
+                  {%- if product.featured_image -%}
+                    {%- assign cb_main_alt = product.title | escape -%}
+                    {{ product.featured_image | image_url: width: 280 | image_tag: loading: 'lazy', class: 'fp-product__combo-img', alt: cb_main_alt }}
+                  {%- else -%}
+                    {{ 'product-1' | placeholder_svg_tag: 'fp-product__combo-img' }}
+                  {%- endif -%}
+                  <p class="fp-product__combo-img-label">{{ product.title | truncatewords: 4 }}</p>
+                </div>
+                <span class="fp-product__combo-plus" aria-hidden="true">+</span>
+                <div class="fp-product__combo-img-wrap">
+                  {%- if cb_product != blank and cb_product.featured_image -%}
+                    {%- assign cb_pair_alt = cb_product.title | escape -%}
+                    {{ cb_product.featured_image | image_url: width: 280 | image_tag: loading: 'lazy', class: 'fp-product__combo-img', alt: cb_pair_alt }}
+                  {%- else -%}
+                    {{ 'product-2' | placeholder_svg_tag: 'fp-product__combo-img' }}
+                  {%- endif -%}
+                  {%- if cb_product != blank -%}
+                    <p class="fp-product__combo-img-label">{{ cb_product.title | truncatewords: 4 }}</p>
+                  {%- endif -%}
+                </div>
+              </div>
+              <div class="fp-product__combo-body">
+                {%- if block.settings.combo_label != blank -%}
+                  <span class="fp-product__combo-tag">{{ block.settings.combo_label }}</span>
+                {%- endif -%}
+                {%- if cb_product != blank -%}
+                  <div class="fp-product__combo-prices">
+                    {%- assign cb_total = current_variant.price | plus: cb_variant.price -%}
+                    <span class="fp-product__combo-total">{{ cb_total | money }}</span>
+                    {%- if block.settings.combo_savings != blank -%}
+                      <span class="fp-product__combo-save">{{ block.settings.combo_savings }}</span>
+                    {%- endif -%}
+                  </div>
+                  <button
+                    type="button"
+                    class="faiza-btn faiza-btn--gold fp-product__combo-cta"
+                    data-main-id="{{ current_variant.id }}"
+                    data-combo-id="{{ cb_variant.id }}"
+                  >{{ 'products.product.add_combo' | t }}</button>
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    <!-- ─── Feature banners ───────────────────────────────────────── -->
+    {%- assign feature_banner_blocks = section.blocks | where: 'type', 'feature_banner' -%}
+    {%- if feature_banner_blocks.size > 0 -%}
+      <div class="fp-product__feature-banners">
+        {%- for block in feature_banner_blocks -%}
+          <div class="fp-product__feature-banner" {{ block.shopify_attributes }}>
+            {%- if block.settings.image != blank -%}
+              {%- assign fb_alt = block.settings.heading | default: product.title | escape -%}
+              {{ block.settings.image | image_url: width: 900 | image_tag: loading: 'lazy', class: 'fp-product__feature-banner-img', alt: fb_alt }}
+            {%- endif -%}
+            {%- if block.settings.heading != blank or block.settings.text != blank -%}
+              <div class="fp-product__feature-banner-body">
+                {%- if block.settings.heading != blank -%}
+                  <h3 class="fp-product__feature-banner-hd">{{ block.settings.heading }}</h3>
+                {%- endif -%}
+                {%- if block.settings.text != blank -%}
+                  <p class="fp-product__feature-banner-txt">{{ block.settings.text }}</p>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    <!-- ─── FAQ ──────────────────────────────────────────────── -->
+    {%- assign faq_blocks = section.blocks | where: 'type', 'faq_item' -%}
+    {%- if faq_blocks.size > 0 -%}
+      <div class="fp-product__faq">
+        <h2 class="fp-product__faq-hd">{{ section.settings.faq_heading }}</h2>
+        <div class="fp-product__faq-list" id="fp-faq">
+          {%- for block in faq_blocks -%}
+            <div class="fp-product__faq-item" {{ block.shopify_attributes }}>
+              <button class="fp-product__faq-q" type="button" aria-expanded="false">
+                <span>{{ block.settings.question }}</span>
+                <svg class="fp-product__faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <div class="fp-product__faq-a" hidden>
+                <div class="fp-product__faq-a-inner">{{ block.settings.answer }}</div>
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    <!-- ─── Related products slider ────────────────────────────── -->
+    {%- if section.settings.show_related -%}
+      {%- assign fp_rel_col = collection | default: section.settings.related_collection -%}
+      {%- if fp_rel_col != blank -%}
+        <div class="fp-product__related">
+          <h2 class="fp-product__related-hd">{{ section.settings.related_heading }}</h2>
+          <div class="fp-product__rel-slider" id="fp-rel-slider">
+            <button class="fp-product__rel-arrow fp-product__rel-arrow--prev" type="button" id="fp-rel-prev" aria-label="Previous">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <div class="fp-product__rel-track-wrap">
+              <div class="fp-product__related-grid" id="fp-rel-track">
+                {%- assign fp_rel_count = section.settings.related_count -%}
+                {%- for rel_prod in fp_rel_col.products limit: fp_rel_count -%}
+                  {%- unless rel_prod.handle == product.handle -%}
+                    <a href="{{ rel_prod.url }}" class="fp-product__rel-card">
+                      <div class="fp-product__rel-img-wrap">
+                        {%- if rel_prod.featured_image -%}
+                          {%- assign rel_img_alt = rel_prod.featured_image.alt | default: rel_prod.title | escape -%}
+                          {{ rel_prod.featured_image | image_url: width: 400 | image_tag: loading: 'lazy', class: 'fp-product__rel-img', alt: rel_img_alt }}
+                        {%- else -%}
+                          {{ 'product-1' | placeholder_svg_tag: 'fp-product__rel-img' }}
+                        {%- endif -%}
+                        {%- if rel_prod.compare_at_price > rel_prod.price -%}
+                          {%- assign rel_pct = rel_prod.compare_at_price | minus: rel_prod.price | times: 100 | divided_by: rel_prod.compare_at_price -%}
+                          <span class="fp-product__rel-badge">{{ rel_pct }}% {{ 'general.off' | t }}</span>
+                        {%- endif -%}
+                      </div>
+                      <div class="fp-product__rel-info">
+                        <p class="fp-product__rel-title">{{ rel_prod.title }}</p>
+                        <div class="fp-product__rel-prices">
+                          <span class="fp-product__rel-price">{{ rel_prod.price | money }}</span>
+                          {%- if rel_prod.compare_at_price > rel_prod.price -%}
+                            <span class="fp-product__rel-compare">{{ rel_prod.compare_at_price | money }}</span>
+                          {%- endif -%}
+                        </div>
+                      </div>
+                    </a>
+                  {%- endunless -%}
+                {%- endfor -%}
+              </div>
+            </div>
+            <button class="fp-product__rel-arrow fp-product__rel-arrow--next" type="button" id="fp-rel-next" aria-label="Next">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          </div>
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+
+  </div><!-- /fp-product__wrap -->
+</div><!-- /fp-product -->
+
+{% stylesheet %}
+
+/* ── Product page wrapper ──────────────────────────────── */
+.fp-product {
+  padding-top: var(--faiza-sp-12);
+  padding-bottom: var(--faiza-sp-20);
+}
+
+/* ── 2-column layout ───────────────────────────────────── */
+.fp-product__layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--faiza-sp-10);
+  margin-bottom: var(--faiza-sp-16);
+}
+
+@media screen and (min-width: 990px) {
+  .fp-product__layout {
+    grid-template-columns: 55fr 45fr;
+    gap: clamp(2rem, 4vw, 4rem);
+    align-items: start;
+  }
+}
+
+/* ── Gallery ───────────────────────────────────────────── */
+.fp-product__gallery {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 10px;
+}
+
+@media screen and (min-width: 990px) {
+  .fp-product__gallery {
+    position: sticky;
+    top: 120px;
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .fp-product__gallery {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+}
+
+/* Thumbnails */
+.fp-product__thumbs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 560px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.fp-product__thumbs::-webkit-scrollbar { display: none; }
+
+@media screen and (max-width: 749px) {
+  .fp-product__thumbs {
+    flex-direction: row;
+    order: 2;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 4px;
+  }
+}
+
+.fp-product__thumb {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+  border: 1.5px solid transparent;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--faiza-bg-deep);
+  padding: 0;
+  transition: border-color 0.2s;
+}
+
+.fp-product__thumb--active { border-color: var(--faiza-gold); }
+.fp-product__thumb:hover:not(.fp-product__thumb--active) { border-color: var(--faiza-gold-40); }
+
+.fp-product__thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Stage */
+.fp-product__stage {
+  position: relative;
+  background-color: var(--faiza-bg-deep);
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+}
+
+@media screen and (max-width: 749px) {
+  .fp-product__stage { order: 1; }
+}
+
+.fp-product__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.35s var(--faiza-ease);
+  pointer-events: none;
+}
+
+.fp-product__slide--active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.fp-product__stage-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
+
+/* Stage badge */
+.fp-product__stage-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background-color: var(--faiza-gold);
+  color: #1a1614;
+  font-family: var(--faiza-font-body);
+  font-size: var(--faiza-size-sm);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.fp-product__stage-badge--hidden { display: none; }
+
+/* Arrows */
+.fp-product__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.5rem;
+  height: 2.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+  color: var(--faiza-text-1);
+  transition: background-color 0.2s, color 0.2s;
+  backdrop-filter: blur(4px);
+}
+
+.fp-product__arrow--prev { left: 12px; }
+.fp-product__arrow--next { right: 12px; }
+
+.fp-product__arrow:hover {
+  background-color: var(--faiza-gold);
+  color: #1a1614;
+}
+
+.fp-product__arrow svg { width: 1.25rem; height: 1.25rem; }
+
+/* ── Product info ──────────────────────────────────────── */
+.fp-product__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--faiza-sp-6);
+}
+
+/* Breadcrumb */
+.fp-product__bc {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: var(--faiza-size-sm);
+}
+
+.fp-product__bc-link {
+  color: var(--faiza-text-3);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.fp-product__bc-link:hover { color: var(--faiza-gold); }
+.fp-product__bc-sep { color: var(--faiza-text-4); }
+.fp-product__bc-cur { color: var(--faiza-text-2); }
+
+/* Trending badge */
+.fp-product__trending {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #fffde7, #fff9c4);
+  border: 1px solid #f9ca24;
+  color: #7c5e00;
+  font-size: var(--faiza-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 5px 12px;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+/* Title */
+.fp-product__title {
+  font-family: var(--faiza-font-display);
+  font-size: var(--faiza-size-h3);
+  font-weight: 400;
+  line-height: var(--faiza-leading-snug);
+  letter-spacing: var(--faiza-tracking-tight);
+  color: var(--faiza-cream);
+  margin: 0;
+}
+
+/* Rating */
+.fp-product__rating-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fp-product__rating-txt {
+  font-size: var(--faiza-size-base);
+  color: var(--faiza-text-3);
+}
+
+/* Tags */
+.fp-product__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fp-product__tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: var(--faiza-bg-surface);
+  border: var(--faiza-border-soft);
+  font-family: var(--faiza-font-body);
+  font-size: var(--faiza-size-sm);
+  font-weight: 500;
+  color: var(--faiza-text-2);
+  letter-spacing: 0.02em;
+}
+
+/* Price */
+.fp-product__price-block { display: flex; flex-direction: column; gap: 6px; }
+
+.fp-product__prices {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fp-product__price {
+  font-family: var(--faiza-font-display);
+  font-size: clamp(1.375rem, 2.5vw, 1.75rem);
+  font-weight: 500;
+  color: var(--faiza-cream);
+}
+
+.fp-product__price--sale { color: #b91c1c; }
+
+.fp-product__compare {
+  font-size: var(--faiza-size-lg);
+  color: var(--faiza-text-4);
+  text-decoration: line-through;
+}
+
+.fp-product__compare--hidden,
+.fp-product__save--hidden { display: none; }
+
+.fp-product__save {
+  display: inline-block;
+  background: #fef9c3;
+  color: #854d0e;
+  border: 1px solid #fde68a;
+  font-size: var(--faiza-size-sm);
+  font-weight: 700;
+  padding: 2px 8px;
+  letter-spacing: 0.02em;
+}
+
+.fp-product__tax-note {
+  font-size: var(--faiza-size-sm);
+  color: var(--faiza-text-3);
+  margin: 0;
+}
+
+/* Form */
+.fp-product__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--faiza-sp-6);
+}
+
+/* Option groups */
+.fp-product__opt-group { display: flex; flex-direction: column; gap: 8px; }
+
+.fp-product__opt-hd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fp-product__opt-name {
+  font-family: var(--faiza-font-body);
+  font-size: var(--faiza-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--faiza-text-2);
+}
+
+.fp-product__opt-val {
+  font-size: var(--faiza-size-base);
+  color: var(--faiza-text-3);
+}
+
+.fp-product__swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fp-product__swatch {
+  min-width: 2.5rem;
+  padding: 8px 14px;
+  border: 1.5px solid rgba(0,0,0,0.14);
+  background: transparent;
+  font-family: var(--faiza-font-body);
+  font-size: var(--faiza-size-base);
+  color: var(--faiza-text-1);
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s, color 0.2s;
+  line-height: 1;
+}
+
+.fp-product__swatch--on {
+  border-color: var(--faiza-gold);
+  background-color: var(--faiza-gold-10);
+  color: var(--faiza-cream);
+  font-weight: 600;
+}
+
+.fp-product__swatch:hover:not(.fp-product__swatch--on) {
+  border-color: var(--faiza-gold-40);
+}
+
+/* Quantity */
+.fp-product__qty-group { display: flex; flex-direction: column; gap: 8px; }
+
+.fp-product__qty {
+  display: flex;
+  align-items: stretch;
+  width: fit-content;
+  border: 1.5px solid rgba(0,0,0,0.14);
+}
+
+.fp-product__qty-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--faiza-text-1);
+  transition: background-color 0.18s;
+  flex-shrink: 0;
+}
+
+.fp-product__qty-btn:hover { background-color: var(--faiza-gold-10); color: var(--faiza-gold-dark); }
+.fp-product__qty-btn svg { width: 1rem; height: 1rem; }
+
+.fp-product__qty-input {
+  width: 3rem;
+  height: 2.75rem;
+  border: none;
+  border-left: 1.5px solid rgba(0,0,0,0.10);
+  border-right: 1.5px solid rgba(0,0,0,0.10);
+  text-align: center;
+  font-family: var(--faiza-font-body);
+  font-size: var(--faiza-size-md);
+  color: var(--faiza-text-1);
+  background: transparent;
+  -moz-appearance: textfield;
+}
+
+.fp-product__qty-input::-webkit-outer-spin-button,
+.fp-product__qty-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+/* CTA */
+.fp-product__cta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--faiza-sp-3);
+}
+
+.fp-product__add-btn,
+.fp-product__buy-btn { width: 100%; }
+
+/* Delivery */
+.fp-product__delivery {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--faiza-bg-surface);
+  border: var(--faiza-border-soft);
+  font-size: var(--faiza-size-base);
+  color: var(--faiza-text-2);
+}
+
+.fp-product__delivery-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+  color: var(--faiza-gold);
+}
+
+/* ── Trust badges ──────────────────────────────────────── */
+.fp-product__trust {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background-color: rgba(0,0,0,0.08);
+  border: 1px solid rgba(0,0,0,0.08);
+  margin-bottom: var(--faiza-sp-16);
+}
+
+@media screen and (min-width: 600px) {
+  .fp-product__trust { grid-template-columns: repeat(4, 1fr); }
+}
+
+.fp-product__trust-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 28px 16px;
+  background: var(--faiza-bg-base);
+  text-align: center;
+}
+
+.fp-product__trust-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--faiza-gold);
+}
+
+.fp-product__trust-icon svg { width: 1.875rem; height: 1.875rem; }
+
+.fp-product__trust-label {
+  font-size: var(--faiza-size-base);
+  font-weight: 500;
+  color: var(--faiza-text-1);
+  line-height: var(--faiza-leading-snug);
+}
+
+/* ── Tabs ──────────────────────────────────────────────── */
+.fp-product__tabs {
+  border: var(--faiza-border-soft);
+  margin-bottom: var(--faiza-sp-16);
+}
+
+.fp-product__tab-nav {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.fp-product__tab-nav::-webkit-scrollbar { display: none; }
+
+.fp-product__tab-btn {
+  flex-shrink: 0;
+  padding: 18px 28px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-family: var(--faiza-font-body);
+  font-size: var(--faiza-size-sm);
+  font-weight: 500;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--faiza-text-3);
+  cursor: pointer;
+  transition: color 0.2s, border-bottom-color 0.2s;
+  margin-bottom: -1px;
+  white-space: nowrap;
+}
+
+.fp-product__tab-btn--active {
+  color: var(--faiza-cream);
+  border-bottom-color: var(--faiza-gold);
+}
+
+.fp-product__tab-btn:hover:not(.fp-product__tab-btn--active) {
+  color: var(--faiza-text-1);
+}
+
+.fp-product__tab-panel {
+  padding: 32px 36px;
+}
+
+@media screen and (max-width: 749px) {
+  .fp-product__tab-panel { padding: 24px 20px; }
+}
+
+.fp-product__tab-body {
+  font-size: var(--faiza-size-md);
+  line-height: var(--faiza-leading-loose);
+  color: var(--faiza-text-2);
+  max-width: 70ch;
+}
+
+.fp-product__tab-body p { margin-top: 0; margin-bottom: 1em; }
+.fp-product__tab-body ul,
+.fp-product__tab-body ol { padding-left: 1.5em; margin-bottom: 1em; }
+.fp-product__tab-body li { margin-bottom: 0.375em; }
+.fp-product__tab-body h2,
+.fp-product__tab-body h3,
+.fp-product__tab-body h4 {
+  font-family: var(--faiza-font-display);
+  color: var(--faiza-cream);
+  margin-bottom: 0.5em;
+}
+
+/* ── FAQ ───────────────────────────────────────────────── */
+.fp-product__faq {
+  padding-top: var(--faiza-sp-12);
+  padding-bottom: var(--faiza-sp-12);
+}
+
+.fp-product__faq-hd {
+  font-family: var(--faiza-font-display);
+  font-size: var(--faiza-size-h3);
+  font-weight: 300;
+  letter-spacing: var(--faiza-tracking-tight);
+  color: var(--faiza-cream);
+  margin: 0 0 var(--faiza-sp-8);
+  text-align: center;
+}
+
+.fp-product__faq-list {
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.fp-product__faq-item {
+  border-bottom: var(--faiza-border-soft);
+}
+
+.fp-product__faq-item:first-child {
+  border-top: var(--faiza-border-soft);
+}
+
+.fp-product__faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 18px 0;
+  background: none;
+  border: none;
+  text-align: left;
+  font-family: var(--faiza-font-body);
+  font-size: var(--faiza-size-md);
+  font-weight: 500;
+  color: var(--faiza-text-1);
+  cursor: pointer;
+  gap: 16px;
+  transition: color 0.2s;
+}
+
+.fp-product__faq-q:hover { color: var(--faiza-gold-dark); }
+
+.fp-product__faq-chevron {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+  color: var(--faiza-gold);
+  transition: transform 0.28s var(--faiza-ease);
+}
+
+.fp-product__faq-q[aria-expanded="true"] .fp-product__faq-chevron {
+  transform: rotate(180deg);
+}
+
+.fp-product__faq-a {
+  overflow: hidden;
+}
+
+.fp-product__faq-a-inner {
+  padding-bottom: 18px;
+  font-size: var(--faiza-size-base);
+  line-height: var(--faiza-leading-normal);
+  color: var(--faiza-text-3);
+}
+
+/* ── Highlight banner ──────────────────────────────────── */
+.fp-product__highlight {
+  margin-bottom: var(--faiza-sp-12);
+  overflow: hidden;
+}
+
+.fp-product__highlight-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ── Combo offers ──────────────────────────────────────── */
+.fp-product__combos {
+  margin-bottom: var(--faiza-sp-16);
+}
+
+.fp-product__combos-hd {
+  font-family: var(--faiza-font-display);
+  font-size: var(--faiza-size-h3);
+  font-weight: 300;
+  letter-spacing: var(--faiza-tracking-tight);
+  color: var(--faiza-cream);
+  margin: 0 0 var(--faiza-sp-8);
+  text-align: center;
+}
+
+.fp-product__combos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--faiza-sp-6);
+}
+
+.fp-product__combo-card {
+  position: relative;
+  border: var(--faiza-border-soft);
+  background: var(--faiza-bg-surface);
+  padding: var(--faiza-sp-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--faiza-sp-4);
+}
+
+.fp-product__combo-badge {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  background: var(--faiza-gold);
+  color: #1a1614;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  text-transform: uppercase;
+}
+
+.fp-product__combo-imgs {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.fp-product__combo-img-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.fp-product__combo-img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: block;
+  background: var(--faiza-bg-deep);
+}
+
+.fp-product__combo-img-label {
+  font-size: var(--faiza-size-sm);
+  color: var(--faiza-text-3);
+  text-align: center;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.fp-product__combo-plus {
+  font-size: 1.75rem;
+  font-weight: 200;
+  color: var(--faiza-gold);
+  flex-shrink: 0;
+  margin-top: 30px;
+}
+
+.fp-product__combo-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--faiza-sp-3);
+}
+
+.fp-product__combo-tag {
+  display: inline-block;
+  background: #fef9c3;
+  color: #854d0e;
+  border: 1px solid #fde68a;
+  font-size: var(--faiza-size-sm);
+  font-weight: 700;
+  padding: 3px 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.fp-product__combo-prices {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.fp-product__combo-total {
+  font-family: var(--faiza-font-display);
+  font-size: var(--faiza-size-lg);
+  color: var(--faiza-cream);
+}
+
+.fp-product__combo-save {
+  font-size: var(--faiza-size-sm);
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.fp-product__combo-cta { width: 100%; }
+
+/* ── Feature banners ───────────────────────────────────── */
+.fp-product__feature-banners {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--faiza-sp-4);
+  margin-bottom: var(--faiza-sp-16);
+}
+
+@media screen and (min-width: 600px) {
+  .fp-product__feature-banners {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .fp-product__feature-banners {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.fp-product__feature-banner {
+  overflow: hidden;
+  background: var(--faiza-bg-surface);
+  border: var(--faiza-border-soft);
+}
+
+.fp-product__feature-banner-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.fp-product__feature-banner-body {
+  padding: var(--faiza-sp-5) var(--faiza-sp-6);
+}
+
+.fp-product__feature-banner-hd {
+  font-family: var(--faiza-font-display);
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--faiza-cream);
+  margin: 0 0 var(--faiza-sp-2);
+  letter-spacing: var(--faiza-tracking-tight);
+}
+
+.fp-product__feature-banner-txt {
+  font-size: var(--faiza-size-base);
+  color: var(--faiza-text-2);
+  margin: 0;
+  line-height: var(--faiza-leading-normal);
+}
+
+/* ── Related products ──────────────────────────────────── */
+.fp-product__related {
+  padding-top: var(--faiza-sp-16);
+  padding-bottom: var(--faiza-sp-16);
+  border-top: var(--faiza-border-soft);
+}
+
+.fp-product__related-hd {
+  font-family: var(--faiza-font-display);
+  font-size: var(--faiza-size-h3);
+  font-weight: 300;
+  letter-spacing: var(--faiza-tracking-tight);
+  color: var(--faiza-cream);
+  margin: 0 0 var(--faiza-sp-10);
+  text-align: center;
+}
+
+.fp-product__related-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--faiza-sp-4);
+}
+
+@media screen and (min-width: 600px) {
+  .fp-product__related-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media screen and (min-width: 990px) {
+  .fp-product__related-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.fp-product__rel-card {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  gap: var(--faiza-sp-3);
+  transition: transform 0.22s var(--faiza-ease);
+}
+
+.fp-product__rel-card:hover { transform: translateY(-4px); }
+
+.fp-product__rel-img-wrap {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+  background: var(--faiza-bg-deep);
+}
+
+.fp-product__rel-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s var(--faiza-ease);
+}
+
+.fp-product__rel-card:hover .fp-product__rel-img { transform: scale(1.05); }
+
+.fp-product__rel-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--faiza-gold);
+  color: #1a1614;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  letter-spacing: 0.04em;
+}
+
+.fp-product__rel-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fp-product__rel-title {
+  font-size: var(--faiza-size-base);
+  font-weight: 500;
+  color: var(--faiza-text-1);
+  margin: 0;
+  line-height: var(--faiza-leading-snug);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.fp-product__rel-prices {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fp-product__rel-price {
+  font-size: var(--faiza-size-md);
+  font-weight: 600;
+  color: var(--faiza-cream);
+}
+
+.fp-product__rel-compare {
+  font-size: var(--faiza-size-sm);
+  color: var(--faiza-text-4);
+  text-decoration: line-through;
+}
+
+/* ── Tags ─ dark maroon pill with checkmark ──────────────── */
+.fp-product__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  background: #3d1a12;
+  border: none;
+  border-radius: 999px;
+  font-size: var(--faiza-size-sm);
+  font-weight: 500;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.fp-product__tag-check {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: #c9a96e;
+}
+
+/* ── Collection product strip ────────────────────────────── */
+.fp-cstrip {
+  border: 1px solid rgba(201, 169, 110, 0.25);
+  border-radius: 10px;
+  padding: 14px;
+  background: var(--faiza-bg-surface);
+}
+
+.fp-cstrip__hd {
+  font-size: var(--faiza-size-sm);
+  color: var(--faiza-text-2);
+  margin: 0 0 12px;
+}
+
+.fp-cstrip__hd strong {
+  color: var(--faiza-text-1);
+  font-weight: 700;
+}
+
+.fp-cstrip__track {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+}
+
+.fp-cstrip__track::-webkit-scrollbar { display: none; }
+
+.fp-cstrip__item {
+  flex: 0 0 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  gap: 6px;
+  padding: 8px 6px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.fp-cstrip__item--active {
+  border-color: var(--faiza-gold);
+  background: var(--faiza-gold-10);
+}
+
+.fp-cstrip__item:hover:not(.fp-cstrip__item--active) {
+  border-color: rgba(201, 169, 110, 0.4);
+}
+
+.fp-cstrip__img-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--faiza-bg-deep);
+  flex-shrink: 0;
+}
+
+.fp-cstrip__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.fp-cstrip__name {
+  font-size: 0.6875rem;
+  text-align: center;
+  color: var(--faiza-text-2);
+  margin: 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.fp-cstrip__prices {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.fp-cstrip__price {
+  font-size: var(--faiza-size-sm);
+  font-weight: 700;
+  color: var(--faiza-cream);
+}
+
+.fp-cstrip__compare {
+  font-size: 0.625rem;
+  color: var(--faiza-text-4);
+  text-decoration: line-through;
+}
+
+/* ── Qty + Add to Cart horizontal row ────────────────────── */
+.fp-product__cta-row {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.fp-product__qty {
+  display: flex;
+  align-items: stretch;
+  border: 1.5px solid rgba(201, 169, 110, 0.5);
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.fp-product__qty-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 100%;
+  min-height: 48px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--faiza-text-1);
+  font-size: 1.25rem;
+  font-weight: 300;
+  transition: background-color 0.18s;
+  flex-shrink: 0;
+}
+
+.fp-product__qty-btn:hover { background-color: var(--faiza-gold-10); }
+
+.fp-product__qty-input {
+  width: 2.75rem;
+  border: none;
+  border-left: 1px solid rgba(201, 169, 110, 0.3);
+  border-right: 1px solid rgba(201, 169, 110, 0.3);
+  text-align: center;
+  font-family: var(--faiza-font-body);
+  font-size: var(--faiza-size-md);
+  font-weight: 600;
+  color: var(--faiza-text-1);
+  background: transparent;
+  -moz-appearance: textfield;
+}
+
+.fp-product__qty-input::-webkit-outer-spin-button,
+.fp-product__qty-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+.fp-product__add-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #d4a83e 0%, #c9a96e 45%, #b8872a 100%);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-family: var(--faiza-font-body);
+  font-size: var(--faiza-size-sm);
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: filter 0.2s;
+  min-height: 48px;
+}
+
+.fp-product__add-btn:hover:not(:disabled) { filter: brightness(1.08); }
+.fp-product__add-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.fp-product__add-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.fp-product__cta-secondary {
+  margin-top: 10px;
+}
+
+.fp-product__cta-secondary .fp-product__buy-btn {
+  width: 100%;
+}
+
+/* ── Related products slider ─────────────────────────────── */
+.fp-product__rel-slider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fp-product__rel-track-wrap {
+  flex: 1;
+  overflow: hidden;
+}
+
+.fp-product__related-grid {
+  display: flex;
+  gap: var(--faiza-sp-4);
+  transition: transform 0.35s ease;
+  will-change: transform;
+}
+
+.fp-product__rel-card {
+  flex: 0 0 calc(25% - 12px);
+  min-width: 180px;
+}
+
+@media screen and (max-width: 749px) {
+  .fp-product__rel-card { flex: 0 0 calc(50% - 8px); min-width: 140px; }
+}
+
+@media screen and (max-width: 480px) {
+  .fp-product__rel-card { flex: 0 0 calc(50% - 6px); min-width: 120px; }
+}
+
+.fp-product__rel-arrow {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--faiza-bg-surface);
+  border: 1px solid rgba(201, 169, 110, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--faiza-text-1);
+  transition: background-color 0.2s, border-color 0.2s;
+  z-index: 2;
+}
+
+.fp-product__rel-arrow:hover {
+  background-color: var(--faiza-gold);
+  border-color: var(--faiza-gold);
+  color: #fff;
+}
+
+.fp-product__rel-arrow svg { width: 1rem; height: 1rem; }
+
+{% endstylesheet %}
+
+{% javascript %}
+
+(function () {
+  'use strict';
+
+  /* ─── Gallery ──────────────────────────────────────── */
+  var Gallery = {
+    idx: 0,
+    slides: [],
+    thumbs: [],
+    init: function () {
+      this.slides = Array.from(document.querySelectorAll('.fp-product__slide'));
+      this.thumbs = Array.from(document.querySelectorAll('.fp-product__thumb'));
+      var prev = document.getElementById('fp-prev');
+      var next = document.getElementById('fp-next');
+      var self = this;
+
+      this.thumbs.forEach(function (thumb) {
+        thumb.addEventListener('click', function () {
+          self.go(parseInt(this.getAttribute('data-fp-idx'), 10));
+        });
+      });
+
+      if (prev) prev.addEventListener('click', function () { self.go(self.idx > 0 ? self.idx - 1 : self.slides.length - 1); });
+      if (next) next.addEventListener('click', function () { self.go(self.idx < self.slides.length - 1 ? self.idx + 1 : 0); });
+    },
+    go: function (newIdx) {
+      var oldSlide = this.slides[this.idx];
+      var newSlide = this.slides[newIdx];
+      var oldThumb = this.thumbs[this.idx];
+      var newThumb = this.thumbs[newIdx];
+
+      if (oldSlide) oldSlide.classList.remove('fp-product__slide--active');
+      if (newSlide) newSlide.classList.add('fp-product__slide--active');
+      if (oldThumb) oldThumb.classList.remove('fp-product__thumb--active');
+      if (newThumb) {
+        newThumb.classList.add('fp-product__thumb--active');
+        newThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+      }
+      this.idx = newIdx;
+    },
+    goToMediaId: function (mediaId) {
+      if (!mediaId) return;
+      var slides = this.slides;
+      for (var i = 0; i < slides.length; i++) {
+        if (slides[i].getAttribute('data-fp-media-id') === String(mediaId)) {
+          this.go(i);
+          return;
+        }
+      }
+    }
+  };
+
+  /* ─── Quantity ─────────────────────────────────────── */
+  var Qty = {
+    init: function () {
+      var input = document.getElementById('fp-qty');
+      var minus = document.getElementById('fp-qty-minus');
+      var plus  = document.getElementById('fp-qty-plus');
+      if (!input) return;
+      if (minus) minus.addEventListener('click', function () {
+        var v = parseInt(input.value, 10) || 1;
+        if (v > 1) input.value = v - 1;
+      });
+      if (plus)  plus.addEventListener('click', function () {
+        var v = parseInt(input.value, 10) || 1;
+        input.value = v + 1;
+      });
+    }
+  };
+
+  /* ─── Variants ─────────────────────────────────────── */
+  var Variants = {
+    select: null,
+    opts: {},
+    init: function () {
+      this.select = document.getElementById('fp-variant-select');
+      var swatches = Array.from(document.querySelectorAll('.fp-product__swatch'));
+      if (!this.select || !swatches.length) return;
+
+      var sel = this.select.querySelector('option:checked');
+      if (sel) {
+        this.opts[1] = sel.getAttribute('data-fp-opt1') || '';
+        this.opts[2] = sel.getAttribute('data-fp-opt2') || '';
+        this.opts[3] = sel.getAttribute('data-fp-opt3') || '';
+      }
+
+      var self = this;
+      swatches.forEach(function (sw) {
+        sw.addEventListener('click', function () {
+          self.pick(parseInt(this.getAttribute('data-fp-pos'), 10), this.getAttribute('data-fp-val'));
+        });
+      });
+    },
+    pick: function (pos, val) {
+      this.opts[pos] = val;
+      var self = this;
+
+      document.querySelectorAll('.fp-product__swatch').forEach(function (sw) {
+        if (parseInt(sw.getAttribute('data-fp-pos'), 10) === pos) {
+          var on = sw.getAttribute('data-fp-val') === val;
+          sw.classList.toggle('fp-product__swatch--on', on);
+          sw.setAttribute('aria-pressed', on ? 'true' : 'false');
+        }
+      });
+
+      var label = document.getElementById('fp-opt-val-' + pos);
+      if (label) label.textContent = val;
+
+      var opts = Array.from(this.select.options);
+      var matched = null;
+      for (var i = 0; i < opts.length; i++) {
+        var o = opts[i];
+        var m1 = !self.opts[1] || o.getAttribute('data-fp-opt1') === self.opts[1];
+        var m2 = !self.opts[2] || o.getAttribute('data-fp-opt2') === self.opts[2];
+        var m3 = !self.opts[3] || o.getAttribute('data-fp-opt3') === self.opts[3];
+        if (m1 && m2 && m3) { matched = o; break; }
+      }
+
+      if (matched) {
+        this.select.value = matched.value;
+        this.updatePrice(matched);
+        Gallery.goToMediaId(matched.getAttribute('data-fp-media-id'));
+        this.updateBtn(!matched.disabled);
+      }
+    },
+    updatePrice: function (opt) {
+      var priceEl   = document.getElementById('fp-price');
+      var compareEl = document.getElementById('fp-compare');
+      var saveEl    = document.getElementById('fp-save');
+      var badgeEl   = document.getElementById('fp-stage-badge');
+
+      if (!priceEl) return;
+
+      var priceFmt   = opt.getAttribute('data-fp-price');
+      var compareFmt = opt.getAttribute('data-fp-compare');
+      var priceRaw   = parseInt(opt.getAttribute('data-fp-price-raw'), 10) || 0;
+      var compareRaw = parseInt(opt.getAttribute('data-fp-compare-raw'), 10) || 0;
+
+      priceEl.textContent = priceFmt;
+
+      if (compareRaw > priceRaw) {
+        priceEl.classList.add('fp-product__price--sale');
+        if (compareEl) { compareEl.textContent = compareFmt; compareEl.classList.remove('fp-product__compare--hidden'); }
+        var pct = Math.round((compareRaw - priceRaw) * 100 / compareRaw);
+        var pctTxt = pct + '% off';
+        if (saveEl)  { saveEl.textContent = pctTxt; saveEl.classList.remove('fp-product__save--hidden'); }
+        if (badgeEl) { badgeEl.textContent = pctTxt; badgeEl.classList.remove('fp-product__stage-badge--hidden'); }
+      } else {
+        priceEl.classList.remove('fp-product__price--sale');
+        if (compareEl) compareEl.classList.add('fp-product__compare--hidden');
+        if (saveEl)    saveEl.classList.add('fp-product__save--hidden');
+        if (badgeEl)   badgeEl.classList.add('fp-product__stage-badge--hidden');
+      }
+    },
+    updateBtn: function (available) {
+      var btn   = document.getElementById('fp-add-btn');
+      var label = document.getElementById('fp-add-label');
+      if (!btn) return;
+      btn.disabled = !available;
+      btn.setAttribute('aria-disabled', !available);
+      if (label) label.textContent = available ? btn.getAttribute('data-fp-add') : btn.getAttribute('data-fp-sold');
+    }
+  };
+
+  /* ─── Tabs ─────────────────────────────────────────── */
+  var Tabs = {
+    init: function () {
+      var nav = document.getElementById('fp-tab-nav');
+      if (!nav) return;
+      nav.addEventListener('click', function (e) {
+        var btn = e.target.closest('.fp-product__tab-btn');
+        if (!btn) return;
+        var panelId = btn.getAttribute('data-fp-panel');
+        var panel   = document.getElementById(panelId);
+        if (!panel) return;
+
+        nav.querySelectorAll('.fp-product__tab-btn').forEach(function (b) {
+          b.classList.remove('fp-product__tab-btn--active');
+          b.setAttribute('aria-selected', 'false');
+        });
+        document.querySelectorAll('.fp-product__tab-panel').forEach(function (p) {
+          p.classList.remove('fp-product__tab-panel--active');
+          p.hidden = true;
+        });
+
+        btn.classList.add('fp-product__tab-btn--active');
+        btn.setAttribute('aria-selected', 'true');
+        panel.classList.add('fp-product__tab-panel--active');
+        panel.hidden = false;
+      });
+    }
+  };
+
+  /* ─── FAQ ──────────────────────────────────────────── */
+  var FAQ = {
+    init: function () {
+      document.querySelectorAll('.fp-product__faq-q').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var expanded = this.getAttribute('aria-expanded') === 'true';
+          this.setAttribute('aria-expanded', !expanded);
+          var answer = this.nextElementSibling;
+          if (answer) answer.hidden = expanded;
+        });
+      });
+    }
+  };
+
+  /* ─── Buy now ──────────────────────────────────────── */
+  var BuyNow = {
+    init: function () {
+      var btn = document.getElementById('fp-buy-btn');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var selectEl = document.getElementById('fp-variant-select');
+        var hiddenId = document.querySelector('#fp-form [name="id"]');
+        var variantId = selectEl ? selectEl.value : (hiddenId ? hiddenId.value : null);
+        var qty = parseInt((document.getElementById('fp-qty') || {}).value, 10) || 1;
+        if (!variantId) return;
+
+        btn.disabled = true;
+        var origLabel = btn.querySelector('.faiza-btn__label');
+        if (origLabel) origLabel.textContent = 'Processing…';
+
+        fetch('/cart/add.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: variantId, quantity: qty })
+        })
+        .then(function () { window.location.href = '/checkout'; })
+        .catch(function () { window.location.href = '/cart'; });
+      });
+    }
+  };
+
+  /* ─── Combo add to cart ────────────────────────────── */
+  var Combos = {
+    init: function () {
+      document.querySelectorAll('.fp-product__combo-cta').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var mainId  = btn.getAttribute('data-main-id');
+          var comboId = btn.getAttribute('data-combo-id');
+          if (!mainId || !comboId) return;
+          btn.disabled = true;
+          var origText = btn.textContent;
+          btn.textContent = '…';
+          fetch('/cart/add.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items: [{ id: mainId, quantity: 1 }, { id: comboId, quantity: 1 }] })
+          })
+          .then(function () { window.location.href = '/cart'; })
+          .catch(function () { btn.disabled = false; btn.textContent = origText; });
+        });
+      });
+    }
+  };
+
+  /* ─── Related slider ──────────────────────────────── */
+  var RelSlider = {
+    track: null,
+    cards: [],
+    idx: 0,
+    perView: 4,
+    init: function () {
+      this.track = document.getElementById('fp-rel-track');
+      var prev  = document.getElementById('fp-rel-prev');
+      var next  = document.getElementById('fp-rel-next');
+      if (!this.track) return;
+      this.cards = Array.from(this.track.children);
+      var self = this;
+      this.updatePerView();
+      window.addEventListener('resize', function () { self.updatePerView(); self.go(self.idx); });
+      if (prev) prev.addEventListener('click', function () { self.go(self.idx - 1); });
+      if (next) next.addEventListener('click', function () { self.go(self.idx + 1); });
+    },
+    updatePerView: function () {
+      var w = window.innerWidth;
+      this.perView = w < 480 ? 2 : w < 749 ? 2 : w < 990 ? 3 : 4;
+    },
+    go: function (newIdx) {
+      var max = Math.max(0, this.cards.length - this.perView);
+      this.idx = Math.max(0, Math.min(newIdx, max));
+      if (this.cards.length === 0) return;
+      var cardW = this.cards[0].getBoundingClientRect().width;
+      var gap   = 16;
+      this.track.style.transform = 'translateX(-' + (this.idx * (cardW + gap)) + 'px)';
+    }
+  };
+
+  /* ─── Boot ─────────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', function () {
+    Gallery.init();
+    Qty.init();
+    Variants.init();
+    Tabs.init();
+    FAQ.init();
+    BuyNow.init();
+    Combos.init();
+    RelSlider.init();
+  });
+
+}());
+
+{% endjavascript %}
 
 {% schema %}
 {
   "name": "t:general.product",
-  "settings": [],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Trending badge"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_trending_badge",
+      "label": "Show trending badge",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "trending_text",
+      "label": "Badge text",
+      "default": "⚡ Trending"
+    },
+    {
+      "type": "header",
+      "content": "Rating"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_rating",
+      "label": "Show rating",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "rating_value",
+      "label": "Star rating",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "text",
+      "id": "rating_count",
+      "label": "Rating count text",
+      "default": "128 ratings"
+    },
+    {
+      "type": "header",
+      "content": "Buttons"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_buy_now",
+      "label": "Show Order Now button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "buy_now_text",
+      "label": "Order now button label",
+      "default": "Order now"
+    },
+    {
+      "type": "header",
+      "content": "Delivery"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_delivery",
+      "label": "Show delivery info",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "delivery_text",
+      "label": "Delivery message",
+      "default": "Delivery within 4–5 business days"
+    },
+    {
+      "type": "header",
+      "content": "Trust badges"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_trust_badges",
+      "label": "Show trust badges",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "trust_label_1",
+      "label": "Badge 1 label",
+      "default": "Easy returns"
+    },
+    {
+      "type": "text",
+      "id": "trust_label_2",
+      "label": "Badge 2 label",
+      "default": "COD available"
+    },
+    {
+      "type": "text",
+      "id": "trust_label_3",
+      "label": "Badge 3 label",
+      "default": "Fast delivery"
+    },
+    {
+      "type": "text",
+      "id": "trust_label_4",
+      "label": "Badge 4 label",
+      "default": "Free shipping"
+    },
+    {
+      "type": "header",
+      "content": "Product tabs"
+    },
+    {
+      "type": "text",
+      "id": "ingredients_label",
+      "label": "Ingredients tab label",
+      "default": "Ingredients"
+    },
+    {
+      "type": "richtext",
+      "id": "ingredients_content",
+      "label": "Ingredients content"
+    },
+    {
+      "type": "text",
+      "id": "how_to_use_label",
+      "label": "How to use tab label",
+      "default": "How to use"
+    },
+    {
+      "type": "richtext",
+      "id": "how_to_use_content",
+      "label": "How to use content"
+    },
+    {
+      "type": "text",
+      "id": "additional_info_label",
+      "label": "Additional info tab label",
+      "default": "Additional info"
+    },
+    {
+      "type": "richtext",
+      "id": "additional_info_content",
+      "label": "Additional info content"
+    },
+    {
+      "type": "header",
+      "content": "Highlight banner"
+    },
+    {
+      "type": "image_picker",
+      "id": "highlight_banner",
+      "label": "Banner image (shown below product)"
+    },
+    {
+      "type": "header",
+      "content": "Combo offers"
+    },
+    {
+      "type": "text",
+      "id": "combo_heading",
+      "label": "Combo section heading",
+      "default": "Complete the look"
+    },
+    {
+      "type": "header",
+      "content": "Related products"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_related",
+      "label": "Show related products",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "related_heading",
+      "label": "Section heading",
+      "default": "You may also like"
+    },
+    {
+      "type": "collection",
+      "id": "related_collection",
+      "label": "Collection to pull products from"
+    },
+    {
+      "type": "range",
+      "id": "related_count",
+      "label": "Number of products",
+      "min": 2,
+      "max": 8,
+      "step": 2,
+      "default": 4
+    },
+    {
+      "type": "header",
+      "content": "FAQ"
+    },
+    {
+      "type": "text",
+      "id": "faq_heading",
+      "label": "FAQ heading",
+      "default": "Frequently asked questions"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "combo_item",
+      "name": "Combo offer",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Paired product"
+        },
+        {
+          "type": "text",
+          "id": "combo_label",
+          "label": "Offer label",
+          "default": "BUY TOGETHER & SAVE"
+        },
+        {
+          "type": "text",
+          "id": "combo_badge",
+          "label": "Badge text",
+          "default": "BEST VALUE"
+        },
+        {
+          "type": "text",
+          "id": "combo_savings",
+          "label": "Savings text",
+          "default": "Save ₹100"
+        }
+      ]
+    },
+    {
+      "type": "feature_banner",
+      "name": "Feature banner",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Banner image"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Description"
+        }
+      ]
+    },
+    {
+      "type": "faq_item",
+      "name": "FAQ item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "What is the shelf life of the product?"
+        },
+        {
+          "type": "textarea",
+          "id": "answer",
+          "label": "Answer",
+          "default": "Our products have a shelf life of 2 years when stored in a cool, dry place away from direct sunlight."
+        }
+      ]
+    }
+  ],
   "disabled_on": {
     "groups": ["header", "footer"]
   }

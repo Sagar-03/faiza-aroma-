@@ -62,7 +62,11 @@
       "add_to_cart": "Add to cart",
       "sold_out": "Sold out",
       "choose_options": "Choose options",
-      "rating": "Rating"
+      "rating": "Rating",
+      "quantity": "Quantity",
+      "tax_included": "MRP inclusive of all taxes",
+      "description": "Description",
+      "add_combo": "Add combo to cart"
     }
   },
   "sections": {
