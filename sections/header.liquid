@@ -27,51 +27,36 @@
   id="SiteHeader"
 >
   <div class="site-header__inner">
-    <!-- Left nav (shown in centered-logo layout only) -->
+
+    <!-- Left nav (centered-logo layout) -->
     {%- if logo_center -%}
-      <nav
-        class="site-header__nav site-header__nav--left"
-        aria-label="{{ 'sections.header.navigation' | t | default: 'Main navigation' }}"
-      >
-        {%- assign half = section.settings.menu.links.size | divided_by: 2 -%}
-        {%- for link in section.settings.menu.links limit: half -%}
-          {%- if link.links.size > 0 -%}
-            <div class="site-header__nav-item site-header__nav-item--dropdown">
-              <a
-                href="{{ link.url }}"
-                class="site-header__nav-link{% if link.active %} is-active{% endif %}"
-                aria-haspopup="true"
-              >
-                {{- link.title -}}
-                <svg
-                  class="site-header__nav-chevron"
-                  viewBox="0 0 12 8"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  aria-hidden="true"
-                >
-                  <path d="M1 1l5 5 5-5"/>
-                </svg>
-              </a>
-              <div class="site-header__dropdown" role="menu">
-                {%- for child in link.links -%}
-                  <a
-                    href="{{ child.url }}"
-                    class="site-header__dropdown-link{% if child.active %} is-active{% endif %}"
-                    role="menuitem"
-                  >
-                    {{- child.title -}}
-                  </a>
-                {%- endfor -%}
+      <nav class="site-header__nav site-header__nav--left" aria-label="Main navigation">
+        <a href="{{ routes.root_url }}" class="site-header__nav-link{% if request.path == '/' %} is-active{% endif %}">Home</a>
+        <div class="site-header__nav-item site-header__nav-item--mega">
+          <a href="/collections" class="site-header__nav-link" aria-haspopup="true">
+            Our Collection
+            <svg class="site-header__nav-chevron" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M1 1l5 5 5-5"/></svg>
+          </a>
+          <div class="site-header__mega" role="menu">
+            <div class="site-header__mega-inner">
+              <p class="site-header__mega-heading">Our Collection</p>
+              <div class="site-header__mega-grid">
+                {%- if section.settings.collections_menu != blank -%}
+                  {%- for link in section.settings.collections_menu.links -%}
+                    <a href="{{ link.url }}" class="site-header__mega-link{% if link.active %} is-active{% endif %}" role="menuitem">{{ link.title }}</a>
+                  {%- endfor -%}
+                {%- else -%}
+                  {%- for col in collections limit: 16 -%}
+                    {%- unless col.handle == 'frontpage' -%}
+                      <a href="{{ col.url }}" class="site-header__mega-link" role="menuitem">{{ col.title }}</a>
+                    {%- endunless -%}
+                  {%- endfor -%}
+                {%- endif -%}
               </div>
             </div>
-          {%- else -%}
-            <a href="{{ link.url }}" class="site-header__nav-link{% if link.active %} is-active{% endif %}">
-              {{- link.title -}}
-            </a>
-          {%- endif -%}
-        {%- endfor -%}
+          </div>
+        </div>
+        <a href="/pages/contact" class="site-header__nav-link">Queries</a>
       </nav>
     {%- endif -%}
 
@@ -96,104 +81,68 @@
       </a>
     </div>
 
-    <!-- Desktop navigation (left-logo layout) -->
+    <!-- Desktop nav (left-logo layout) -->
     {%- unless logo_center -%}
-      <nav
-        class="site-header__nav"
-        aria-label="{{ 'sections.header.navigation' | t | default: 'Main navigation' }}"
-      >
-        {%- for link in section.settings.menu.links -%}
-          {%- if link.links.size > 0 -%}
-            <div class="site-header__nav-item site-header__nav-item--dropdown">
-              <a
-                href="{{ link.url }}"
-                class="site-header__nav-link{% if link.active %} is-active{% endif %}"
-                aria-haspopup="true"
-              >
-                {{- link.title -}}
-                <svg
-                  class="site-header__nav-chevron"
-                  viewBox="0 0 12 8"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  aria-hidden="true"
-                >
-                  <path d="M1 1l5 5 5-5"/>
-                </svg>
-              </a>
-              <div class="site-header__dropdown" role="menu">
-                {%- for child in link.links -%}
-                  <a
-                    href="{{ child.url }}"
-                    class="site-header__dropdown-link{% if child.active %} is-active{% endif %}"
-                    role="menuitem"
-                  >
-                    {{- child.title -}}
-                  </a>
-                {%- endfor -%}
+      <nav class="site-header__nav" aria-label="Main navigation">
+
+        <a href="{{ routes.root_url }}" class="site-header__nav-link{% if request.path == '/' %} is-active{% endif %}">Home</a>
+
+        <!-- Our Collection mega dropdown -->
+        <div class="site-header__nav-item site-header__nav-item--mega">
+          <a href="/collections" class="site-header__nav-link" aria-haspopup="true">
+            Our Collection
+            <svg class="site-header__nav-chevron" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M1 1l5 5 5-5"/></svg>
+          </a>
+          <div class="site-header__mega" role="menu">
+            <div class="site-header__mega-inner">
+              <p class="site-header__mega-heading">Our Collection</p>
+              <div class="site-header__mega-grid">
+                {%- if section.settings.collections_menu != blank -%}
+                  {%- for link in section.settings.collections_menu.links -%}
+                    <a href="{{ link.url }}" class="site-header__mega-link{% if link.active %} is-active{% endif %}" role="menuitem">{{ link.title }}</a>
+                  {%- endfor -%}
+                {%- else -%}
+                  {%- for col in collections limit: 16 -%}
+                    {%- unless col.handle == 'frontpage' -%}
+                      <a href="{{ col.url }}" class="site-header__mega-link" role="menuitem">{{ col.title }}</a>
+                    {%- endunless -%}
+                  {%- endfor -%}
+                {%- endif -%}
               </div>
             </div>
-          {%- else -%}
-            <a href="{{ link.url }}" class="site-header__nav-link{% if link.active %} is-active{% endif %}">
-              {{- link.title -}}
-            </a>
-          {%- endif -%}
-        {%- endfor -%}
+          </div>
+        </div>
+
+        <a href="/pages/contact" class="site-header__nav-link">Queries</a>
+
+        <a href="/collections/all" class="site-header__nav-link">All Product</a>
+
+        <a href="/pages/contact" class="site-header__nav-link">Contact Us</a>
+
+        {%- if section.settings.attars_collection != blank -%}
+          <a href="{{ section.settings.attars_collection.url }}" class="site-header__nav-link">Attars</a>
+        {%- else -%}
+          <a href="/collections/attars" class="site-header__nav-link">Attars</a>
+        {%- endif -%}
+
       </nav>
     {%- endunless -%}
 
-    <!-- Right nav (shown in centered-logo layout) + Actions -->
+    <!-- Right wrapper (actions + right-nav for centered logo) -->
     <div class="site-header__right">
       {%- if logo_center -%}
-        <nav
-          class="site-header__nav site-header__nav--right"
-          aria-label="{{ 'sections.header.navigation_right' | t | default: 'Secondary navigation' }}"
-        >
-          {%- assign half = section.settings.menu.links.size | divided_by: 2 -%}
-          {%- assign offset = half -%}
-          {%- for link in section.settings.menu.links offset: offset -%}
-            {%- if link.links.size > 0 -%}
-              <div class="site-header__nav-item site-header__nav-item--dropdown">
-                <a
-                  href="{{ link.url }}"
-                  class="site-header__nav-link{% if link.active %} is-active{% endif %}"
-                  aria-haspopup="true"
-                >
-                  {{- link.title -}}
-                  <svg
-                    class="site-header__nav-chevron"
-                    viewBox="0 0 12 8"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    aria-hidden="true"
-                  >
-                    <path d="M1 1l5 5 5-5"/>
-                  </svg>
-                </a>
-                <div class="site-header__dropdown" role="menu">
-                  {%- for child in link.links -%}
-                    <a
-                      href="{{ child.url }}"
-                      class="site-header__dropdown-link{% if child.active %} is-active{% endif %}"
-                      role="menuitem"
-                    >
-                      {{- child.title -}}
-                    </a>
-                  {%- endfor -%}
-                </div>
-              </div>
-            {%- else -%}
-              <a href="{{ link.url }}" class="site-header__nav-link{% if link.active %} is-active{% endif %}">
-                {{- link.title -}}
-              </a>
-            {%- endif -%}
-          {%- endfor -%}
+        <nav class="site-header__nav site-header__nav--right" aria-label="Secondary navigation">
+          <a href="/collections/all" class="site-header__nav-link">All Product</a>
+          <a href="/pages/contact" class="site-header__nav-link">Contact Us</a>
+          {%- if section.settings.attars_collection != blank -%}
+            <a href="{{ section.settings.attars_collection.url }}" class="site-header__nav-link">Attars</a>
+          {%- else -%}
+            <a href="/collections/attars" class="site-header__nav-link">Attars</a>
+          {%- endif -%}
         </nav>
       {%- endif -%}
 
-      <!-- Actions (account + cart + hamburger) -->
+      <!-- Actions (search + account + cart + hamburger) -->
       <div class="site-header__actions">
         <a
           href="{{ routes.search_url }}"
@@ -244,18 +193,39 @@
   <!-- Mobile menu -->
   <div class="site-header__mobile-menu" id="SiteMobileMenu" aria-hidden="true">
     <nav class="site-header__mobile-nav">
-      {%- for link in section.settings.menu.links -%}
-        <a href="{{ link.url }}" class="site-header__mobile-link{% if link.active %} is-active{% endif %}">
-          {{- link.title -}}
-        </a>
-        {%- if link.links.size > 0 -%}
-          {%- for child in link.links -%}
-            <a href="{{ child.url }}" class="site-header__mobile-link site-header__mobile-link--child">
-              {{- child.title -}}
-            </a>
-          {%- endfor -%}
-        {%- endif -%}
-      {%- endfor -%}
+
+      <a href="{{ routes.root_url }}" class="site-header__mobile-link{% if request.path == '/' %} is-active{% endif %}">Home</a>
+
+      <!-- Our Collection accordion -->
+      <div class="site-header__mobile-acc">
+        <button type="button" class="site-header__mobile-link site-header__mobile-acc-btn" aria-expanded="false">
+          <span>Our Collection</span>
+          <svg class="site-header__mobile-acc-chevron" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M1 1l5 5 5-5"/></svg>
+        </button>
+        <div class="site-header__mobile-acc-panel" hidden>
+          {%- if section.settings.collections_menu != blank -%}
+            {%- for link in section.settings.collections_menu.links -%}
+              <a href="{{ link.url }}" class="site-header__mobile-link site-header__mobile-link--child{% if link.active %} is-active{% endif %}">{{ link.title }}</a>
+            {%- endfor -%}
+          {%- else -%}
+            {%- for col in collections limit: 16 -%}
+              {%- unless col.handle == 'frontpage' -%}
+                <a href="{{ col.url }}" class="site-header__mobile-link site-header__mobile-link--child">{{ col.title }}</a>
+              {%- endunless -%}
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+      </div>
+
+      <a href="/pages/contact" class="site-header__mobile-link">Queries</a>
+      <a href="/collections/all" class="site-header__mobile-link">All Product</a>
+      <a href="/pages/contact" class="site-header__mobile-link">Contact Us</a>
+      {%- if section.settings.attars_collection != blank -%}
+        <a href="{{ section.settings.attars_collection.url }}" class="site-header__mobile-link">Attars</a>
+      {%- else -%}
+        <a href="/collections/attars" class="site-header__mobile-link">Attars</a>
+      {%- endif -%}
+
     </nav>
   </div>
 </header>
@@ -303,7 +273,6 @@
       z-index: 100;
       position: relative;
       transition: box-shadow 0.3s ease;
-
     }
 
     .site-header--sticky {
@@ -313,15 +282,15 @@
 
     /* ── Inner layout (left-logo default) ── */
     .site-header__inner {
-    max-width: 1440px;
-    margin: 0 auto;
-    padding: 0 2rem;
-    min-height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
-  }
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
 
     /* ── Inner layout (centered logo) ── */
     .site-header--logo-center .site-header__inner {
@@ -365,13 +334,13 @@
     }
 
     .site-header__logo-img {
-    display: block;
-    height: auto;
-    max-height: 80px;
-    max-width: 220px;
-    width: auto;
-    object-fit: contain;
-  }
+      display: block;
+      height: auto;
+      max-height: 80px;
+      max-width: 220px;
+      width: auto;
+      object-fit: contain;
+    }
 
     /* ── Desktop nav ── */
     .site-header__nav {
@@ -430,7 +399,7 @@
       flex-shrink: 0;
     }
 
-    /* ── Dropdown ── */
+    /* ── Standard dropdown (kept for backward compat) ── */
     .site-header__dropdown {
       position: absolute;
       top: calc(100% + 2px);
@@ -469,6 +438,78 @@
     .site-header__dropdown-link.is-active {
       background-color: #faf8f5;
       color: #c9a96e;
+    }
+
+    /* ── Mega dropdown ── */
+    .site-header__nav-item--mega {
+      position: static;
+    }
+
+    .site-header__mega {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: #ffffff;
+      border-top: 2px solid #c9a96e;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.10);
+      padding: 2rem 0 2.25rem;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-6px);
+      transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s;
+      z-index: 200;
+    }
+
+    .site-header__nav-item--mega:hover .site-header__mega,
+    .site-header__nav-item--mega:focus-within .site-header__mega {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .site-header__mega-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 3rem;
+    }
+
+    .site-header__mega-heading {
+      font-family: var(--font-heading-family, serif);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #c9a96e;
+      margin: 0 0 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(201, 169, 110, 0.2);
+    }
+
+    .site-header__mega-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 0;
+    }
+
+    .site-header__mega-link {
+      display: block;
+      padding: 0.55rem 0.875rem;
+      font-family: var(--font-body-family, sans-serif);
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: #1a1614;
+      text-decoration: none;
+      letter-spacing: 0.01em;
+      border-radius: 4px;
+      transition: color 0.18s ease, background-color 0.18s ease;
+    }
+
+    .site-header__mega-link:hover,
+    .site-header__mega-link.is-active {
+      color: #c9a96e;
+      background-color: #faf8f5;
     }
 
     /* ── Right wrapper ── */
@@ -569,7 +610,7 @@
       border-top: 1px solid rgba(0, 0, 0, 0.06);
     }
 
-    .site-header__mobile-menu[aria-hidden="false"] { max-height: 560px; }
+    .site-header__mobile-menu[aria-hidden="false"] { max-height: 700px; }
 
     .site-header__mobile-nav {
       display: flex;
@@ -599,6 +640,43 @@
       border-bottom-style: dashed;
     }
 
+    /* ── Mobile accordion ── */
+    .site-header__mobile-acc {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .site-header__mobile-acc-btn {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      font-size: 0.9375rem;
+      font-family: var(--font-body-family, sans-serif);
+    }
+
+    .site-header__mobile-acc-chevron {
+      width: 0.75rem;
+      height: 0.75rem;
+      flex-shrink: 0;
+      color: #9ca3af;
+      transition: transform 0.25s ease;
+    }
+
+    .site-header__mobile-acc-btn[aria-expanded="true"] .site-header__mobile-acc-chevron {
+      transform: rotate(180deg);
+    }
+
+    .site-header__mobile-acc-panel {
+      display: flex;
+      flex-direction: column;
+    }
+
     /* ── Desktop breakpoint ── */
     @media screen and (min-width: 990px) {
       .site-header__nav { display: flex; }
@@ -615,7 +693,8 @@
     @media (prefers-reduced-motion: reduce) {
       .site-header__hamburger-bar,
       .site-header__mobile-menu,
-      .site-header__dropdown { transition: none; }
+      .site-header__dropdown,
+      .site-header__mega { transition: none; }
     }
 {% endstylesheet %}
 
@@ -641,6 +720,17 @@
           mobileMenu.setAttribute('aria-hidden', 'true');
           header.classList.remove('site-header--menu-open');
         }
+      });
+    }
+
+    // Mobile "Our Collection" accordion
+    var mobileAccBtn = header.querySelector('.site-header__mobile-acc-btn');
+    if (mobileAccBtn) {
+      mobileAccBtn.addEventListener('click', function () {
+        var expanded = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', String(!expanded));
+        var panel = this.nextElementSibling;
+        if (panel) panel.hidden = expanded;
       });
     }
 
@@ -719,9 +809,15 @@
     },
     {
       "type": "link_list",
-      "id": "menu",
-      "label": "t:labels.menu",
-      "default": "main-menu"
+      "id": "collections_menu",
+      "label": "Collections dropdown menu",
+      "info": "Create a menu in your Shopify admin with your collection links. Leave blank to auto-show all collections."
+    },
+    {
+      "type": "collection",
+      "id": "attars_collection",
+      "label": "Attars collection link",
+      "info": "Pick the Attars collection. Leave blank to use /collections/attars."
     },
     {
       "type": "link_list",
