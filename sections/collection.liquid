@@ -1,6 +1,6 @@
 {%- liquid
   assign products_per_page = section.settings.products_per_page | default: 20
-  assign cols_d = section.settings.columns_desktop | default: '3'
+  assign cols_d = section.settings.columns_desktop | default: '4'
   assign cols_t = section.settings.columns_tablet | default: '2'
   assign cols_m = section.settings.columns_mobile | default: '1'
 -%}
@@ -837,7 +837,7 @@
   /* ─── Desktop 990px ─── */
   @media screen and (min-width: 990px) {
     .faiza-coll__grid {
-      grid-template-columns: repeat(var(--cols-d, 3), 1fr);
+      grid-template-columns: repeat(var(--cols-d, 4), 1fr);
       gap: 2rem 1.75rem;
     }
   }
@@ -1007,7 +1007,7 @@
         { "value": "3", "label": "3" },
         { "value": "4", "label": "4" }
       ],
-      "default": "3"
+      "default": "4"
     },
     {
       "type": "select",

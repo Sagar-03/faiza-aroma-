@@ -24,10 +24,21 @@
 
     <ul class="faiza-cat__grid" role="list">
       {%- for block in section.blocks -%}
+        {%- liquid
+          assign cat_url = block.settings.collection.url
+          if cat_url == blank
+            assign cat_url = block.settings.collection_url
+          endif
+          if cat_url == blank and block.settings.title != blank
+            assign cat_handle = block.settings.title | handleize
+            assign cat_url = routes.root_url | append: 'collections/' | append: cat_handle
+          endif
+          assign cat_url = cat_url | default: routes.collections_url
+        -%}
         <li class="faiza-cat__item" {{ block.shopify_attributes }}>
           <a
             class="faiza-cat__link"
-            href="{{ block.settings.collection_url | default: routes.collections_url }}"
+            href="{{ cat_url }}"
           >
             <div class="faiza-cat__card">
               <div class="faiza-cat__media">
@@ -372,9 +383,14 @@
           "default": "Category Name"
         },
         {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
           "type": "url",
           "id": "collection_url",
-          "label": "Collection link"
+          "label": "Custom link (used only if no collection selected)"
         }
       ]
     }
