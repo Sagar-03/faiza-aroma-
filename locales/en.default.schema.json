@@ -59,7 +59,11 @@
   "headers": {
     "products": "Products",
     "layout": "Layout",
-    "sorting": "Sorting"
+    "sorting": "Sorting",
+    "filtering": "Filtering"
+  },
+  "paragraphs": {
+    "filtering_note": "Filters are powered by the Shopify Search & Discovery app. Install it from the Shopify App Store to enable filters."
   },
   "options": {
     "alignment": {

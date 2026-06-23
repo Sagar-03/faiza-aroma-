@@ -7,6 +7,7 @@
 
 <div
   class="faiza-coll full-width"
+  data-section-id="{{ section.id }}"
   style="
     --cols-d: {{ cols_d }};
     --cols-t: {{ cols_t }};
@@ -30,6 +31,38 @@
         <h1 class="faiza-collection-header__title">{{ collection.title }}</h1>
 
         <div class="faiza-collection-header__actions">
+          {%- if collection.filters.size > 0 -%}
+            <button
+              class="facet-toggle"
+              type="button"
+              aria-controls="FacetDrawer-{{ section.id }}"
+              aria-expanded="false"
+              data-facet-toggle
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/>
+              </svg>
+              <span>{{ 'sections.collection.filter' | t | default: 'Filter' }}</span>
+              {%- liquid
+                assign active_filter_count = 0
+                for filter in collection.filters
+                  if filter.type == 'price_range'
+                    if filter.min_value.value or filter.max_value.value
+                      assign active_filter_count = active_filter_count | plus: 1
+                    endif
+                  else
+                    assign active_filter_count = active_filter_count | plus: filter.active_values.size
+                  endif
+                endfor
+              -%}
+              {%- if active_filter_count > 0 -%}
+                <span class="facet-toggle__count" aria-label="{{ active_filter_count }} {{ 'sections.collection.active_filters' | t | default: 'active filters' }}">
+                  {{ active_filter_count }}
+                </span>
+              {%- endif -%}
+            </button>
+          {%- endif -%}
+
           {%- if section.settings.show_sort -%}
             <div class="faiza-coll__select-wrap">
               <select
@@ -56,17 +89,75 @@
     {%- endif -%}
   </div>
 
+  {%- render 'facets', results: collection, section_id: section.id -%}
+
   <div class="faiza-coll__inner">
 
     {%- paginate collection.products by products_per_page -%}
 
-      <div class="faiza-coll__toolbar">
-        <p class="faiza-coll__count">
-          {{- collection.products_count -}}
-          {{- ' ' -}}
-          {{- 'sections.collection.products' | t | default: 'products' -}}
-        </p>
-      </div>
+      <div id="FaizaProductGrid-{{ section.id }}" data-product-grid>
+
+        <div class="faiza-coll__toolbar">
+          <p class="faiza-coll__count">
+            {{- collection.products_count -}}
+            {{- ' ' -}}
+            {{- 'sections.collection.products' | t | default: 'products' -}}
+          </p>
+
+          {%- liquid
+            assign has_active = false
+            for filter in collection.filters
+              if filter.type == 'price_range'
+                if filter.min_value.value or filter.max_value.value
+                  assign has_active = true
+                endif
+              else
+                if filter.active_values.size > 0
+                  assign has_active = true
+                endif
+              endif
+            endfor
+          -%}
+
+          {%- if has_active -%}
+            <div class="facet-active">
+              {%- for filter in collection.filters -%}
+                {%- if filter.type == 'price_range' -%}
+                  {%- if filter.min_value.value or filter.max_value.value -%}
+                    <a href="{{ filter.url_to_remove }}" class="facet-active__chip">
+                      {%- if filter.min_value.value -%}
+                        {{ filter.min_value.value | money }}
+                      {%- else -%}
+                        {{ 0 | money }}
+                      {%- endif -%}
+                      &ndash;
+                      {%- if filter.max_value.value -%}
+                        {{ filter.max_value.value | money }}
+                      {%- else -%}
+                        {{ filter.range_max | money }}
+                      {%- endif -%}
+                      <span class="facet-active__chip-remove" aria-hidden="true">
+                        <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l8 8M9 1L1 9"/></svg>
+                      </span>
+                    </a>
+                  {%- endif -%}
+                {%- else -%}
+                  {%- for filter_value in filter.active_values -%}
+                    <a href="{{ filter_value.url_to_remove }}" class="facet-active__chip">
+                      {{ filter_value.label }}
+                      <span class="facet-active__chip-remove" aria-hidden="true">
+                        <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l8 8M9 1L1 9"/></svg>
+                      </span>
+                    </a>
+                  {%- endfor -%}
+                {%- endif -%}
+              {%- endfor -%}
+              <a href="{{ collection.url }}" class="facet-active__clear">
+                {{ 'sections.collection.clear_all' | t | default: 'Clear all' }}
+              </a>
+            </div>
+          {%- endif -%}
+        </div>
 
       <div class="faiza-coll__grid">
         {%- for product in collection.products -%}
@@ -206,6 +297,8 @@
         </nav>
       {%- endif -%}
 
+      </div>{{- '<!-- /FaizaProductGrid -->' -}}
+
     {%- endpaginate -%}
 
   </div>
@@ -304,6 +397,13 @@
     max-width: var(--page-width);
     margin: 0 auto;
     padding: 0 var(--page-margin);
+  }
+
+  /* ─── Grid loading state ─── */
+  [data-product-grid][aria-busy="true"] {
+    opacity: 0.5;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
   }
 
   /* ─── Toolbar ─── */
@@ -769,17 +869,40 @@
     var SECTION = document.currentScript.closest('.faiza-coll');
     if (!SECTION) return;
 
-    /* Sort by navigation */
+    var gridWrap = SECTION.querySelector('[data-product-grid]');
+
+    /* ─── AJAX grid fetch (used by sort) ─── */
+    function fetchGrid(url) {
+      if (!gridWrap) { window.location.href = url; return; }
+      gridWrap.setAttribute('aria-busy', 'true');
+      fetch(url)
+        .then(function (r) { return r.text(); })
+        .then(function (html) {
+          var doc = new DOMParser().parseFromString(html, 'text/html');
+          var fresh = doc.querySelector('[data-product-grid]');
+          if (fresh) {
+            gridWrap.innerHTML = fresh.innerHTML;
+            initAtcForms(gridWrap);
+          }
+          history.pushState({}, '', url);
+          gridWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        })
+        .catch(function () { window.location.href = url; })
+        .finally(function () { gridWrap.removeAttribute('aria-busy'); });
+    }
+
+    /* ─── Sort: AJAX navigation preserving filter params ─── */
     var sortSelect = SECTION.querySelector('[data-faiza-sort]');
     if (sortSelect) {
       sortSelect.addEventListener('change', function () {
         var url = new URL(window.location.href);
         url.searchParams.set('sort_by', this.value);
-        window.location.href = url.toString();
+        url.searchParams.delete('page');
+        fetchGrid(url.toString());
       });
     }
 
-    /* Cart count helper */
+    /* ─── Cart count helper ─── */
     function updateCartCount(count) {
       document.querySelectorAll('.cart-count-bubble span, [data-cart-count]').forEach(function (el) {
         if (el.tagName === 'SPAN') el.textContent = count;
@@ -787,59 +910,58 @@
       });
     }
 
-    /* AJAX add to cart */
-    SECTION.querySelectorAll('[data-product-form]').forEach(function (form) {
-      var btn = form.querySelector('[data-atc-btn]');
-      if (btn) {
-        btn.setAttribute('data-original-label', btn.querySelector('.faiza-coll__atc-label')
-          ? btn.querySelector('.faiza-coll__atc-label').textContent.trim()
-          : '');
-      }
+    /* ─── AJAX add-to-cart ─── */
+    function initAtcForms(container) {
+      container.querySelectorAll('[data-product-form]').forEach(function (form) {
+        var btn = form.querySelector('[data-atc-btn]');
+        if (!btn) return;
+        var labelEl = btn.querySelector('.faiza-coll__atc-label');
+        btn.setAttribute('data-original-label', labelEl ? labelEl.textContent.trim() : '');
 
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        if (!btn || btn.disabled || btn.hasAttribute('data-loading')) return;
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          if (btn.disabled || btn.hasAttribute('data-loading')) return;
+          btn.setAttribute('data-loading', '');
 
-        btn.setAttribute('data-loading', '');
-
-        fetch(form.action, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-Requested-With': 'XMLHttpRequest',
-            Accept: 'application/json'
-          },
-          body: new URLSearchParams(new FormData(form))
-        })
-          .then(function (r) { if (!r.ok) throw new Error('cart'); return r.json(); })
-          .then(function () { return fetch('/cart.js', { headers: { Accept: 'application/json' } }); })
-          .then(function (r) { return r.json(); })
-          .then(function (cart) {
-            btn.removeAttribute('data-loading');
-            btn.setAttribute('data-success', '');
-            var label = btn.querySelector('.faiza-coll__atc-label');
-            if (label) label.textContent = '✓ Added';
-            updateCartCount(cart.item_count);
-            document.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true }));
-            setTimeout(function () {
-              btn.removeAttribute('data-success');
-              if (label) label.textContent = btn.getAttribute('data-original-label') || label.textContent;
-            }, 2200);
+          fetch(form.action, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-Requested-With': 'XMLHttpRequest',
+              Accept: 'application/json'
+            },
+            body: new URLSearchParams(new FormData(form))
           })
-          .catch(function () {
-            btn.removeAttribute('data-loading');
-            btn.style.backgroundColor = 'rgba(200, 60, 60, 0.12)';
-            btn.style.color = 'rgba(180, 40, 40, 0.85)';
-            var label = btn.querySelector('.faiza-coll__atc-label');
-            if (label) label.textContent = 'Try again';
-            setTimeout(function () {
-              btn.style.backgroundColor = '';
-              btn.style.color = '';
-              if (label) label.textContent = btn.getAttribute('data-original-label') || label.textContent;
-            }, 2200);
-          });
+            .then(function (r) { if (!r.ok) throw new Error('cart'); return r.json(); })
+            .then(function () { return fetch('/cart.js', { headers: { Accept: 'application/json' } }); })
+            .then(function (r) { return r.json(); })
+            .then(function (cart) {
+              btn.removeAttribute('data-loading');
+              btn.setAttribute('data-success', '');
+              if (labelEl) labelEl.textContent = '✓ Added';
+              updateCartCount(cart.item_count);
+              document.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true }));
+              setTimeout(function () {
+                btn.removeAttribute('data-success');
+                if (labelEl) labelEl.textContent = btn.getAttribute('data-original-label') || labelEl.textContent;
+              }, 2200);
+            })
+            .catch(function () {
+              btn.removeAttribute('data-loading');
+              btn.style.backgroundColor = 'rgba(200,60,60,0.12)';
+              btn.style.color = 'rgba(180,40,40,0.85)';
+              if (labelEl) labelEl.textContent = 'Try again';
+              setTimeout(function () {
+                btn.style.backgroundColor = '';
+                btn.style.color = '';
+                if (labelEl) labelEl.textContent = btn.getAttribute('data-original-label') || labelEl.textContent;
+              }, 2200);
+            });
+        });
       });
-    });
+    }
+
+    initAtcForms(SECTION);
   })();
 {% endjavascript %}
 
@@ -916,6 +1038,14 @@
       "id": "show_sort",
       "label": "t:labels.show_sort",
       "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:headers.filtering"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:paragraphs.filtering_note"
     }
   ],
   "presets": [

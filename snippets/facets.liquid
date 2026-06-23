@@ -1,0 +1,668 @@
+{% doc %}
+  Renders the Search & Discovery compatible filter drawer.
+  The toggle button is rendered separately in the calling section.
+
+  @param {object} results - Collection or search results object (must have .filters)
+  @param {string} section_id - Section ID used for unique element IDs
+
+  @example
+  {% render 'facets', results: collection, section_id: section.id %}
+{% enddoc %}
+
+{%- if results.filters.size > 0 -%}
+
+<div
+  id="FacetDrawer-{{ section_id }}"
+  class="facet-drawer"
+  hidden
+>
+  <div class="facet-drawer__overlay" data-facet-close aria-hidden="true"></div>
+
+  <div
+    class="facet-drawer__panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="FacetDrawerTitle-{{ section_id }}"
+    tabindex="-1"
+  >
+
+    <div class="facet-drawer__header">
+      <h2 class="facet-drawer__title" id="FacetDrawerTitle-{{ section_id }}">
+        {{ 'sections.collection.filter_and_sort' | t | default: 'Filter & sort' }}
+      </h2>
+      <button
+        class="facet-drawer__close"
+        data-facet-close
+        aria-label="{{ 'general.accessibility.close' | t | default: 'Close' }}"
+        type="button"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <form
+      id="FacetForm-{{ section_id }}"
+      class="facet-form"
+      action="{{ results.url }}"
+      method="get"
+    >
+      <input type="hidden" name="sort_by" value="{{ results.sort_by }}">
+
+      {%- for filter in results.filters -%}
+        {%- liquid
+          assign group_active = 0
+          if filter.type == 'price_range'
+            if filter.min_value.value or filter.max_value.value
+              assign group_active = 1
+            endif
+          else
+            assign group_active = filter.active_values.size
+          endif
+        -%}
+
+        <details class="facet-group" open>
+          <summary class="facet-group__summary">
+            <span class="facet-group__label">{{ filter.label }}</span>
+            {%- if group_active > 0 -%}
+              <span class="facet-group__active-count">{{ group_active }}</span>
+            {%- endif -%}
+            <svg class="facet-group__chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <path d="M4 6l4 4 4-4"/>
+            </svg>
+          </summary>
+
+          <div class="facet-group__body">
+
+            {%- if filter.type == 'price_range' -%}
+              <div class="facet-price-range">
+                <div class="facet-price-range__inputs">
+                  <div class="facet-price-range__field">
+                    <span class="facet-price-range__currency">{{ cart.currency.symbol }}</span>
+                    <input
+                      class="facet-price-range__input"
+                      type="number"
+                      name="{{ filter.min_value.param_name }}"
+                      id="FacetPrice-min-{{ section_id }}"
+                      {%- if filter.min_value.value -%}
+                        value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+                      {%- endif -%}
+                      placeholder="0"
+                      min="0"
+                      max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                      autocomplete="off"
+                    >
+                  </div>
+                  <span class="facet-price-range__sep">—</span>
+                  <div class="facet-price-range__field">
+                    <span class="facet-price-range__currency">{{ cart.currency.symbol }}</span>
+                    <input
+                      class="facet-price-range__input"
+                      type="number"
+                      name="{{ filter.max_value.param_name }}"
+                      id="FacetPrice-max-{{ section_id }}"
+                      {%- if filter.max_value.value -%}
+                        value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
+                      {%- endif -%}
+                      placeholder="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                      min="0"
+                      max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                      autocomplete="off"
+                    >
+                  </div>
+                </div>
+              </div>
+
+            {%- else -%}
+              <ul class="facet-list" role="list">
+                {%- for filter_value in filter.values -%}
+                  {%- assign is_disabled = false -%}
+                  {%- if filter_value.count == 0 and filter_value.active == false -%}
+                    {%- assign is_disabled = true -%}
+                  {%- endif -%}
+                  <li class="facet-list__item">
+                    <label
+                      class="facet-checkbox{% if is_disabled %} facet-checkbox--disabled{% endif %}"
+                      for="FacetVal-{{ filter.param_name | handleize }}-{{ forloop.index }}-{{ section_id }}"
+                    >
+                      <input
+                        type="checkbox"
+                        class="facet-checkbox__input"
+                        name="{{ filter.param_name }}"
+                        value="{{ filter_value.value }}"
+                        id="FacetVal-{{ filter.param_name | handleize }}-{{ forloop.index }}-{{ section_id }}"
+                        {% if filter_value.active %}checked{% endif %}
+                        {% if is_disabled %}disabled{% endif %}
+                      >
+                      <span class="facet-checkbox__mark" aria-hidden="true"></span>
+                      <span class="facet-checkbox__label">{{ filter_value.label }}</span>
+                      <span class="facet-checkbox__count">({{ filter_value.count }})</span>
+                    </label>
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+
+          </div>
+        </details>
+      {%- endfor -%}
+
+    </form>
+
+    <div class="facet-drawer__footer">
+      <a
+        href="{{ results.url }}"
+        class="facet-btn facet-btn--ghost"
+      >
+        {{ 'sections.collection.clear_all' | t | default: 'Clear all' }}
+      </a>
+      <button
+        type="submit"
+        form="FacetForm-{{ section_id }}"
+        class="facet-btn facet-btn--primary"
+      >
+        {{ 'sections.collection.apply' | t | default: 'Apply' }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+{%- endif -%}
+
+{% stylesheet %}
+/* ─── Filter toggle button ─── */
+.facet-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  background: #fff;
+  border: 0;
+  border-radius: 8px;
+  font-family: var(--font-body-family, sans-serif);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1a1614;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.facet-toggle:hover {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.facet-toggle svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+.facet-toggle__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: #c9a96e;
+  color: #1a1614;
+  border-radius: 9px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ─── Drawer ─── */
+.facet-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+}
+
+.facet-drawer[hidden] {
+  display: block; /* keep in DOM for transition */
+  pointer-events: none;
+}
+
+.facet-drawer[hidden] .facet-drawer__overlay {
+  opacity: 0;
+}
+
+.facet-drawer[hidden] .facet-drawer__panel {
+  transform: translateX(100%);
+}
+
+.facet-drawer__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.42);
+  opacity: 1;
+  transition: opacity 0.28s ease;
+}
+
+.facet-drawer__panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(420px, 100vw);
+  height: 100%;
+  background: #faf8f5;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(0);
+  transition: transform 0.32s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  overflow: hidden;
+  outline: none;
+}
+
+/* When truly hidden (before first open), skip transitions */
+.facet-drawer[hidden]:not([data-was-open]) .facet-drawer__overlay,
+.facet-drawer[hidden]:not([data-was-open]) .facet-drawer__panel {
+  transition: none;
+}
+
+.facet-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(26, 22, 20, 0.1);
+  flex-shrink: 0;
+}
+
+.facet-drawer__title {
+  font-family: var(--font-heading-family, serif);
+  font-size: 1.125rem;
+  font-weight: 400;
+  color: #1a1614;
+  margin: 0;
+}
+
+.facet-drawer__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #1a1614;
+  border-radius: 4px;
+  transition: background-color 0.18s ease;
+  flex-shrink: 0;
+}
+
+.facet-drawer__close:hover {
+  background: rgba(26, 22, 20, 0.08);
+}
+
+.facet-drawer__close svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ─── Form scroll area ─── */
+.facet-form {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.facet-form::-webkit-scrollbar { width: 4px; }
+.facet-form::-webkit-scrollbar-thumb {
+  background: rgba(26, 22, 20, 0.15);
+  border-radius: 2px;
+}
+
+/* ─── Filter groups ─── */
+.facet-group {
+  border-bottom: 1px solid rgba(26, 22, 20, 0.08);
+}
+
+.facet-group__summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.facet-group__summary::-webkit-details-marker { display: none; }
+
+.facet-group__label {
+  flex: 1;
+  font-family: var(--font-body-family, sans-serif);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1a1614;
+  letter-spacing: 0.02em;
+}
+
+.facet-group__active-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: #c9a96e;
+  color: #1a1614;
+  border-radius: 9px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.facet-group__chevron {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: rgba(26, 22, 20, 0.4);
+  transition: transform 0.2s ease;
+}
+
+.facet-group[open] .facet-group__chevron {
+  transform: rotate(180deg);
+}
+
+.facet-group__body {
+  padding: 4px 24px 16px;
+}
+
+/* ─── Checkbox list ─── */
+.facet-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.facet-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  cursor: pointer;
+}
+
+.facet-checkbox--disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.facet-checkbox__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.facet-checkbox__mark {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid rgba(26, 22, 20, 0.28);
+  border-radius: 3px;
+  background: #fff;
+  position: relative;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.facet-checkbox__input:checked + .facet-checkbox__mark {
+  background: #c9a96e;
+  border-color: #c9a96e;
+}
+
+.facet-checkbox__input:checked + .facet-checkbox__mark::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 6px;
+  height: 10px;
+  border: 2px solid #1a1614;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+.facet-checkbox__input:focus-visible + .facet-checkbox__mark {
+  outline: 2px solid #c9a96e;
+  outline-offset: 2px;
+}
+
+.facet-checkbox__label {
+  flex: 1;
+  font-family: var(--font-body-family, sans-serif);
+  font-size: 0.875rem;
+  color: #1a1614;
+  line-height: 1.4;
+}
+
+.facet-checkbox__count {
+  font-family: var(--font-body-family, sans-serif);
+  font-size: 0.75rem;
+  color: rgba(26, 22, 20, 0.4);
+}
+
+/* ─── Price range ─── */
+.facet-price-range__inputs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.facet-price-range__field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  border: 1.5px solid rgba(26, 22, 20, 0.2);
+  border-radius: 6px;
+  padding: 0 10px;
+  background: #fff;
+  transition: border-color 0.2s ease;
+}
+
+.facet-price-range__field:focus-within {
+  border-color: #c9a96e;
+}
+
+.facet-price-range__currency {
+  font-family: var(--font-body-family, sans-serif);
+  font-size: 0.875rem;
+  color: rgba(26, 22, 20, 0.45);
+  flex-shrink: 0;
+}
+
+.facet-price-range__input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 10px 0;
+  font-family: var(--font-body-family, sans-serif);
+  font-size: 0.875rem;
+  color: #1a1614;
+}
+
+.facet-price-range__input::-webkit-inner-spin-button,
+.facet-price-range__input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.facet-price-range__sep {
+  font-size: 0.875rem;
+  color: rgba(26, 22, 20, 0.35);
+  flex-shrink: 0;
+}
+
+/* ─── Footer ─── */
+.facet-drawer__footer {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid rgba(26, 22, 20, 0.1);
+  flex-shrink: 0;
+  background: #faf8f5;
+}
+
+.facet-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 6px;
+  font-family: var(--font-body-family, sans-serif);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  border: none;
+}
+
+.facet-btn--ghost {
+  flex: 1;
+  background: transparent;
+  border: 1.5px solid rgba(26, 22, 20, 0.2);
+  color: #1a1614;
+}
+
+.facet-btn--ghost:hover {
+  border-color: rgba(26, 22, 20, 0.5);
+}
+
+.facet-btn--primary {
+  flex: 2;
+  background: #c9a96e;
+  color: #1a1614;
+}
+
+.facet-btn--primary:hover {
+  background: #b8924a;
+}
+
+/* ─── Active filter chips (rendered in collection section) ─── */
+.facet-active {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.facet-active__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px 0 12px;
+  background: rgba(201, 169, 110, 0.12);
+  border: 1px solid rgba(201, 169, 110, 0.4);
+  border-radius: 14px;
+  font-family: var(--font-body-family, sans-serif);
+  font-size: 0.75rem;
+  color: #1a1614;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.18s ease;
+}
+
+.facet-active__chip:hover {
+  background: rgba(201, 169, 110, 0.25);
+}
+
+.facet-active__chip-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.facet-active__chip-remove svg {
+  width: 10px;
+  height: 10px;
+}
+
+.facet-active__clear {
+  font-family: var(--font-body-family, sans-serif);
+  font-size: 0.75rem;
+  color: rgba(26, 22, 20, 0.5);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+
+.facet-active__clear:hover {
+  color: #1a1614;
+}
+
+/* ─── Body scroll lock ─── */
+body.facet-open {
+  overflow: hidden;
+  touch-action: none;
+}
+{% endstylesheet %}
+
+{% javascript %}
+(function () {
+  document.querySelectorAll('[data-facet-toggle]').forEach(function (btn) {
+    var drawerId = btn.getAttribute('aria-controls');
+    var drawer = document.getElementById(drawerId);
+    if (!drawer) return;
+    var panel = drawer.querySelector('.facet-drawer__panel');
+
+    function openDrawer() {
+      drawer.setAttribute('data-was-open', '');
+      drawer.removeAttribute('hidden');
+      document.body.classList.add('facet-open');
+      btn.setAttribute('aria-expanded', 'true');
+      if (panel) {
+        panel.focus();
+      }
+    }
+
+    function closeDrawer() {
+      drawer.setAttribute('hidden', '');
+      document.body.classList.remove('facet-open');
+      btn.setAttribute('aria-expanded', 'false');
+      btn.focus();
+    }
+
+    btn.addEventListener('click', function () {
+      if (btn.getAttribute('aria-expanded') === 'true') {
+        closeDrawer();
+      } else {
+        openDrawer();
+      }
+    });
+
+    drawer.querySelectorAll('[data-facet-close]').forEach(function (el) {
+      el.addEventListener('click', closeDrawer);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !drawer.hasAttribute('hidden')) {
+        closeDrawer();
+      }
+    });
+  });
+})();
+{% endjavascript %}
