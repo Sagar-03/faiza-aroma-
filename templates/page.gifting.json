@@ -1,0 +1,18 @@
+{
+  "sections": {
+    "gifting_page": {
+      "type": "gifting-page",
+      "settings": {
+        "banner_eyebrow": "Faiza Aroma",
+        "banner_title": "Gifting",
+        "banner_subtitle": "Discover our curated collection of premium fragrances, perfect for every occasion.",
+        "banner_height": 500,
+        "products_per_page": 12,
+        "cols_desktop": "4",
+        "cols_tablet": "2",
+        "cols_mobile": "2"
+      }
+    }
+  },
+  "order": ["gifting_page"]
+}

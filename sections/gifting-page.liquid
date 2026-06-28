@@ -1,0 +1,816 @@
+{%- liquid
+  assign gift_col = section.settings.products_collection
+  assign per_page  = section.settings.products_per_page | default: 12
+-%}
+
+<!-- ── Hero Banner ── -->
+<div
+  class="gp-hero full-width"
+  style="--gp-hero-h: {{ section.settings.banner_height | default: 500 }}px;"
+>
+  {%- if section.settings.banner_image != blank -%}
+    {{
+      section.settings.banner_image
+      | image_url: width: 2400
+      | image_tag:
+        class: 'gp-hero__img',
+        loading: 'eager',
+        fetchpriority: 'high',
+        alt: section.settings.banner_title | default: shop.name | escape
+    }}
+  {%- else -%}
+    <div class="gp-hero__placeholder"></div>
+  {%- endif -%}
+  <div class="gp-hero__overlay"></div>
+  <div class="gp-hero__content">
+    {%- if section.settings.banner_eyebrow != blank -%}
+      <p class="gp-hero__eyebrow">{{ section.settings.banner_eyebrow | escape }}</p>
+    {%- endif -%}
+    {%- if section.settings.banner_title != blank -%}
+      <h1 class="gp-hero__title">{{ section.settings.banner_title | escape }}</h1>
+    {%- endif -%}
+    {%- if section.settings.banner_subtitle != blank -%}
+      <p class="gp-hero__subtitle">{{ section.settings.banner_subtitle | escape }}</p>
+    {%- endif -%}
+  </div>
+</div>
+
+<!-- ── Product Grid ── -->
+<div class="faiza-coll gp-grid-section full-width">
+  <div class="faiza-coll__inner">
+
+    {%- if gift_col != blank -%}
+      {%- paginate gift_col.products by per_page -%}
+
+        <div
+          class="faiza-coll__grid"
+          style="
+            --cols-m: {{ section.settings.cols_mobile | default: 2 }};
+            --cols-t: {{ section.settings.cols_tablet | default: 2 }};
+            --cols-d: {{ section.settings.cols_desktop | default: 4 }};
+          "
+          data-product-grid
+        >
+          {%- for product in gift_col.products -%}
+            {%- liquid
+              assign on_sale = false
+              if product.compare_at_price > product.price
+                assign on_sale = true
+              endif
+              assign first_variant = product.variants.first
+              assign is_simple = false
+              if product.variants.size == 1
+                assign is_simple = true
+              endif
+              assign sale_pct = 0
+              if on_sale
+                assign price_diff = product.compare_at_price | minus: product.price
+                assign sale_pct = price_diff | times: 100 | divided_by: product.compare_at_price
+              endif
+              assign rating_val = product.metafields.reviews.rating.value | default: product.metafields.reviews.rating
+              assign rating_cnt = product.metafields.reviews.rating_count.value | default: product.metafields.reviews.rating_count
+            -%}
+
+            <div class="faiza-coll__card" data-product-id="{{ product.id }}">
+
+              <a class="faiza-coll__media-link" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
+                <div class="faiza-coll__media">
+                  {%- if product.featured_image != blank -%}
+                    {{
+                      product.featured_image
+                      | image_url: width: 800
+                      | image_tag:
+                        loading: 'lazy',
+                        widths: '400, 600, 800',
+                        sizes: '(min-width: 990px) 25vw, (min-width: 750px) 50vw, 50vw',
+                        class: 'faiza-coll__img faiza-coll__img--primary',
+                        alt: product.featured_image.alt | default: product.title | escape
+                    }}
+                    {%- if product.images[1] != blank -%}
+                      {{
+                        product.images[1]
+                        | image_url: width: 800
+                        | image_tag:
+                          loading: 'lazy',
+                          widths: '400, 600, 800',
+                          sizes: '(min-width: 990px) 25vw, (min-width: 750px) 50vw, 50vw',
+                          class: 'faiza-coll__img faiza-coll__img--secondary',
+                          alt: product.images[1].alt | default: product.title | escape
+                      }}
+                    {%- endif -%}
+                  {%- else -%}
+                    {{ 'product-1' | placeholder_svg_tag: 'faiza-coll__img-placeholder' }}
+                  {%- endif -%}
+
+                  {%- if on_sale -%}
+                    <div class="faiza-coll__badge faiza-coll__badge--sale">
+                      {{- sale_pct | round -}}% {{ 'general.off' | t | default: 'off' }}
+                    </div>
+                  {%- endif -%}
+                  {%- unless product.available -%}
+                    <div class="faiza-coll__badge faiza-coll__badge--sold">
+                      {{- 'products.product.sold_out' | t | default: 'Sold out' -}}
+                    </div>
+                  {%- endunless -%}
+                </div>
+              </a>
+
+              <div class="faiza-coll__info">
+
+                {%- if rating_cnt and rating_cnt != blank -%}
+                  <div class="faiza-coll__rating" aria-label="{{ 'products.product.rating' | t | default: 'Rating' }}">
+                    <svg class="faiza-coll__star-icon" viewBox="0 0 12 12" aria-hidden="true">
+                      <polygon points="6,1 7.5,4.5 11.5,4.5 8.5,7 9.5,11 6,9 2.5,11 3.5,7 0.5,4.5 4.5,4.5" fill="currentColor"/>
+                    </svg>
+                    <span class="faiza-coll__rating-val">{{ rating_val }}</span>
+                    <span class="faiza-coll__rating-sep" aria-hidden="true">|</span>
+                    <span class="faiza-coll__rating-cnt">{{ rating_cnt }}</span>
+                  </div>
+                {%- endif -%}
+
+                <a class="faiza-coll__title-link" href="{{ product.url }}">
+                  <h3 class="faiza-coll__title">{{ product.title | escape }}</h3>
+                </a>
+
+                <div class="faiza-coll__pricing">
+                  <span class="faiza-coll__price">{{ product.price | money }}</span>
+                  {%- if on_sale -%}
+                    <s class="faiza-coll__compare">{{ product.compare_at_price | money }}</s>
+                    <span class="faiza-coll__sale-pill">{{ sale_pct | round }}% {{ 'general.off' | t | default: 'off' }}</span>
+                  {%- endif -%}
+                </div>
+
+                <div class="faiza-coll__atc-wrap">
+                  {%- if is_simple -%}
+                    <form class="faiza-coll__atc-form" action="{{ routes.cart_add_url }}" method="post" data-product-form>
+                      <input type="hidden" name="id" value="{{ first_variant.id }}">
+                      <input type="hidden" name="quantity" value="1">
+                      <button
+                        type="submit"
+                        class="faiza-coll__atc-btn"
+                        {% unless product.available %}disabled aria-disabled="true"{% endunless %}
+                        data-atc-btn
+                      >
+                        <span class="faiza-coll__atc-label">
+                          {%- if product.available -%}
+                            {{ 'products.product.add_to_cart' | t | default: 'Add to cart' }}
+                            <svg class="faiza-coll__cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                              <circle cx="9" cy="21" r="1"/>
+                              <circle cx="20" cy="21" r="1"/>
+                              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                            </svg>
+                          {%- else -%}
+                            {{ 'products.product.sold_out' | t | default: 'Sold out' }}
+                          {%- endif -%}
+                        </span>
+                        <span class="faiza-coll__atc-loading" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                          </svg>
+                        </span>
+                      </button>
+                    </form>
+                  {%- else -%}
+                    <a href="{{ product.url }}" class="faiza-coll__atc-btn faiza-coll__atc-btn--opts">
+                      {{ 'products.product.choose_options' | t | default: 'Choose options' }}
+                    </a>
+                  {%- endif -%}
+                </div>
+
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+
+        {%- if paginate.pages > 1 -%}
+          <nav class="faiza-coll__pagination" aria-label="{{ 'general.pagination.label' | t | default: 'Pagination' }}">
+            {{ paginate | default_pagination }}
+          </nav>
+        {%- endif -%}
+
+      {%- endpaginate -%}
+
+    {%- else -%}
+      <p class="gp-no-collection">Select a gifting collection in the theme editor to display products here.</p>
+    {%- endif -%}
+
+  </div>
+</div>
+
+{% stylesheet %}
+  /* ── Hero Banner ── */
+  .gp-hero {
+    position: relative;
+    height: var(--gp-hero-h, 500px);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .gp-hero__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .gp-hero__placeholder {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #1a1614 0%, #3d2e1e 50%, #1a1614 100%);
+  }
+
+  .gp-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(10, 7, 5, 0.25) 0%,
+      rgba(10, 7, 5, 0.60) 100%
+    );
+  }
+
+  .gp-hero__content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 2rem;
+    max-width: 820px;
+  }
+
+  .gp-hero__eyebrow {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.6875rem;
+    font-weight: 400;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: #c9a96e;
+    margin: 0 0 1rem;
+  }
+
+  .gp-hero__title {
+    font-family: var(--font-heading-family, serif);
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 300;
+    line-height: 1.15;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #ffffff;
+    margin: 0 0 1rem;
+  }
+
+  .gp-hero__subtitle {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: clamp(0.9375rem, 1.5vw, 1.125rem);
+    font-weight: 300;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.80);
+    margin: 0 auto;
+    max-width: 56ch;
+  }
+
+  @media screen and (max-width: 749px) {
+    .gp-hero {
+      height: calc(var(--gp-hero-h, 500px) * 0.65);
+      min-height: 260px;
+    }
+  }
+
+  /* ── Grid section wrapper ── */
+  .gp-grid-section {
+    padding: 4rem 0 5rem;
+    background-color: #faf8f5;
+  }
+
+  .gp-no-collection {
+    text-align: center;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.9375rem;
+    color: rgba(26, 22, 20, 0.45);
+    padding: 4rem 0;
+  }
+
+  /* ── Reuse existing card CSS ── */
+  .faiza-coll__inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  .faiza-coll__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--cols-m, 2), 1fr);
+    gap: 1.5rem 1rem;
+  }
+
+  .faiza-coll__card {
+    position: relative;
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    transition:
+      transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .faiza-coll__card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.10);
+  }
+
+  .faiza-coll__media-link {
+    display: block;
+    overflow: hidden;
+  }
+
+  .faiza-coll__media {
+    position: relative;
+    overflow: hidden;
+    background-color: #f5f3ef;
+    aspect-ratio: 4 / 5;
+  }
+
+  .faiza-coll__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition:
+      transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      opacity 0.35s ease;
+  }
+
+  .faiza-coll__img--primary {
+    position: relative;
+    z-index: 1;
+  }
+
+  .faiza-coll__img--secondary {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 0.45s ease;
+  }
+
+  .faiza-coll__card:hover .faiza-coll__img--primary {
+    transform: scale(1.05);
+    opacity: 0;
+  }
+
+  .faiza-coll__card:hover .faiza-coll__img--secondary { opacity: 1; }
+
+  .faiza-coll__card:hover .faiza-coll__img--primary:only-child {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+
+  .faiza-coll__img-placeholder {
+    width: 60%;
+    height: 60%;
+    fill: rgba(201, 169, 110, 0.15);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .faiza-coll__badge {
+    position: absolute;
+    top: 0.75rem;
+    z-index: 3;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.6rem;
+    border-radius: 2px;
+    line-height: 1;
+  }
+
+  .faiza-coll__badge--sale {
+    left: 0.75rem;
+    background-color: #c9a96e;
+    color: #1a1614;
+  }
+
+  .faiza-coll__badge--sold {
+    right: 0.75rem;
+    background-color: rgba(20, 20, 20, 0.82);
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .faiza-coll__info {
+    padding: 1rem 1rem 1.125rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .faiza-coll__rating {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    margin-bottom: 0.5rem;
+    color: #c9a96e;
+  }
+
+  .faiza-coll__star-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .faiza-coll__rating-val {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #c9a96e;
+    margin-left: 0.1rem;
+  }
+
+  .faiza-coll__rating-sep {
+    font-size: 0.6875rem;
+    color: rgba(26, 22, 20, 0.25);
+    margin: 0 0.1rem;
+  }
+
+  .faiza-coll__rating-cnt {
+    font-size: 0.6875rem;
+    color: rgba(26, 22, 20, 0.4);
+  }
+
+  .faiza-coll__title-link {
+    display: block;
+    text-decoration: none;
+    margin-bottom: 0.5rem;
+  }
+
+  .faiza-coll__title {
+    font-family: var(--font-heading-family, serif);
+    font-size: clamp(0.875rem, 1.15vw, 1rem);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: #1a1614;
+    margin: 0;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.22s ease;
+  }
+
+  .faiza-coll__title-link:hover .faiza-coll__title { color: #c9a96e; }
+
+  .faiza-coll__pricing {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.875rem;
+    margin-top: auto;
+  }
+
+  .faiza-coll__price {
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1614;
+    letter-spacing: 0.02em;
+  }
+
+  .faiza-coll__compare {
+    font-size: 0.8125rem;
+    color: rgba(26, 22, 20, 0.38);
+    text-decoration: line-through;
+  }
+
+  .faiza-coll__sale-pill {
+    display: inline-flex;
+    align-items: center;
+    background-color: #16a34a;
+    color: #ffffff;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border-radius: 20px;
+    line-height: 1;
+  }
+
+  .faiza-coll__atc-wrap { width: 100%; }
+  .faiza-coll__atc-form { width: 100%; }
+
+  .faiza-coll__atc-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    height: 2.875rem;
+    background-color: #c9a96e;
+    border: none;
+    color: #1a1614;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0 0 6px 6px;
+    transition: background-color 0.28s ease, color 0.28s ease;
+  }
+
+  .faiza-coll__atc-btn:hover:not(:disabled) { background-color: #b8924a; }
+
+  .faiza-coll__atc-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background-color: rgba(201, 169, 110, 0.35);
+  }
+
+  .faiza-coll__cart-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  .faiza-coll__atc-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .faiza-coll__atc-loading {
+    display: none;
+    position: absolute;
+    z-index: 1;
+  }
+
+  .faiza-coll__atc-loading svg {
+    width: 1.125rem;
+    height: 1.125rem;
+    animation: gp-spin 0.8s linear infinite;
+  }
+
+  .faiza-coll__atc-btn[data-loading] .faiza-coll__atc-label { visibility: hidden; }
+  .faiza-coll__atc-btn[data-loading] .faiza-coll__atc-loading { display: flex; }
+
+  .faiza-coll__atc-btn[data-success] {
+    background-color: #d1f0db;
+    color: #166534;
+  }
+
+  /* ── Pagination ── */
+  .faiza-coll__pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+  }
+
+  .faiza-coll__pagination .pagination {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .faiza-coll__pagination a,
+  .faiza-coll__pagination span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    padding: 0 0.5rem;
+    font-family: var(--font-body-family, sans-serif);
+    font-size: 0.8125rem;
+    color: #1a1614;
+    text-decoration: none;
+    border: 1px solid rgba(26, 22, 20, 0.14);
+    border-radius: 4px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .faiza-coll__pagination a:hover {
+    background-color: #c9a96e;
+    border-color: #c9a96e;
+    color: #1a1614;
+  }
+
+  .faiza-coll__pagination .current span {
+    background-color: #c9a96e;
+    border-color: #c9a96e;
+    font-weight: 600;
+  }
+
+  @keyframes gp-spin { to { transform: rotate(360deg); } }
+
+  /* ── Tablet 750px ── */
+  @media screen and (min-width: 750px) {
+    .faiza-coll__grid {
+      grid-template-columns: repeat(var(--cols-t, 2), 1fr);
+      gap: 2rem 1.5rem;
+    }
+    .faiza-coll__inner { padding: 0 3rem; }
+  }
+
+  /* ── Desktop 990px ── */
+  @media screen and (min-width: 990px) {
+    .faiza-coll__grid {
+      grid-template-columns: repeat(var(--cols-d, 4), 1fr);
+      gap: 2rem 1.75rem;
+    }
+    .faiza-coll__info { padding: 1.125rem 1.25rem 1.25rem; }
+  }
+
+  /* ── Wide 1440px ── */
+  @media screen and (min-width: 1440px) {
+    .faiza-coll__inner { padding: 0 4.5rem; }
+  }
+
+  /* ── Reduced motion ── */
+  @media (prefers-reduced-motion: reduce) {
+    .faiza-coll__card,
+    .faiza-coll__img,
+    .faiza-coll__img--secondary,
+    .faiza-coll__atc-btn { transition: none; }
+    .faiza-coll__card:hover { transform: none; }
+    .faiza-coll__card:hover .faiza-coll__img--primary { transform: none; }
+    .faiza-coll__atc-loading svg { animation: none; }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  (function () {
+    var SECTION = document.currentScript.closest('.gp-grid-section');
+    if (!SECTION) return;
+
+    SECTION.addEventListener('submit', function (e) {
+      var form = e.target.closest('[data-product-form]');
+      if (!form) return;
+      e.preventDefault();
+
+      var btn = form.querySelector('[data-atc-btn]');
+      if (!btn || btn.disabled) return;
+
+      var label = btn.querySelector('.faiza-coll__atc-label');
+      var origHTML = label ? label.innerHTML : '';
+
+      btn.setAttribute('data-loading', '');
+      btn.disabled = true;
+
+      fetch(form.action, {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json'
+        },
+        body: new FormData(form)
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        btn.removeAttribute('data-loading');
+        if (data.status) {
+          btn.disabled = false;
+          return;
+        }
+        btn.setAttribute('data-success', '');
+        if (label) label.textContent = 'Added!';
+        document.dispatchEvent(new CustomEvent('cart:refresh'));
+        setTimeout(function () {
+          btn.removeAttribute('data-success');
+          btn.disabled = false;
+          if (label) label.innerHTML = origHTML;
+        }, 1800);
+      })
+      .catch(function () {
+        btn.removeAttribute('data-loading');
+        btn.disabled = false;
+      });
+    });
+  })();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "Gifting Page",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Banner"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_image",
+      "label": "Banner image"
+    },
+    {
+      "type": "range",
+      "id": "banner_height",
+      "label": "Banner height",
+      "min": 300,
+      "max": 700,
+      "step": 20,
+      "unit": "px",
+      "default": 500
+    },
+    {
+      "type": "text",
+      "id": "banner_eyebrow",
+      "label": "Eyebrow text",
+      "default": "Faiza Aroma"
+    },
+    {
+      "type": "text",
+      "id": "banner_title",
+      "label": "Title",
+      "default": "Gifting"
+    },
+    {
+      "type": "textarea",
+      "id": "banner_subtitle",
+      "label": "Subtitle",
+      "default": "Discover our curated collection of premium fragrances, perfect for every occasion."
+    },
+    {
+      "type": "header",
+      "content": "Products"
+    },
+    {
+      "type": "collection",
+      "id": "products_collection",
+      "label": "Gifting collection",
+      "info": "Select the collection whose products will be displayed."
+    },
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "Products per page",
+      "min": 4,
+      "max": 48,
+      "step": 4,
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Grid columns"
+    },
+    {
+      "type": "select",
+      "id": "cols_desktop",
+      "label": "Desktop columns",
+      "options": [
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4 (Recommended)" },
+        { "value": "5", "label": "5" }
+      ],
+      "default": "4"
+    },
+    {
+      "type": "select",
+      "id": "cols_tablet",
+      "label": "Tablet columns",
+      "options": [
+        { "value": "2", "label": "2" },
+        { "value": "3", "label": "3" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "select",
+      "id": "cols_mobile",
+      "label": "Mobile columns",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "2"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Gifting Page"
+    }
+  ]
+}
+{% endschema %}
