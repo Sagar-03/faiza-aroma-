@@ -145,18 +145,31 @@
         </div>
       {%- endif -%}
 
-      {%- if section.settings.menu_2 != blank -%}
-        <div class="faiza-footer__col">
+      <div class="faiza-footer__col">
+        <h3 class="faiza-footer__col-heading">
           {%- if section.settings.menu_2_label != blank -%}
-            <h3 class="faiza-footer__col-heading">{{ section.settings.menu_2_label | escape }}</h3>
+            {{ section.settings.menu_2_label | escape }}
+          {%- else -%}
+            Quick Links
           {%- endif -%}
+        </h3>
+        {%- if section.settings.menu_2 != blank -%}
           <ul class="faiza-footer__links" role="list">
             {%- for link in section.settings.menu_2.links -%}
               <li><a href="{{ link.url }}" class="faiza-footer__link">{{ link.title }}</a></li>
             {%- endfor -%}
           </ul>
-        </div>
-      {%- endif -%}
+        {%- else -%}
+          <ul class="faiza-footer__links" role="list">
+            <li><a href="{{ routes.root_url }}" class="faiza-footer__link">Home</a></li>
+            <li><a href="/pages/about-us" class="faiza-footer__link">About Us</a></li>
+            <li><a href="/pages/contact" class="faiza-footer__link">Contact Us</a></li>
+            <li><a href="/pages/corporate-gifting" class="faiza-footer__link">Corporate Gifting</a></li>
+            <li><a href="/pages/gifting" class="faiza-footer__link">Gifting</a></li>
+            <li><a href="/collections/all" class="faiza-footer__link">All Products</a></li>
+          </ul>
+        {%- endif -%}
+      </div>
 
       <!-- Newsletter column -->
       <div class="faiza-footer__col faiza-footer__col--newsletter">
@@ -213,6 +226,13 @@
             {%- for link in section.settings.menu_legal.links -%}
               <li><a href="{{ link.url }}" class="faiza-footer__legal-link">{{ link.title }}</a></li>
             {%- endfor -%}
+          </ul>
+        {%- else -%}
+          <ul class="faiza-footer__legal" role="list">
+            <li><a href="/pages/privacy-policy" class="faiza-footer__legal-link">Privacy Policy</a></li>
+            <li><a href="/pages/terms-and-conditions" class="faiza-footer__legal-link">Terms &amp; Conditions</a></li>
+            <li><a href="/pages/refund-policy" class="faiza-footer__legal-link">Refund &amp; Cancellation Policy</a></li>
+            <li><a href="/pages/shipping-policy" class="faiza-footer__legal-link">Shipping Policy</a></li>
           </ul>
         {%- endif -%}
       </div>
