@@ -56,7 +56,7 @@
             </div>
           </div>
         </div>
-        <a href="/pages/contact" class="site-header__nav-link">Queries</a>
+        <a href="/pages/corporate-gifting" class="site-header__nav-link{% if request.path contains 'corporate-gifting' %} is-active{% endif %}">Queries</a>
       </nav>
     {%- endif -%}
 
@@ -113,7 +113,7 @@
           </div>
         </div>
 
-        <a href="/pages/contact" class="site-header__nav-link">Queries</a>
+        <a href="/pages/corporate-gifting" class="site-header__nav-link{% if request.path contains 'corporate-gifting' %} is-active{% endif %}">Queries</a>
 
         <a href="/collections/all" class="site-header__nav-link">All Product</a>
 
@@ -124,6 +124,8 @@
         {%- else -%}
           <a href="/collections/attars" class="site-header__nav-link">Attars</a>
         {%- endif -%}
+
+        <a href="/pages/corporate-gifting" class="site-header__nav-link{% if request.path contains 'corporate-gifting' %} is-active{% endif %}">Gifting</a>
 
       </nav>
     {%- endunless -%}
@@ -139,6 +141,7 @@
           {%- else -%}
             <a href="/collections/attars" class="site-header__nav-link">Attars</a>
           {%- endif -%}
+          <a href="/pages/corporate-gifting" class="site-header__nav-link{% if request.path contains 'corporate-gifting' %} is-active{% endif %}">Gifting</a>
         </nav>
       {%- endif -%}
 
@@ -217,7 +220,7 @@
         </div>
       </div>
 
-      <a href="/pages/contact" class="site-header__mobile-link">Queries</a>
+      <a href="/pages/corporate-gifting" class="site-header__mobile-link{% if request.path contains 'corporate-gifting' %} is-active{% endif %}">Queries</a>
       <a href="/collections/all" class="site-header__mobile-link">All Product</a>
       <a href="/pages/contact" class="site-header__mobile-link">Contact Us</a>
       {%- if section.settings.attars_collection != blank -%}
@@ -225,6 +228,7 @@
       {%- else -%}
         <a href="/collections/attars" class="site-header__mobile-link">Attars</a>
       {%- endif -%}
+      <a href="/pages/corporate-gifting" class="site-header__mobile-link{% if request.path contains 'corporate-gifting' %} is-active{% endif %}">Gifting</a>
 
     </nav>
   </div>

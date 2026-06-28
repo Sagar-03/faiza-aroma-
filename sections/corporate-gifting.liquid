@@ -1,0 +1,745 @@
+<!-- ═══════════════════════════════════════════════════════
+     Corporate Gifting Page Section
+     ═══════════════════════════════════════════════════════ -->
+
+<!-- ── Page Title ── -->
+<div class="corp-page-title full-width">
+  <h1 class="corp-page-title__text">
+    {{- section.settings.hero_title | default: 'Corporate Gifting' | upcase | escape -}}
+  </h1>
+</div>
+
+<!-- ── Hero Banner ── -->
+<div
+  class="corp-hero full-width"
+  style="
+    --hero-height: {{ section.settings.hero_height }}px;
+    {% if section.settings.hero_image != blank %}
+      --hero-bg: url('{{ section.settings.hero_image | image_url: width: 2000 }}');
+    {% endif %}
+  "
+>
+  {%- if section.settings.hero_image != blank -%}
+    {{
+      section.settings.hero_image
+      | image_url: width: 2000
+      | image_tag:
+        class: 'corp-hero__img',
+        loading: 'eager',
+        fetchpriority: 'high',
+        alt: section.settings.hero_title | default: shop.name
+    }}
+  {%- else -%}
+    <div class="corp-hero__placeholder"></div>
+  {%- endif -%}
+  <div class="corp-hero__overlay"></div>
+  <div class="corp-hero__content">
+    {%- if section.settings.hero_subtitle != blank -%}
+      <p class="corp-hero__subtitle">{{ section.settings.hero_subtitle | escape }}</p>
+    {%- endif -%}
+    {%- if section.settings.hero_cta_label != blank and section.settings.hero_cta_link != blank -%}
+      <a href="{{ section.settings.hero_cta_link }}" class="corp-hero__cta">
+        {{ section.settings.hero_cta_label | escape }}
+      </a>
+    {%- endif -%}
+  </div>
+</div>
+
+<!-- ── Use Cases + Form ── -->
+<div class="corp-main full-width">
+  <div class="corp-main__inner">
+
+    <!-- Left: 2×2 Image Grid -->
+    <div class="corp-main__images">
+      {%- assign use_case_blocks = section.blocks | where: 'type', 'use_case' -%}
+      {%- if use_case_blocks.size > 0 -%}
+        {%- for block in use_case_blocks -%}
+          <div class="corp-img-card" {{ block.shopify_attributes }}>
+            {%- if block.settings.image != blank -%}
+              {{
+                block.settings.image
+                | image_url: width: 800
+                | image_tag:
+                  class: 'corp-img-card__img',
+                  loading: 'lazy',
+                  widths: '400, 600, 800',
+                  alt: block.settings.label | default: 'Corporate gifting use case'
+              }}
+            {%- else -%}
+              <div class="corp-img-card__placeholder">
+                {{ 'lifestyle-1' | placeholder_svg_tag: 'corp-img-card__placeholder-svg' }}
+              </div>
+            {%- endif -%}
+            {%- if block.settings.label != blank -%}
+              <div class="corp-img-card__label">{{ block.settings.label | escape }}</div>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      {%- else -%}
+        {%- for i in (1..4) -%}
+          <div class="corp-img-card corp-img-card--ph">
+            <div class="corp-img-card__placeholder">
+              {{ 'lifestyle-1' | placeholder_svg_tag: 'corp-img-card__placeholder-svg' }}
+            </div>
+            <div class="corp-img-card__label">Use Case {{ forloop.index }}</div>
+          </div>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+
+    <!-- Right: Contact Form -->
+    <div class="corp-main__form">
+      <div class="corp-form-wrap">
+        {%- if section.settings.form_heading != blank -%}
+          <h2 class="corp-form__heading">{{ section.settings.form_heading | escape }}</h2>
+        {%- endif -%}
+        {%- if section.settings.form_subtext != blank -%}
+          <p class="corp-form__subtext">{{ section.settings.form_subtext | escape }}</p>
+        {%- endif -%}
+
+        {%- form 'contact', id: 'CorporateGiftingForm' -%}
+          {%- if form.posted_successfully? -%}
+            <div class="corp-form__success" role="status">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+              <p>Thank you! We'll get back to you within 24 hours.</p>
+            </div>
+          {%- else -%}
+
+            {%- if form.errors -%}
+              <div class="corp-form__error" role="alert">
+                {{ form.errors | default_errors }}
+              </div>
+            {%- endif -%}
+
+            <div class="corp-form__field">
+              <label class="corp-form__label" for="ContactName">Name <span aria-hidden="true">*</span></label>
+              <input
+                class="corp-form__input"
+                type="text"
+                id="ContactName"
+                name="contact[name]"
+                value="{{ form.name }}"
+                autocomplete="name"
+                required
+                placeholder="Your full name"
+              >
+            </div>
+
+            <div class="corp-form__field">
+              <label class="corp-form__label" for="ContactEmail">Email <span aria-hidden="true">*</span></label>
+              <input
+                class="corp-form__input"
+                type="email"
+                id="ContactEmail"
+                name="contact[email]"
+                value="{{ form.email }}"
+                autocomplete="email"
+                required
+                placeholder="you@company.com"
+              >
+            </div>
+
+            <div class="corp-form__field">
+              <label class="corp-form__label" for="ContactPhone">Number</label>
+              <input
+                class="corp-form__input"
+                type="tel"
+                id="ContactPhone"
+                name="contact[phone]"
+                value="{{ form.phone }}"
+                autocomplete="tel"
+                placeholder="+91 98765 43210"
+              >
+            </div>
+
+            <div class="corp-form__field">
+              <label class="corp-form__label" for="ContactCompany">Company Name</label>
+              <input
+                class="corp-form__input"
+                type="text"
+                id="ContactCompany"
+                name="contact[company]"
+                placeholder="Your company"
+              >
+            </div>
+
+            <div class="corp-form__field">
+              <label class="corp-form__label" for="ContactQty">Qty Needed</label>
+              <input
+                class="corp-form__input"
+                type="number"
+                id="ContactQty"
+                name="contact[qty_needed]"
+                min="1"
+                placeholder="e.g. 50"
+              >
+            </div>
+
+            <div class="corp-form__field corp-form__field--hidden" aria-hidden="true">
+              <input type="text" name="contact[bot_field]" tabindex="-1" autocomplete="off">
+            </div>
+
+            <button type="submit" class="corp-form__submit">
+              {{ section.settings.form_btn_label | default: 'Submit' | escape }}
+            </button>
+
+          {%- endif -%}
+        {%- endform -%}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Why Section ── -->
+{%- if section.settings.why_heading != blank or section.settings.why_text != blank -%}
+  <div class="corp-why full-width">
+    <div class="corp-why__inner">
+      {%- if section.settings.why_heading != blank -%}
+        <h2 class="corp-why__heading">{{ section.settings.why_heading | escape }}</h2>
+      {%- endif -%}
+      {%- if section.settings.why_text != blank -%}
+        <div class="corp-why__body">
+          {{ section.settings.why_text }}
+          {%- if section.settings.why_read_more_link != blank -%}
+            <a href="{{ section.settings.why_read_more_link }}" class="corp-why__read-more">Read More</a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  /* ═══ PAGE TITLE ═══ */
+  .corp-page-title {
+    background-color: #ffffff;
+    padding: 4rem 2rem;
+    text-align: center;
+  }
+
+  .corp-page-title__text {
+    font-family: var(--font-heading-family, serif);
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 400;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #1a1614;
+    margin: 0;
+    line-height: 1;
+  }
+
+  /* ═══ HERO ═══ */
+  .corp-hero {
+    position: relative;
+    height: var(--hero-height, 560px);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .corp-hero__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .corp-hero__placeholder {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #1a1614 0%, #3d2e1e 50%, #1a1614 100%);
+  }
+
+  .corp-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(10, 7, 5, 0.35) 0%,
+      rgba(10, 7, 5, 0.65) 100%
+    );
+  }
+
+  .corp-hero__content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 2rem;
+    max-width: 800px;
+  }
+
+  .corp-hero__eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #c9a96e;
+    margin: 0 0 1rem;
+  }
+
+  .corp-hero__title {
+    font-family: var(--font-heading-family, serif);
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 300;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: #ffffff;
+    margin: 0 0 1rem;
+  }
+
+  .corp-hero__subtitle {
+    font-size: clamp(0.9375rem, 1.5vw, 1.125rem);
+    font-weight: 300;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.82);
+    margin: 0 0 2rem;
+    max-width: 56ch;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .corp-hero__cta {
+    display: inline-block;
+    padding: 0.875rem 2.5rem;
+    background-color: #c9a96e;
+    color: #1a1614;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 2px;
+    transition: background-color 0.25s ease, transform 0.2s ease;
+  }
+
+  .corp-hero__cta:hover {
+    background-color: #b8914f;
+    transform: translateY(-2px);
+  }
+
+  /* ═══ MAIN SECTION ═══ */
+  .corp-main {
+    background-color: #f9f7f4;
+    padding: 8rem 0;
+  }
+
+  .corp-main__inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  /* ═══ IMAGE GRID ═══ */
+  .corp-main__images {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .corp-img-card {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    background-color: #e5e0d8;
+  }
+
+  .corp-img-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .corp-img-card:hover .corp-img-card__img {
+    transform: scale(1.04);
+  }
+
+  .corp-img-card__label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 2.5rem 1.25rem 1rem;
+    background: linear-gradient(to top, rgba(10, 7, 5, 0.75) 0%, transparent 100%);
+    font-family: var(--font-heading-family, serif);
+    font-size: clamp(0.875rem, 1.3vw, 1rem);
+    font-weight: 400;
+    color: #ffffff;
+    letter-spacing: 0.04em;
+  }
+
+  .corp-img-card__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e5e0d8;
+  }
+
+  .corp-img-card__placeholder-svg {
+    width: 50%;
+    height: 50%;
+    fill: rgba(201, 169, 110, 0.3);
+  }
+
+  /* ═══ FORM ═══ */
+  .corp-main__form {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .corp-form-wrap {
+    width: 100%;
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  }
+
+  .corp-form__heading {
+    font-family: var(--font-heading-family, serif);
+    font-size: clamp(1.375rem, 2vw, 1.75rem);
+    font-weight: 400;
+    color: #1a1614;
+    margin: 0 0 0.5rem;
+  }
+
+  .corp-form__subtext {
+    font-size: 0.875rem;
+    color: rgba(26, 22, 20, 0.55);
+    margin: 0 0 2rem;
+    line-height: 1.6;
+  }
+
+  .corp-form__field {
+    margin-bottom: 1.25rem;
+  }
+
+  .corp-form__field--hidden {
+    display: none;
+  }
+
+  .corp-form__label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #1a1614;
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.02em;
+  }
+
+  .corp-form__label span {
+    color: #c9a96e;
+  }
+
+  .corp-form__input {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(26, 22, 20, 0.15);
+    border-radius: 6px;
+    font-size: 0.9375rem;
+    color: #1a1614;
+    background-color: #fdfcfa;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    outline: none;
+    box-sizing: border-box;
+  }
+
+  .corp-form__input::placeholder {
+    color: rgba(26, 22, 20, 0.35);
+  }
+
+  .corp-form__input:focus {
+    border-color: #c9a96e;
+    box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.15);
+  }
+
+  .corp-form__submit {
+    width: 100%;
+    padding: 0.9375rem 2rem;
+    background-color: #1a1614;
+    color: #ffffff;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background-color 0.25s ease, transform 0.2s ease;
+  }
+
+  .corp-form__submit:hover {
+    background-color: #c9a96e;
+    transform: translateY(-1px);
+  }
+
+  .corp-form__success {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background-color: #f0faf4;
+    border: 1px solid #6dbf87;
+    border-radius: 8px;
+    color: #1a5c31;
+  }
+
+  .corp-form__success svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+    stroke: #6dbf87;
+  }
+
+  .corp-form__success p {
+    margin: 0;
+    font-size: 0.9375rem;
+  }
+
+  .corp-form__error {
+    padding: 1rem 1.25rem;
+    background-color: #fff5f5;
+    border: 1px solid #e57373;
+    border-radius: 8px;
+    color: #b71c1c;
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ═══ WHY SECTION ═══ */
+  .corp-why {
+    padding: 8rem 0;
+    background-color: #ffffff;
+  }
+
+  .corp-why__inner {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    text-align: center;
+  }
+
+  .corp-why__heading {
+    font-family: var(--font-heading-family, serif);
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: 300;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: #1a1614;
+    text-transform: uppercase;
+    margin: 0 0 1.75rem;
+  }
+
+  .corp-why__body {
+    font-size: clamp(0.9375rem, 1.3vw, 1rem);
+    line-height: 1.8;
+    color: rgba(26, 22, 20, 0.65);
+    max-width: 65ch;
+    margin: 0 auto;
+  }
+
+  .corp-why__read-more {
+    display: inline;
+    color: #c9a96e;
+    font-weight: 500;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(201, 169, 110, 0.4);
+    transition: border-color 0.2s ease, color 0.2s ease;
+    margin-left: 0.25rem;
+  }
+
+  .corp-why__read-more:hover {
+    color: #b8914f;
+    border-color: #b8914f;
+  }
+
+  /* ═══ TABLET 750px ═══ */
+  @media screen and (min-width: 750px) {
+    .corp-main__inner {
+      grid-template-columns: 1fr 1fr;
+      gap: 3.5rem;
+      align-items: start;
+    }
+
+    .corp-form-wrap {
+      padding: 2.5rem;
+      position: sticky;
+      top: 6rem;
+    }
+  }
+
+  /* ═══ DESKTOP 990px ═══ */
+  @media screen and (min-width: 990px) {
+    .corp-main__inner {
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 4rem;
+      padding: 0 2rem;
+    }
+
+    .corp-main__images {
+      gap: 1.25rem;
+    }
+  }
+
+  /* ═══ WIDE 1280px ═══ */
+  @media screen and (min-width: 1280px) {
+    .corp-main__inner {
+      padding: 0 2rem;
+    }
+  }
+
+  /* ═══ REDUCED MOTION ═══ */
+  @media (prefers-reduced-motion: reduce) {
+    .corp-img-card__img,
+    .corp-hero__cta,
+    .corp-form__submit,
+    .corp-form__input { transition: none; }
+
+    .corp-img-card:hover .corp-img-card__img { transform: none; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Corporate Gifting",
+  "tag": "section",
+  "class": "corp-gifting-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Hero Banner"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero background image"
+    },
+    {
+      "type": "range",
+      "id": "hero_height",
+      "label": "Hero height",
+      "min": 320,
+      "max": 800,
+      "step": 40,
+      "unit": "px",
+      "default": 560
+    },
+    {
+      "type": "text",
+      "id": "hero_eyebrow",
+      "label": "Eyebrow text",
+      "default": "Premium Fragrances"
+    },
+    {
+      "type": "text",
+      "id": "hero_title",
+      "label": "Hero title",
+      "default": "Corporate Gifting"
+    },
+    {
+      "type": "textarea",
+      "id": "hero_subtitle",
+      "label": "Hero subtitle",
+      "default": "Elevate your brand with luxury attar gifting solutions. Tailored for every occasion, every budget."
+    },
+    {
+      "type": "text",
+      "id": "hero_cta_label",
+      "label": "Button label",
+      "default": "Get a Quote"
+    },
+    {
+      "type": "url",
+      "id": "hero_cta_link",
+      "label": "Button link"
+    },
+    {
+      "type": "header",
+      "content": "Contact Form"
+    },
+    {
+      "type": "text",
+      "id": "form_heading",
+      "label": "Form heading",
+      "default": "Get in Touch"
+    },
+    {
+      "type": "textarea",
+      "id": "form_subtext",
+      "label": "Form subtext",
+      "default": "Fill in the details below and our team will contact you within 24 hours."
+    },
+    {
+      "type": "text",
+      "id": "form_btn_label",
+      "label": "Submit button label",
+      "default": "Submit"
+    },
+    {
+      "type": "header",
+      "content": "Why Section"
+    },
+    {
+      "type": "textarea",
+      "id": "why_heading",
+      "label": "Why heading",
+      "default": "Why Faiza Aroma is the ideal gift for your employees?"
+    },
+    {
+      "type": "richtext",
+      "id": "why_text",
+      "label": "Why body text",
+      "default": "<p>When it comes to choosing the perfect corporate gift, Faiza Aroma stands out as an ideal choice that beautifully blends luxury, thoughtfulness, and tradition. Our premium attars and fragrances are crafted to leave a lasting impression on everyone who receives them.</p>"
+    },
+    {
+      "type": "url",
+      "id": "why_read_more_link",
+      "label": "Read More link"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "use_case",
+      "name": "Use Case Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Wedding Gifting"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Corporate Gifting",
+      "blocks": [
+        { "type": "use_case", "settings": { "label": "Wedding Gifting" } },
+        { "type": "use_case", "settings": { "label": "Festive Gifting" } },
+        { "type": "use_case", "settings": { "label": "Same repetitive sweets & dry fruits every year." } },
+        { "type": "use_case", "settings": { "label": "Rewards & Recognition" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

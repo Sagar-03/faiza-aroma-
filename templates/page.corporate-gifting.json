@@ -1,0 +1,47 @@
+{
+  "sections": {
+    "corporate_gifting": {
+      "type": "corporate-gifting",
+      "blocks": {
+        "use_case_1": {
+          "type": "use_case",
+          "settings": {
+            "label": "Wedding Gifting"
+          }
+        },
+        "use_case_2": {
+          "type": "use_case",
+          "settings": {
+            "label": "Festive Gifting"
+          }
+        },
+        "use_case_3": {
+          "type": "use_case",
+          "settings": {
+            "label": "Same repetitive sweets & dry fruits every year."
+          }
+        },
+        "use_case_4": {
+          "type": "use_case",
+          "settings": {
+            "label": "Rewards & Recognition"
+          }
+        }
+      },
+      "block_order": ["use_case_1", "use_case_2", "use_case_3", "use_case_4"],
+      "settings": {
+        "hero_eyebrow": "Premium Fragrances",
+        "hero_title": "Corporate Gifting",
+        "hero_subtitle": "Elevate your brand with luxury attar gifting solutions. Tailored for every occasion, every budget.",
+        "hero_cta_label": "Get a Quote",
+        "hero_height": 560,
+        "form_heading": "Get in Touch",
+        "form_subtext": "Fill in the details below and our team will contact you within 24 hours.",
+        "form_btn_label": "Submit",
+        "why_heading": "Why Faiza Aroma is the ideal gift for your employees?",
+        "why_text": "<p>When it comes to choosing the perfect corporate gift, Faiza Aroma stands out as an ideal choice that beautifully blends luxury, thoughtfulness, and tradition. Our premium attars and fragrances are crafted to leave a lasting impression on everyone who receives them.</p>"
+      }
+    }
+  },
+  "order": ["corporate_gifting"]
+}
